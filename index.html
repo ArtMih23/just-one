@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Just One</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout idea: one phone-width column, card stack in the middle, thumb-reach actions at the bottom. Single dark theme by choice: an evening app. */
+  --ground:#0E1014;
+  --surface:#181B22;
+  --raised:#232732;
+  --line:#2E3340;
+  --text:#F3F1EC;
+  --muted:#A2A8B4;
+  --accent:#F5A524;
+  --on-accent:#141006;
+  --danger:#FF8A80;
+  --ok:#7FD1A0;
+  --font-display:"Unbounded","Manrope",system-ui,sans-serif;
+  --font-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:#07080A;color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#app{height:100%;max-width:440px;margin:0 auto;background:var(--ground);display:flex;flex-direction:column;position:relative;overflow:hidden}
+@media(min-width:480px){#app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+h1,h2{font-family:var(--font-display);margin:0;text-wrap:balance}
+h1{font-size:26px;font-weight:800}
+h2{font-size:18px;font-weight:600}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+/* buttons */
+.btn{height:50px;padding:0 22px;border-radius:25px;border:none;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:15px}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text);font-weight:600}
+.btn.sm{height:40px;padding:0 16px;font-size:13px;border-radius:20px}
+.btn.danger{background:transparent;border:1px solid #5A2A2A;color:var(--danger);font-weight:600}
+.btn.block{width:100%}
+.btn.on{background:transparent;border:1px solid var(--accent);color:var(--accent)}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.chip{height:38px;padding:0 15px;border-radius:19px;border:1px solid var(--line);background:transparent;color:var(--text);font-size:13px;font-weight:600;white-space:nowrap}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:800}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.tag{display:inline-block;padding:5px 10px;border-radius:11px;background:var(--raised);font-size:12px;color:var(--text)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:10px;background:var(--raised);font-size:12px;font-weight:700;white-space:nowrap}
+.pill.ok{background:rgba(127,209,160,.16);color:var(--ok)}
+.pill.wait{background:rgba(245,165,36,.16);color:var(--accent)}
+.pill.no{background:rgba(255,138,128,.14);color:var(--danger)}
+
+/* forms */
+.field{display:flex;flex-direction:column;gap:7px}
+.field>label,.label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.input{height:50px;padding:0 15px;border-radius:14px;border:1px solid var(--line);background:var(--surface);width:100%}
+textarea.input{height:84px;padding:12px 15px;resize:none}
+.row{display:flex;gap:10px}
+.row>*{flex:1;min-width:0}
+.err{color:var(--danger);font-size:13px;min-height:18px}
+.check{display:flex;align-items:center;gap:10px;font-weight:600}
+.check input{width:22px;height:22px;accent-color:var(--accent)}
+.hint{font-size:12px;color:var(--muted)}
+
+/* onboarding */
+.ob{flex:1;overflow-y:auto;padding:28px 22px 22px;display:flex;flex-direction:column;gap:20px}
+.ob .grow{flex:1}
+.brand{font-family:var(--font-display);font-weight:800;font-size:34px;line-height:1.05}
+.brand span{color:var(--accent)}
+.kind{border:1px solid var(--line);border-radius:22px;overflow:hidden;background:var(--surface);text-align:left;padding:0;display:flex;flex-direction:column;width:100%}
+.kind .pic{height:120px;background-size:cover;background-position:center}
+.kind .tx{padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.kind .tx b{font-family:var(--font-display);font-size:17px}
+.seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:4px}
+.seg button{flex:1;height:38px;border:none;border-radius:18px;background:transparent;font-weight:700;color:var(--muted)}
+.seg button.on{background:var(--raised);color:var(--text)}
+
+/* shell */
+.top{padding:18px 18px 10px;display:flex;flex-direction:column;gap:12px}
+.top .line{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.select{height:38px;padding:0 12px;border-radius:19px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;max-width:170px}
+.body{flex:1;overflow-y:auto;padding:6px 16px 16px;display:flex;flex-direction:column;gap:14px;min-height:0}
+.nav{height:70px;flex:none;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;background:var(--ground)}
+.nav button{background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;min-width:56px;height:56px;justify-content:center;position:relative}
+.nav button.on{color:var(--accent)}
+.nav .plus{width:52px;min-width:52px;height:52px;border-radius:26px;background:var(--accent);color:var(--on-accent)}
+.dot{position:absolute;top:8px;right:12px;width:9px;height:9px;border-radius:5px;background:var(--accent)}
+.demo{font-size:12px;color:var(--muted);padding:0 2px}
+
+/* card stack */
+.stack{flex:1;position:relative;min-height:330px}
+.card{position:absolute;inset:0;border-radius:26px;background:var(--surface);border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;transition:transform .22s ease,opacity .22s ease;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.card.under{transform:scale(.95) translateY(12px);opacity:.55}
+.card .hero{flex:1;min-height:120px;padding:18px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;color:#fff;position:relative;background-size:cover;background-position:center}
+.card .hero .act{font-family:var(--font-display);font-weight:800;font-size:34px;line-height:1.05;text-shadow:0 2px 12px rgba(0,0,0,.45)}
+.card .hero .when{font-weight:800;font-size:17px;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.stamp{position:absolute;top:16px;padding:6px 12px;border-radius:10px;font-weight:800;font-size:14px;border:2px solid #fff;background:rgba(14,16,20,.55);opacity:0;transition:opacity .1s}
+.stamp.yes{left:16px}.stamp.no{right:16px}
+.card[data-dir="yes"] .stamp.yes,.card[data-dir="no"] .stamp.no{opacity:1}
+.card .info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px}
+.who{display:flex;align-items:center;gap:10px;font-weight:700}
+.ava{border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;color:#14110A;object-fit:cover}
+.actions{display:flex;justify-content:center;gap:30px;padding:4px 0 2px;flex:none}
+.round{width:62px;height:62px;border-radius:31px;border:1px solid var(--line);background:var(--surface);color:var(--text);display:flex;align-items:center;justify-content:center}
+.round.yes{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px}
+.photo-hero{border-radius:18px;min-height:170px;padding:16px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;color:#fff;background-size:cover;background-position:center;border:none;text-align:left;width:100%}
+.photo-hero h1,.photo-hero h2{text-shadow:0 2px 12px rgba(0,0,0,.45);color:#fff}
+
+/* afisha cards */
+.sec{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.thumb{width:46px;height:46px;border-radius:12px;object-fit:cover;flex:none;background:var(--raised)}
+.ev{border-radius:20px;background:var(--surface);border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;flex:none}
+.ev .pic{height:150px;background-size:cover;background-position:center;position:relative;display:flex;align-items:flex-end;padding:12px;border:none;width:100%}
+.ev .pic .ex{position:absolute;top:12px;left:12px}
+.ev .bd{padding:13px 15px 15px;display:flex;flex-direction:column;gap:9px}
+.ev .ttl{font-family:var(--font-display);font-weight:600;font-size:17px;line-height:1.2;background:none;border:none;padding:0;text-align:left;color:inherit}
+.ev .meta{font-size:13px;color:var(--muted)}
+.row2{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.venue{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px}
+.venue img{width:26px;height:26px;border-radius:8px;object-fit:cover;flex:none;background:var(--raised)}
+.ok-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:8px;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:800}
+.price{font-weight:800;font-size:13px;padding:5px 10px;border-radius:10px;background:var(--raised)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-size:14px}
+.facts dt{color:var(--muted);font-weight:600}
+.facts dd{margin:0;min-width:0;overflow-wrap:anywhere;font-weight:600}
+
+/* galleries, people */
+.gal{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;flex:none;border-radius:18px}
+.gal::-webkit-scrollbar{display:none}
+.gal img{flex:none;width:88%;aspect-ratio:4/5;object-fit:cover;border-radius:18px;scroll-snap-align:start;background:var(--raised)}
+.gal.wide img{aspect-ratio:16/10}
+.gal img:only-child{width:100%}
+.gal-edit{display:flex;gap:8px;flex-wrap:wrap}
+.gtile{width:72px;height:90px;border-radius:12px;background:var(--surface) center/cover no-repeat;border:1px solid var(--line);position:relative;display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--muted);cursor:pointer}
+.gtile button{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:13px;border:none;background:var(--text);color:#14110A;font-weight:800;line-height:1}
+.plink{background:none;border:none;padding:0;color:inherit;font:inherit;text-align:left;display:inline-flex;align-items:center;gap:10px;font-weight:700;cursor:pointer}
+.plink:hover .pn,.plink:focus-visible .pn{text-decoration:underline}
+.faces{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.faces .ava{border:2px solid var(--ground)}
+.prow{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:var(--surface);border:1px solid var(--line);width:100%;text-align:left}
+.prow .mid{flex:1;min-width:0}
+.prow .sub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.budget{display:inline-block;padding:4px 10px;border-radius:10px;background:var(--raised);font-size:12px;font-weight:700}
+.cover-pick{height:130px;border-radius:16px;border:1px dashed var(--line);background:var(--surface) center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700;font-size:13px;cursor:pointer}
+.note{padding:12px 14px;border-radius:14px;background:var(--surface);border:1px dashed var(--line);font-size:13px;color:var(--muted)}
+
+/* lists */
+.item{display:flex;align-items:center;gap:12px;padding:13px;border-radius:18px;background:var(--surface);border:1px solid var(--line);width:100%;text-align:left}
+.item .mid{flex:1;min-width:0}
+.item .ttl{font-weight:700}
+.item .sub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.box{padding:15px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.req{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.req>.prow{flex:1;min-width:200px}
+
+/* overlays */
+.sheet{position:absolute;inset:0;background:var(--ground);display:flex;flex-direction:column;z-index:5}
+.sheet .head{padding:14px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);flex:none}
+.sheet .head .t{flex:1;min-width:0}
+.sheet .head .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon{width:44px;height:44px;border-radius:22px;border:none;background:transparent;color:var(--text);display:flex;align-items:center;justify-content:center;flex:none}
+.sheet .content{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:18px;min-height:0}
+.sheet .foot{padding:12px 16px 16px;flex:none;display:flex;gap:10px;flex-wrap:wrap}
+.sheet .foot>*{flex:1}
+.match{position:absolute;inset:0;z-index:8;background:rgba(7,8,10,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;text-align:center}
+.match h1{color:var(--accent);font-size:30px}
+
+/* chat */
+.pin{margin:12px 14px 0;padding:10px 13px;border-radius:14px;background:var(--surface);border:1px solid var(--line);font-size:13px;flex:none}
+.msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;min-height:0}
+.msg{max-width:78%;padding:9px 13px;border-radius:16px 16px 16px 4px;background:var(--surface);align-self:flex-start;overflow-wrap:anywhere}
+.msg b{display:block;font-size:12px;color:var(--accent)}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-radius:16px 16px 4px 16px}
+.msg.sys{align-self:center;background:none;color:var(--muted);font-size:12px;padding:2px 8px;max-width:100%;text-align:center}
+.send{display:flex;gap:8px;padding:10px 12px 14px;flex:none}
+.send .input{border-radius:25px}
+
+.ex{align-self:flex-start;padding:3px 9px;border-radius:9px;background:rgba(20,17,10,.82);color:#F3F1EC;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.toast{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);background:var(--text);color:#14110A;padding:10px 16px;border-radius:14px;font-weight:700;font-size:13px;z-index:20;max-width:86%;text-align:center}
+@media(prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ---------- settings ---------- */
+var APP_NAME='Just One';            // working title, change here
+var SUPABASE_URL='https://vzvbsfzeonluxdtsfrsj.supabase.co';
+var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6dmJzZnplb25sdXhkdHNmcnNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQzMzU2NjgsImV4cCI6MjEwOTkxMTY2OH0.zKfU4pIY_MaYvaqoLfp5nrhfCHvybiD7mCErzfzXCL0';   // public "anon" key: safe to publish, access is limited by the rules in the database
+var KEY='justone.v3';
+var DEMO_APPROVE_MS=2500;          // examples "approve" a request after this delay, to show how approval works
+
+/* ---------- local storage: language, skipped cards, requests to examples, example chats ---------- */
+var mem=null;
+var store={
+  get:function(){try{var v=localStorage.getItem(KEY);return v?JSON.parse(v):mem}catch(e){return mem}},
+  set:function(v){mem=v;try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}}
+};
+function freshLocal(){return {lang:null,swiped:{},req:{},demoChats:[],seen:{},seenEv:{},seq:1}}
+var local=store.get()||freshLocal();
+function saveLocal(){store.set(local)}
+
+/* ---------- state ---------- */
+var sb=null,uid=null,isAnon=true,ready=false,fatal='',chan=null,reloadT=null,busy=false,dragging=false;
+function freshDb(){return {profile:null,profiles:{},plans:[],members:[],msgs:[],venues:[],events:[],going:[],counts:{},evMsgs:[],secrets:{},galleries:{},vprivate:null}}
+var db=freshDb();
+var ui={tab:'plans',day:'today',district:'all',sheet:null,stack:[],ob:local.lang?'kind':'lang',draft:null,editing:false,match:null,authMode:'up',authErr:'',authInfo:''};
+
+/* ---------- texts ---------- */
+var T={
+ru:{next:'Дальше',back:'Назад',save:'Сохранить',cancel:'Отмена',start:'Начать',loading:'Загрузка…',netErr:'Нет связи с сервером. Попробуй ещё раз.',
+ noConfig:'Сервер не настроен: впиши ключ SUPABASE_KEY в app/index.html.',example:'пример',demo:'Карточки с пометкой «пример» — демонстрационные.',open:'Открыть',
+ delShort:'Удалить',logout:'Выйти',logoutAsk:'Выйти из аккаунта на этом устройстве?',logoutAnonAsk:'Профиль на этом устройстве будет потерян. Выйти?',language:'Язык',
+ aboutYou:'Расскажи о себе',name:'Имя',age:'Возраст',nameErr:'Напиши имя',ageErr:'Приложение только для тех, кому есть 18',addPhoto:'Добавить фото',changePhoto:'Сменить фото',
+ interests:'Интересы',langs:'На каких языках общаешься',likes:'Что любишь',pickOne:'Выбери хотя бы один язык',aboutMe:'О себе',aboutMePh:'Пара слов о себе: чем занимаешься, что любишь',
+ morePhotos:'Фото (до 4)',addMore:'Добавить фото',removePhoto:'Убрать фото',
+ kindTitle:'Как ты будешь пользоваться приложением?',kindPerson:'Ищу компанию',kindPersonSub:'Планы на вечер, вечеринки, события в городе',
+ kindVenue:'Я представляю заведение',kindVenueSub:'Коммерческий аккаунт: публикуйте вечеринки и праздники, одобряйте гостей',
+ vAuthTitle:'Аккаунт заведения',signUp:'Регистрация',signIn:'Вход',email:'Почта',password:'Пароль',passwordHint:'Не меньше 8 символов',
+ authErrShort:'Проверь почту и пароль (не меньше 8 символов)',authCheckMail:'Мы отправили письмо для подтверждения. Подтверди почту и войди.',authFailed:'Не получилось: ',
+ plans:'Планы',afisha:'Афиша',chats:'Чаты',profile:'Профиль',vEvents:'События',vRequests:'Заявки',vProfile:'Заведение',
+ today:'Сегодня',tomorrow:'Завтра',weekend:'Выходные',allCity:'Весь город',district:'Район',
+ spots:'Ищет человек: ',join:'Подать заявку',skip:'Пропустить',yes:'ИДУ',no:'МИМО',emptyFeed:'На это время планов больше нет',showAgain:'Показать пропущенные',
+ matchTitle:'Вы в компании!',matchText:'Заявку одобрили. Договоритесь о деталях в чате.',matchTextEv:'Заведение одобрило заявку. Ты в списке гостей.',openChat:'Открыть чат',keep:'Смотреть дальше',
+ newPlan:'Новый план',what:'Что делаем',day:'День',time:'Время',place:'Место (необязательно)',placePh:'Название места или «решим в чате»',people:'Сколько человек ищешь',
+ planLangs:'Языки общения',note:'Пара слов о плане',notePh:'Например: посидим спокойно, поговорим о кино',publish:'Опубликовать',published:'План опубликован. Заявки появятся в профиле.',
+ noChats:'Чатов пока нет. Подай заявку на план, вечеринку или событие.',msgPh:'Сообщение…',send:'Отправить',joined:' теперь в компании',
+ greetHost:'Привет! Рад, что присоединяешься.',greetEvent:'Привет! Кто где будет? Можно встретиться у входа.',
+ myPlans:'Мои планы',noMyPlans:'У тебя пока нет своих планов.',requests:'Заявки',noReq:'Новых заявок нет',accept:'Принять',decline:'Отклонить',del:'Удалить план',
+ edit:'Изменить профиль',seeAs:'Как меня видят другие',about:'О плане',host:'Организатор',tbd:'Место решим в чате',sent:'Заявка отправлена. Когда организатор её примет, откроется чат.',
+ waiting:'Жду ответа',budget:'Бюджет',budgetPh:'Например: ~1000 RSD или каждый за себя',contrib:'Взнос',contribPh:'Например: бесплатно или 500 RSD на пиццу',
+ participants:'Участники',allParticipants:'Все участники',andMore:'и ещё ',hiddenList:'Список участников видят только одобренные гости и организатор.',youAre:'Это ты',
+ events:'События',parties:'Частные вечеринки',free:'Вход свободный',apply:'Подать заявку',cancelReq:'Отменить заявку',notGoing:'Не пойду',eventChat:'Чат события',
+ findCompany:'Найти компанию',companies:'Компании на это событие',forEvent:'К событию',companyNote:'Идём вместе: ',goingN:'Идут: ',
+ noEvents:'На это время событий нет',noParties:'На это время вечеринок нет',newParty:'Вечеринка',partyTitle:'Новая вечеринка',partyLabel:'Вечеринка',
+ partyAddr:'Адрес (увидят только одобренные гости)',partyAddrPh:'Улица, дом, квартира',partyNote:'О вечеринке',partyNotePh:'Например: настолки и пицца, напитки приносите с собой',
+ guests:'Сколько гостей ищешь',wantGo:'Подать заявку',addrHidden:'Адрес откроется после одобрения',addrErr:'Укажи адрес',requested:'Заявка отправлена',declined:'Заявка отклонена',
+ accepted:'Ты в списке',yourParty:'Твоя вечеринка',partyPublished:'Вечеринка опубликована. Заявки появятся в профиле.',address:'Адрес',ageOnly:'Только ',ageTooYoung:'По возрасту в профиле ты не проходишь на это событие.',
+ eventSent:'Заявка отправлена заведению. Когда её одобрят, откроется чат события.',
+ fFormat:'Формат',fTime:'Время',fAge:'Возраст',fDress:'Дресс-код',fFace:'Фейс-контроль',fEntry:'Вход',fCapacity:'Мест',fMusic:'Музыка и программа',fLang:'Язык',yesW:'есть',noW:'нет',
+ dressFree:'свободный',ticket:'Билет',deposit:'Депозит',includes:'входит',
+ venuePage:'Заведение',route:'Маршрут',contacts:'Контакты',venueEvents:'Ближайшие события',noVenueEvents:'Ближайших событий нет',verified:'проверено',notVerified:'ещё не проверено',
+ vName:'Название',vKind:'Тип',vAbout:'Описание',vContacts:'Контакты для гостей',vContactsPh:'Instagram или телефон',vPhoto:'Нажми, чтобы выбрать главное фото',vNameErr:'Напиши название',
+ vSetupTitle:'Профиль заведения',vPrivate:'Для проверки заведения',vPrivateSub:'Видно только вам и команде Just One, гостям не показывается.',vContactName:'Контактное лицо',
+ vPib:'ПИБ (налоговый номер)',vPibErr:'ПИБ — это 9 цифр',vPhone:'Телефон для связи',venueSaved:'Заведение сохранено',editVenue:'Изменить профиль заведения',
+ newEvent:'Событие',newEventTitle:'Новое событие',evTitle:'Название',evTitlePh:'Например: день рождения бара, Хэллоуин, Новый год',evFormat:'Формат',evStart:'Начало',evEnd:'Конец',
+ evMinAge:'Возрастное ограничение',evDress:'Дресс-код',evDressPh:'Например: smart casual или костюмы 90-х',evFace:'Есть фейс-контроль',evEntry:'Вход',evPrice:'Цена',evPricePh:'Например: 800 RSD',
+ evIncludes:'Что входит в депозит',evIncludesPh:'Например: бутылка вина на компанию',evCapacity:'Сколько мест',evMusic:'Музыка и программа',evMusicPh:'Например: DJ, хаус и диско',
+ evAbout:'Описание',evPhotos:'Ещё фото (до 4)',eventPublished:'Событие опубликовано',evTitleErr:'Напиши название события',evPriceErr:'Укажи цену билета или депозита',
+ myEvents:'Мои события',noMyEvents:'Событий пока нет. Создайте первое: день рождения заведения, праздник, тематический вечер.',reqsN:'Заявки: ',guestsN:'Одобрено: ',
+ noRequests:'Новых заявок нет',guestsT:'Гости',delEvent:'Удалить событие',privateOnly:'Видно только вам',
+ wd:['Вс','Пн','Вт','Ср','Чт','Пт','Сб']},
+sr:{next:'Dalje',back:'Nazad',save:'Sačuvaj',cancel:'Otkaži',start:'Počni',loading:'Učitavanje…',netErr:'Nema veze sa serverom. Pokušaj ponovo.',
+ noConfig:'Server nije podešen: upiši ključ SUPABASE_KEY u app/index.html.',example:'primer',demo:'Kartice označene sa „primer“ su demonstracione.',open:'Otvori',
+ delShort:'Obriši',logout:'Odjavi se',logoutAsk:'Odjaviti se sa ovog uređaja?',logoutAnonAsk:'Profil na ovom uređaju biće izgubljen. Odjaviti se?',language:'Jezik',
+ aboutYou:'Reci nešto o sebi',name:'Ime',age:'Godine',nameErr:'Upiši ime',ageErr:'Aplikacija je samo za starije od 18',addPhoto:'Dodaj fotografiju',changePhoto:'Promeni fotografiju',
+ interests:'Interesovanja',langs:'Na kojim jezicima pričaš',likes:'Šta voliš',pickOne:'Izaberi bar jedan jezik',aboutMe:'O meni',aboutMePh:'Par reči o sebi: čime se baviš, šta voliš',
+ morePhotos:'Fotografije (do 4)',addMore:'Dodaj fotografiju',removePhoto:'Ukloni fotografiju',
+ kindTitle:'Kako ćeš koristiti aplikaciju?',kindPerson:'Tražim društvo',kindPersonSub:'Planovi za veče, žurke, događaji u gradu',
+ kindVenue:'Predstavljam lokal',kindVenueSub:'Poslovni nalog: objavljujte žurke i proslave, odobravajte goste',
+ vAuthTitle:'Nalog lokala',signUp:'Registracija',signIn:'Prijava',email:'Imejl',password:'Lozinka',passwordHint:'Najmanje 8 znakova',
+ authErrShort:'Proveri imejl i lozinku (najmanje 8 znakova)',authCheckMail:'Poslali smo imejl za potvrdu. Potvrdi adresu i prijavi se.',authFailed:'Nije uspelo: ',
+ plans:'Planovi',afisha:'Događaji',chats:'Poruke',profile:'Profil',vEvents:'Događaji',vRequests:'Zahtevi',vProfile:'Lokal',
+ today:'Danas',tomorrow:'Sutra',weekend:'Vikend',allCity:'Ceo grad',district:'Kraj',
+ spots:'Traži ljudi: ',join:'Pošalji zahtev',skip:'Preskoči',yes:'IDEM',no:'NE',emptyFeed:'Za ovo vreme nema više planova',showAgain:'Prikaži preskočene',
+ matchTitle:'U društvu si!',matchText:'Zahtev je prihvaćen. Dogovorite detalje u četu.',matchTextEv:'Lokal je prihvatio zahtev. Na listi si.',openChat:'Otvori čet',keep:'Gledaj dalje',
+ newPlan:'Novi plan',what:'Šta radimo',day:'Dan',time:'Vreme',place:'Mesto (nije obavezno)',placePh:'Naziv mesta ili „dogovorićemo se“',people:'Koliko ljudi tražiš',
+ planLangs:'Jezici',note:'Par reči o planu',notePh:'Na primer: opušteno, pričamo o filmovima',publish:'Objavi',published:'Plan je objavljen. Zahtevi stižu u profil.',
+ noChats:'Još nema poruka. Pošalji zahtev za plan, žurku ili događaj.',msgPh:'Poruka…',send:'Pošalji',joined:' je sada u društvu',
+ greetHost:'Ćao! Drago mi je što dolaziš.',greetEvent:'Ćao! Ko gde dolazi? Možemo da se nađemo na ulazu.',
+ myPlans:'Moji planovi',noMyPlans:'Još nemaš svoje planove.',requests:'Zahtevi',noReq:'Nema novih zahteva',accept:'Prihvati',decline:'Odbij',del:'Obriši plan',
+ edit:'Izmeni profil',seeAs:'Kako me drugi vide',about:'O planu',host:'Organizator',tbd:'Mesto dogovaramo u četu',sent:'Zahtev je poslat. Kad ga organizator prihvati, otvoriće se čet.',
+ waiting:'Čekam odgovor',budget:'Budžet',budgetPh:'Na primer: ~1000 RSD ili svako plaća za sebe',contrib:'Učešće',contribPh:'Na primer: besplatno ili 500 RSD za picu',
+ participants:'Učesnici',allParticipants:'Svi učesnici',andMore:'i još ',hiddenList:'Listu učesnika vide samo prihvaćeni gosti i organizator.',youAre:'To si ti',
+ events:'Događaji',parties:'Privatne žurke',free:'Ulaz slobodan',apply:'Pošalji zahtev',cancelReq:'Povuci zahtev',notGoing:'Ne idem',eventChat:'Čet događaja',
+ findCompany:'Nađi društvo',companies:'Društva za ovaj događaj',forEvent:'Za događaj',companyNote:'Idemo zajedno: ',goingN:'Dolazi: ',
+ noEvents:'Za ovo vreme nema događaja',noParties:'Za ovo vreme nema žurki',newParty:'Žurka',partyTitle:'Nova žurka',partyLabel:'Žurka',
+ partyAddr:'Adresa (vide je samo prihvaćeni gosti)',partyAddrPh:'Ulica, broj, stan',partyNote:'O žurki',partyNotePh:'Na primer: društvene igre i pica, piće donosite sami',
+ guests:'Koliko gostiju tražiš',wantGo:'Pošalji zahtev',addrHidden:'Adresa se vidi posle odobrenja',addrErr:'Upiši adresu',requested:'Zahtev je poslat',declined:'Zahtev je odbijen',
+ accepted:'Na listi si',yourParty:'Tvoja žurka',partyPublished:'Žurka je objavljena. Zahtevi stižu u profil.',address:'Adresa',ageOnly:'Samo ',ageTooYoung:'Po godinama iz profila ne možeš na ovaj događaj.',
+ eventSent:'Zahtev je poslat lokalu. Kad ga prihvate, otvoriće se čet događaja.',
+ fFormat:'Format',fTime:'Vreme',fAge:'Godine',fDress:'Dres kod',fFace:'Fejs kontrola',fEntry:'Ulaz',fCapacity:'Mesta',fMusic:'Muzika i program',fLang:'Jezik',yesW:'da',noW:'ne',
+ dressFree:'slobodan',ticket:'Karta',deposit:'Depozit',includes:'uključeno',
+ venuePage:'Lokal',route:'Ruta',contacts:'Kontakt',venueEvents:'Predstojeći događaji',noVenueEvents:'Nema predstojećih događaja',verified:'provereno',notVerified:'još nije provereno',
+ vName:'Naziv',vKind:'Vrsta',vAbout:'Opis',vContacts:'Kontakt za goste',vContactsPh:'Instagram ili telefon',vPhoto:'Dodirni da izabereš glavnu fotografiju',vNameErr:'Upiši naziv',
+ vSetupTitle:'Profil lokala',vPrivate:'Za proveru lokala',vPrivateSub:'Vidite samo vi i tim Just One, gostima se ne prikazuje.',vContactName:'Kontakt osoba',
+ vPib:'PIB',vPibErr:'PIB ima 9 cifara',vPhone:'Telefon za kontakt',venueSaved:'Lokal je sačuvan',editVenue:'Izmeni profil lokala',
+ newEvent:'Događaj',newEventTitle:'Novi događaj',evTitle:'Naziv',evTitlePh:'Na primer: rođendan bara, Noć veštica, Nova godina',evFormat:'Format',evStart:'Početak',evEnd:'Kraj',
+ evMinAge:'Starosna granica',evDress:'Dres kod',evDressPh:'Na primer: smart casual ili kostimi iz 90-ih',evFace:'Ima fejs kontrolu',evEntry:'Ulaz',evPrice:'Cena',evPricePh:'Na primer: 800 RSD',
+ evIncludes:'Šta je uključeno u depozit',evIncludesPh:'Na primer: flaša vina za društvo',evCapacity:'Broj mesta',evMusic:'Muzika i program',evMusicPh:'Na primer: DJ, house i disko',
+ evAbout:'Opis',evPhotos:'Još fotografija (do 4)',eventPublished:'Događaj je objavljen',evTitleErr:'Upiši naziv događaja',evPriceErr:'Upiši cenu karte ili depozita',
+ myEvents:'Moji događaji',noMyEvents:'Još nema događaja. Napravite prvi: rođendan lokala, praznik, tematsko veče.',reqsN:'Zahtevi: ',guestsN:'Prihvaćeno: ',
+ noRequests:'Nema novih zahteva',guestsT:'Gosti',delEvent:'Obriši događaj',privateOnly:'Vidite samo vi',
+ wd:['Ned','Pon','Uto','Sre','Čet','Pet','Sub']},
+en:{next:'Next',back:'Back',save:'Save',cancel:'Cancel',start:'Start',loading:'Loading…',netErr:'Cannot reach the server. Try again.',
+ noConfig:'Server not configured: put SUPABASE_KEY into app/index.html.',example:'example',demo:'Cards marked “example” are for demonstration.',open:'Open',
+ delShort:'Delete',logout:'Log out',logoutAsk:'Log out on this device?',logoutAnonAsk:'Your profile on this device will be lost. Log out?',language:'Language',
+ aboutYou:'Tell us about yourself',name:'Name',age:'Age',nameErr:'Enter your name',ageErr:'This app is for people aged 18 and over',addPhoto:'Add a photo',changePhoto:'Change photo',
+ interests:'Interests',langs:'Languages you speak',likes:'What you like',pickOne:'Pick at least one language',aboutMe:'About me',aboutMePh:'A few words about you: what you do, what you like',
+ morePhotos:'Photos (up to 4)',addMore:'Add a photo',removePhoto:'Remove photo',
+ kindTitle:'How will you use the app?',kindPerson:"I'm looking for company",kindPersonSub:'Plans for tonight, parties, events in town',
+ kindVenue:'I represent a venue',kindVenueSub:'Business account: post parties and celebrations, approve guests',
+ vAuthTitle:'Venue account',signUp:'Sign up',signIn:'Log in',email:'Email',password:'Password',passwordHint:'At least 8 characters',
+ authErrShort:'Check the email and password (at least 8 characters)',authCheckMail:'We sent a confirmation email. Confirm the address, then log in.',authFailed:'Did not work: ',
+ plans:'Plans',afisha:'Events',chats:'Chats',profile:'Profile',vEvents:'Events',vRequests:'Requests',vProfile:'Venue',
+ today:'Today',tomorrow:'Tomorrow',weekend:'Weekend',allCity:'Whole city',district:'Area',
+ spots:'Looking for: ',join:'Send request',skip:'Skip',yes:'IN',no:'PASS',emptyFeed:'No more plans for this time',showAgain:'Show skipped plans',
+ matchTitle:"You're in!",matchText:'Your request was accepted. Sort out the details in the chat.',matchTextEv:"The venue accepted your request. You're on the list.",openChat:'Open chat',keep:'Keep browsing',
+ newPlan:'New plan',what:'What are we doing',day:'Day',time:'Time',place:'Place (optional)',placePh:'Name of the place or "decide in chat"',people:'How many people',
+ planLangs:'Languages',note:'A few words about the plan',notePh:'For example: a quiet evening, talking about films',publish:'Publish',published:'Plan published. Requests will show up in your profile.',
+ noChats:'No chats yet. Send a request to a plan, party or event.',msgPh:'Message…',send:'Send',joined:' joined the group',
+ greetHost:"Hi! Glad you're joining.",greetEvent:'Hi! Where is everyone? We could meet at the entrance.',
+ myPlans:'My plans',noMyPlans:"You don't have any plans yet.",requests:'Requests',noReq:'No new requests',accept:'Accept',decline:'Decline',del:'Delete plan',
+ edit:'Edit profile',seeAs:'How others see me',about:'About the plan',host:'Host',tbd:'Place to be decided in chat',sent:'Request sent. The chat opens once the host accepts.',
+ waiting:'Waiting for a reply',budget:'Budget',budgetPh:'For example: ~1000 RSD or everyone pays for themselves',contrib:'Contribution',contribPh:'For example: free or 500 RSD for pizza',
+ participants:'Participants',allParticipants:'All participants',andMore:'and ',hiddenList:'Only approved guests and the host can see who is coming.',youAre:"That's you",
+ events:'Events',parties:'Private parties',free:'Free entry',apply:'Send request',cancelReq:'Cancel request',notGoing:'Not going',eventChat:'Event chat',
+ findCompany:'Find company',companies:'Groups for this event',forEvent:'For the event',companyNote:'Going together: ',goingN:'Going: ',
+ noEvents:'No events for this time',noParties:'No parties for this time',newParty:'Party',partyTitle:'New party',partyLabel:'Party',
+ partyAddr:'Address (only approved guests see it)',partyAddrPh:'Street, number, flat',partyNote:'About the party',partyNotePh:'For example: board games and pizza, bring your own drinks',
+ guests:'How many guests',wantGo:'Send request',addrHidden:'Address shown after approval',addrErr:'Enter the address',requested:'Request sent',declined:'Request declined',
+ accepted:"You're on the list",yourParty:'Your party',partyPublished:'Party published. Requests will show up in your profile.',address:'Address',ageOnly:'Only ',ageTooYoung:'The age in your profile is below the limit for this event.',
+ eventSent:'Request sent to the venue. The event chat opens once it is accepted.',
+ fFormat:'Format',fTime:'Time',fAge:'Age',fDress:'Dress code',fFace:'Face control',fEntry:'Entry',fCapacity:'Capacity',fMusic:'Music and programme',fLang:'Language',yesW:'yes',noW:'no',
+ dressFree:'casual',ticket:'Ticket',deposit:'Deposit',includes:'includes',
+ venuePage:'Venue',route:'Directions',contacts:'Contacts',venueEvents:'Upcoming events',noVenueEvents:'No upcoming events',verified:'verified',notVerified:'not verified yet',
+ vName:'Name',vKind:'Type',vAbout:'Description',vContacts:'Contacts for guests',vContactsPh:'Instagram or phone',vPhoto:'Tap to choose the main photo',vNameErr:'Enter the name',
+ vSetupTitle:'Venue profile',vPrivate:'For venue verification',vPrivateSub:'Only you and the Just One team see this. Guests do not.',vContactName:'Contact person',
+ vPib:'PIB (tax number)',vPibErr:'PIB is 9 digits',vPhone:'Contact phone',venueSaved:'Venue saved',editVenue:'Edit venue profile',
+ newEvent:'Event',newEventTitle:'New event',evTitle:'Title',evTitlePh:'For example: bar birthday, Halloween, New Year',evFormat:'Format',evStart:'Start',evEnd:'End',
+ evMinAge:'Age limit',evDress:'Dress code',evDressPh:'For example: smart casual or 90s costumes',evFace:'Face control at the door',evEntry:'Entry',evPrice:'Price',evPricePh:'For example: 800 RSD',
+ evIncludes:'What the deposit includes',evIncludesPh:'For example: a bottle of wine for the group',evCapacity:'Capacity',evMusic:'Music and programme',evMusicPh:'For example: DJ, house and disco',
+ evAbout:'Description',evPhotos:'More photos (up to 4)',eventPublished:'Event published',evTitleErr:'Enter the event title',evPriceErr:'Enter the ticket or deposit price',
+ myEvents:'My events',noMyEvents:'No events yet. Create the first one: the venue birthday, a holiday, a themed night.',reqsN:'Requests: ',guestsN:'Approved: ',
+ noRequests:'No new requests',guestsT:'Guests',delEvent:'Delete event',privateOnly:'Only you see this',
+ wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat']}
+};
+function t(k){var D=T[local.lang||'ru'];return D[k]!==undefined?D[k]:k}
+function L(o){return o[local.lang||'ru']}
+function txt(x){return x==null?'':typeof x==='string'?x:L(x)}
+
+/* ---------- photos (free Unsplash images, loaded by link) ---------- */
+function U(id,w,h){return 'https://images.unsplash.com/'+id+'?auto=format&fit=crop&q=70&w='+w+(h?'&h='+h+'&crop=faces':'')}
+var PH={
+ beer:'photo-1513309914637-65c20a5962e1',wine:'photo-1641830879467-e22004141bcb',cocktail:'photo-1566417713940-fe7c737a9ef2',
+ coffee:'photo-1647774469542-d8df9c2e23cd',games:'photo-1677188010559-0667a1ed33a0',walk:'photo-1579981596048-b9ba73dc0091',
+ party:'photo-1645730826845-cd2ddec9984f',city:'photo-1564982547455-b9e810ae9223',
+ bar:'photo-1739799120521-c5f44a9335a3',cafe:'photo-1521017432531-fbd92d768814',club:'photo-1470225620780-dba8ba36b745',
+ wineBar:'photo-1597290282695-edc43d0e7129',anticafe:'photo-1629760946220-5693ee4c46ac',
+ concert:'photo-1718182147550-5d6f9208432d',quiz:'photo-1558210598-89ba75b1724e'
+};
+// only our own Unsplash links and uploaded jpeg/png/webp pictures are ever put into the page
+function safeImg(s){
+  if(!s)return '';
+  if(/^https:\/\/images\.unsplash\.com\/photo-[\w-]+\?[\w&=.-]+$/.test(s))return s;
+  if(/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(s))return s;
+  return '';
+}
+function bg(src,dark){
+  var s=safeImg(src);if(!s)return '';
+  return "background-image:linear-gradient(180deg,rgba(0,0,0,"+(dark?'.15':'.05')+") 25%,rgba(0,0,0,.72)),url('"+s+"')";
+}
+
+/* ---------- dictionaries ---------- */
+var ACTS={
+ beer:{ru:'Пиво',sr:'Pivo',en:'Beer',c:'#F5A524'},wine:{ru:'Вино',sr:'Vino',en:'Wine',c:'#E58FA6'},
+ cocktail:{ru:'Коктейли',sr:'Kokteli',en:'Cocktails',c:'#7FD1C8'},coffee:{ru:'Кофе',sr:'Kafa',en:'Coffee',c:'#C9A27E'},
+ games:{ru:'Настолки',sr:'Društvene igre',en:'Board games',c:'#9DB7F5'},walk:{ru:'Прогулка',sr:'Šetnja',en:'Walk',c:'#A8D672'},
+ party:{ru:'Вечеринка',sr:'Žurka',en:'Party',c:'#C792EA'}
+};
+var PLAN_ACTS=['beer','wine','cocktail','coffee','games','walk'];
+var KINDS={
+ bar:{ru:'Бар',sr:'Bar',en:'Bar',ph:'bar'},cafe:{ru:'Кафе',sr:'Kafić',en:'Café',ph:'cafe'},club:{ru:'Клуб',sr:'Klub',en:'Club',ph:'club'},
+ wine:{ru:'Винотека',sr:'Vinoteka',en:'Wine bar',ph:'wineBar'},anticafe:{ru:'Антикафе',sr:'Antikafe',en:'Board game café',ph:'anticafe'}
+};
+var KIND_ACT={bar:'beer',cafe:'coffee',club:'cocktail',wine:'wine',anticafe:'games'};
+var FORMATS={
+ party:{ru:'Вечеринка',sr:'Žurka',en:'Party'},concert:{ru:'Концерт',sr:'Koncert',en:'Concert'},dj:{ru:'DJ-сет',sr:'DJ set',en:'DJ set'},
+ themed:{ru:'Тематический вечер',sr:'Tematsko veče',en:'Themed night'},holiday:{ru:'Праздник',sr:'Proslava',en:'Celebration'},other:{ru:'Другое',sr:'Drugo',en:'Other'}
+};
+var AGES=[18,21,23,25];
+var INTS={
+ movies:{ru:'кино',sr:'filmovi',en:'films'},travel:{ru:'путешествия',sr:'putovanja',en:'travel'},music:{ru:'музыка',sr:'muzika',en:'music'},
+ sport:{ru:'спорт',sr:'sport',en:'sport'},gaming:{ru:'игры',sr:'igre',en:'gaming'},tech:{ru:'технологии',sr:'tehnologija',en:'tech'},
+ art:{ru:'искусство',sr:'umetnost',en:'art'},food:{ru:'еда',sr:'hrana',en:'food'},hiking:{ru:'походы',sr:'planinarenje',en:'hiking'},photo:{ru:'фото',sr:'fotografija',en:'photo'}
+};
+var LANGS={ru:'Русский',sr:'Srpski',en:'English'};
+var DISTRICTS=['Centar','Liman','Grbavica','Detelinara','Novo Naselje','Podbara','Telep','Petrovaradin'];
+
+/* ---------- example people ---------- */
+var PEOPLE={
+ p1:{name:'Marko',age:29,langs:['sr','en'],ints:['movies','music','sport'],c:'#F5A524',img:'photo-1522529599102-193c0d76b5b6',gal:['beer','concert'],
+  about:{ru:'Звукорежиссёр, живу в Нови-Саде всю жизнь. Знаю, где сегодня хорошая музыка.',sr:'Ton majstor, ceo život u Novom Sadu. Znam gde je večeras dobra muzika.',en:'Sound engineer, lived in Novi Sad all my life. I know where the good music is tonight.'}},
+ p2:{name:'Аня',age:27,langs:['ru','en'],ints:['travel','photo','food'],c:'#E58FA6',img:'photo-1494790108377-be9c29b29330',gal:['wine','city'],
+  about:{ru:'Переехала из Петербурга полгода назад. Фотографирую город и ищу друзей.',sr:'Preselila sam se iz Sankt Peterburga pre pola godine. Fotografišem grad i tražim prijatelje.',en:'Moved from St Petersburg six months ago. I photograph the city and look for friends.'}},
+ p3:{name:'Jelena',age:31,langs:['sr','en','ru'],ints:['art','hiking','food'],c:'#7FD1C8',img:'photo-1489278353717-f64c6ee8a4d2',gal:['coffee','walk'],
+  about:{ru:'Художница, по выходным хожу в походы на Фрушка-Гору.',sr:'Slikarka, vikendom planinarim po Fruškoj gori.',en:'Painter; at weekends I hike on Fruška Gora.'}},
+ p4:{name:'Никита',age:33,langs:['ru','sr'],ints:['tech','gaming','movies'],c:'#9DB7F5',img:'photo-1600603406200-5b2a104684ac',gal:['games','cafe'],
+  about:{ru:'Разработчик, собрал коллекцию из 60 настолок. Объясняю правила терпеливо.',sr:'Programer, imam kolekciju od 60 društvenih igara. Strpljivo objašnjavam pravila.',en:'Developer with 60 board games. I explain rules patiently.'}},
+ p5:{name:'Tom',age:35,langs:['en'],ints:['travel','music','hiking'],c:'#A8D672',img:'photo-1564564244660-5d73c057f2d2',gal:['walk','beer'],
+  about:{ru:'Из Манчестера, преподаю английский. Люблю длинные прогулки вдоль Дуная.',sr:'Iz Mančestera, predajem engleski. Volim duge šetnje pored Dunava.',en:'From Manchester, I teach English. Love long walks along the Danube.'}},
+ p6:{name:'Milica',age:26,langs:['sr','en'],ints:['music','art','photo'],c:'#C9A27E',img:'photo-1567516364473-233c4b6fcfbe',gal:['cocktail','party'],
+  about:{ru:'Дизайнер и диджей-любитель. Всегда знаю, где сегодня музыка.',sr:'Dizajnerka i DJ amater. Uvek znam gde je muzika večeras.',en:'Designer and amateur DJ. I always know where the music is tonight.'}},
+ p7:{name:'Даша',age:28,langs:['ru','en','sr'],ints:['gaming','movies','food'],c:'#E58FA6',img:'photo-1662850886700-4ec19bd30d11',gal:['games','party'],
+  about:{ru:'Маркетолог из Москвы. Устраиваю домашние вечеринки с настолками.',sr:'Marketing iz Moskve. Pravim kućne žurke sa društvenim igrama.',en:'Marketer from Moscow. I host house parties with board games.'}},
+ p8:{name:'Nikola',age:30,langs:['sr','ru'],ints:['sport','tech','travel'],c:'#7FD1C8',img:'photo-1592234789031-94bf65f630ed',gal:['beer','city'],
+  about:{ru:'Инженер, болею за «Войводину». Говорю по-русски, учил в школе.',sr:'Inženjer, navijam za Vojvodinu. Pričam ruski, učio sam u školi.',en:'Engineer and Vojvodina fan. I speak Russian, learned it at school.'}}
+};
+Object.keys(PEOPLE).forEach(function(k){
+  var p=PEOPLE[k];p.photo=U(p.img,160,160);
+  p.photos=[U(p.img,600,750)].concat(p.gal.map(function(g){return U(PH[g],600)}));
+});
+
+/* ---------- example plans and parties ---------- */
+var FREE={ru:'бесплатно',sr:'besplatno',en:'free'};
+var SEED=[
+ {id:'s1',act:'beer',d:'today',time:'20:00',district:'Centar',by:'p1',need:3,langs:['sr','en'],with:[],budget:'~800 RSD',
+  note:{ru:'Крафтовое пиво и разговоры о музыке. Без спешки.',sr:'Kraft pivo i priča o muzici. Bez žurbe.',en:'Craft beer and talk about music. No rush.'}},
+ {id:'s2',act:'wine',d:'today',time:'19:30',district:'Liman',by:'p2',need:2,langs:['ru','en'],with:['p7'],budget:'~1500 RSD',
+  note:{ru:'Недавно переехала, ищу компанию на бокал вина.',sr:'Nedavno sam se doselila, tražim društvo za čašu vina.',en:'New in town, looking for company for a glass of wine.'}},
+ {id:'s3',act:'games',d:'today',time:'18:30',district:'Grbavica',by:'p4',need:3,langs:['ru','sr'],with:['p8'],budget:FREE,
+  note:{ru:'Играем в настолки, новичкам всё объясним.',sr:'Igramo društvene igre, početnicima sve objasnimo.',en:'Board games night, beginners welcome.'}},
+ {id:'s4',act:'coffee',d:'today',time:'17:00',district:'Petrovaradin',by:'p3',need:2,langs:['sr','en','ru'],with:[],budget:'~400 RSD',
+  note:{ru:'Кофе с видом на крепость, потом можно пройтись.',sr:'Kafa s pogledom na tvrđavu, posle možemo da prošetamo.',en:'Coffee with a view of the fortress, maybe a walk after.'}},
+ {id:'s5',act:'cocktail',d:'tomorrow',time:'21:00',district:'Centar',by:'p6',need:4,langs:['sr','en'],with:['p1'],budget:'~2000 RSD',
+  note:{ru:'Собираем компанию в коктейльный бар.',sr:'Skupljamo ekipu za koktel bar.',en:'Getting a group together for a cocktail bar.'}},
+ {id:'s6',act:'beer',d:'tomorrow',time:'19:00',district:'Novo Naselje',by:'p8',need:2,langs:['sr','ru'],with:[],budget:'~1000 RSD',
+  note:{ru:'Смотрим матч в пабе.',sr:'Gledamo utakmicu u pabu.',en:'Watching the match at a pub.'}},
+ {id:'s7',act:'walk',d:'tomorrow',time:'16:00',district:'Liman',by:'p5',need:3,langs:['en'],with:[],budget:FREE,
+  note:{ru:'Прогулка вдоль Дуная, общаемся на английском.',sr:'Šetnja pored Dunava, pričamo na engleskom.',en:'A walk along the Danube, in English.'}},
+ {id:'s8',act:'wine',d:'sat',time:'20:00',district:'Podbara',by:'p3',need:3,langs:['sr','en','ru'],with:['p6'],budget:'~1500 RSD',
+  note:{ru:'Пробуем местные вина в небольшой компании.',sr:'Probamo domaća vina u malom društvu.',en:'Trying local wines in a small group.'}},
+ {id:'s9',act:'games',d:'sat',time:'17:00',district:'Detelinara',by:'p7',need:4,langs:['ru','en'],with:['p4'],budget:FREE,
+  note:{ru:'Большая игра на весь вечер, приходи к началу.',sr:'Velika igra za celo veče, dođi na početak.',en:'One long game for the evening, come for the start.'}},
+ {id:'s10',act:'beer',d:'sun',time:'18:00',district:'Telep',by:'p1',need:2,langs:['sr','en'],with:[],budget:'~700 RSD',
+  note:{ru:'Спокойное воскресное пиво перед рабочей неделей.',sr:'Mirno nedeljno pivo pred radnu nedelju.',en:'A quiet Sunday beer before the work week.'}},
+ {id:'s11',act:'coffee',d:'sun',time:'12:00',district:'Centar',by:'p2',need:2,langs:['ru','en'],with:[],budget:'~600 RSD',
+  note:{ru:'Поздний завтрак и кофе.',sr:'Kasni doručak i kafa.',en:'Late breakfast and coffee.'}},
+ {id:'s12',act:'party',d:'sat',time:'21:00',district:'Grbavica',by:'p7',need:8,langs:['ru','en','sr'],with:['p2','p4'],address:'Bulevar oslobođenja 1, stan 12',
+  budget:{ru:'500 RSD на пиццу',sr:'500 RSD za picu',en:'500 RSD for pizza'},
+  note:{ru:'Домашняя вечеринка: настолки, пицца, музыка. Напитки приносите с собой.',sr:'Kućna žurka: društvene igre, pica, muzika. Piće donosite sami.',en:'House party: board games, pizza, music. Bring your own drinks.'}},
+ {id:'s13',act:'party',d:'today',time:'22:00',district:'Liman',by:'p6',need:10,langs:['sr','en'],with:['p1'],address:'Narodnog fronta 20, stan 4',
+  budget:{ru:'приносите своё',sr:'donesite svoje',en:'bring your own'},
+  note:{ru:'Новоселье! Диджей-сет на балконе.',sr:'Useljenje! DJ set na terasi.',en:'Housewarming! DJ set on the balcony.'}}
+];
+
+/* ---------- example venues and their events (occasions, not adverts) ---------- */
+var SEED_VENUES={
+ v1:{name:'Craft Room',kind:'bar',district:'Centar',address:'Zmaj Jovina 12',verified:true,contacts:'@craftroom.ns',more:['concert','beer'],
+  about:{ru:'Бар в центре. Устраиваем праздники и тематические вечера.',sr:'Bar u centru. Pravimo proslave i tematske večeri.',en:'A bar in the centre. We host celebrations and themed nights.'}},
+ v2:{name:'Kafeterija Dunav',kind:'cafe',district:'Liman',address:'Bulevar cara Lazara 5',verified:true,contacts:'@kafeterija.dunav',more:['party','coffee'],
+  about:{ru:'Кафе у набережной, по вечерам — вечеринки.',sr:'Kafić na keju, uveče žurke.',en:'A café on the embankment with parties in the evening.'}},
+ v3:{name:'Vinoteka Fruška',kind:'wine',district:'Podbara',address:'Kosovska 3',verified:false,contacts:'@vinoteka.fruska',more:['wine'],
+  about:{ru:'Винотека в Подбаре, отмечаем винные праздники.',sr:'Vinoteka na Podbari, slavimo vinske praznike.',en:'A wine bar in Podbara that celebrates wine holidays.'}},
+ v4:{name:'Kocka',kind:'anticafe',district:'Detelinara',address:'Rumenačka 40',verified:true,contacts:'@kocka.ns',more:['games'],
+  about:{ru:'Антикафе с настольными играми.',sr:'Antikafe sa društvenim igrama.',en:'A board game café.'}},
+ v5:{name:'Klub Tvrđava',kind:'club',district:'Petrovaradin',address:'Beogradska 2',verified:false,contacts:'@tvrdjava.club',more:['party','walk'],
+  about:{ru:'Клуб в Петроварадинской крепости.',sr:'Klub na Petrovaradinskoj tvrđavi.',en:'A club in the Petrovaradin fortress.'}}
+};
+var DRESS_FREE=null;   // empty dress code means "casual"
+var SEED_EVENTS=[
+ {id:'e1',v:'v1',d:'today',time:'21:00',end:'02:00',format:'holiday',minAge:18,dress:DRESS_FREE,face:false,entry:'free',price:'',includes:null,capacity:120,langs:['sr','en','ru'],
+  ph:['concert','party'],going:14,who:['p1','p6','p8','p5'],
+  music:{ru:'живая музыка, рок-н-ролл',sr:'muzika uživo, rokenrol',en:'live music, rock and roll'},
+  title:{ru:'Craft Room — 5 лет! День рождения бара',sr:'Craft Room puni 5 godina! Rođendan bara',en:'Craft Room turns 5! The bar’s birthday'},
+  about:{ru:'Торт в полночь, живая музыка и все, кто был с нами эти годы.',sr:'Torta u ponoć, muzika uživo i svi koji su bili s nama ovih godina.',en:'Cake at midnight, live music and everyone who has been with us.'}},
+ {id:'e2',v:'v4',d:'today',time:'19:00',end:'23:00',format:'party',minAge:18,dress:DRESS_FREE,face:false,entry:'ticket',price:'300 RSD',includes:null,capacity:40,langs:['ru','sr'],
+  ph:['anticafe','games'],going:9,who:['p4','p7','p2'],
+  music:{ru:'турнир по «Каркассону», фоновая музыка',sr:'turnir u Carcassonne, muzika u pozadini',en:'Carcassonne tournament, background music'},
+  title:{ru:'Новоселье Kocka: открываем новый зал',sr:'Useljenje Kocke: otvaramo novu salu',en:'Kocka housewarming: opening the new hall'},
+  about:{ru:'Переехали в зал побольше. Отмечаем партиями во всё, что есть на полках.',sr:'Preselili smo se u veću salu. Slavimo partijama svega što je na policama.',en:'We moved to a bigger hall. Celebrating with games of everything on the shelves.'}},
+ {id:'e3',v:'v3',d:'tomorrow',time:'19:00',end:'23:00',format:'holiday',minAge:21,dress:'Smart casual',face:false,entry:'deposit',price:'1500 RSD',capacity:30,langs:['sr','en'],
+  includes:{ru:'пять вин нового урожая и сырная тарелка',sr:'pet mladih vina i plata sireva',en:'five young wines and a cheese plate'},
+  ph:['wineBar','wine'],going:22,who:['p3','p6','p1','p2','p8'],
+  music:{ru:'акустический джаз',sr:'akustični džez',en:'acoustic jazz'},
+  title:{ru:'Мартинье: праздник молодого вина',sr:'Martinje: praznik mladog vina',en:'Martinje: young wine festival'},
+  about:{ru:'День святого Мартина — по традиции открываем вино нового урожая.',sr:'Dan Svetog Martina — po tradiciji otvaramo vino nove berbe.',en:'St Martin’s Day: by tradition we open this year’s wine.'}},
+ {id:'e4',v:'v2',d:'tomorrow',time:'20:00',end:'03:00',format:'themed',minAge:18,face:false,entry:'free',price:'',includes:null,capacity:150,langs:['sr','ru','en'],
+  dress:{ru:'костюм 90-х',sr:'kostim iz 90-ih',en:'90s outfit'},
+  ph:['party','cafe'],going:31,who:['p2','p7','p5','p4'],
+  music:{ru:'хиты 90-х, конкурс костюмов',sr:'hitovi 90-ih, takmičenje kostima',en:'90s hits, costume contest'},
+  title:{ru:'Вечеринка в стиле 90-х',sr:'Žurka u stilu 90-ih',en:'90s party'},
+  about:{ru:'Надень всё, что найдёшь в шкафу родителей. За лучший образ — приз.',sr:'Obuci sve što nađeš u ormaru roditelja. Nagrada za najbolji izgled.',en:'Wear anything from your parents’ wardrobe. Prize for the best look.'}},
+ {id:'e5',v:'v5',d:'sat',time:'23:00',end:'05:00',format:'dj',minAge:21,dress:'Smart casual',face:true,entry:'ticket',price:'800 RSD',includes:null,capacity:400,langs:['sr','en'],
+  ph:['club','party'],going:41,who:['p6','p1','p8','p3','p7','p5'],
+  music:{ru:'хаус и диско, три диджея',sr:'house i disko, tri DJ-a',en:'house and disco, three DJs'},
+  title:{ru:'Проводы осени: ночь в крепости',sr:'Ispraćaj jeseni: noć na tvrđavi',en:'Farewell to autumn: night at the fortress'},
+  about:{ru:'До утра с видом на Дунай.',sr:'Do jutra s pogledom na Dunav.',en:'Until morning, overlooking the Danube.'}},
+ {id:'e6',v:'v1',d:'sun',time:'20:00',end:'01:00',format:'themed',minAge:25,face:false,entry:'deposit',price:'2000 RSD',capacity:60,langs:['ru','en'],
+  dress:{ru:'пижама',sr:'pidžama',en:'pyjamas'},includes:{ru:'стол на компанию и сет коктейлей',sr:'sto za društvo i set koktela',en:'a table for the group and a cocktail set'},
+  ph:['party','cocktail'],going:18,who:['p5','p2','p4'],
+  music:{ru:'поп и R&B',sr:'pop i R&B',en:'pop and R&B'},
+  title:{ru:'Пижамная вечеринка',sr:'Pidžama žurka',en:'Pyjama party'},
+  about:{ru:'Приходи в пижаме — первый напиток за счёт заведения.',sr:'Dođi u pidžami — prvo piće je na račun kuće.',en:'Come in pyjamas and your first drink is on the house.'}}
+];
+
+/* ---------- dates ---------- */
+function iso(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function plusDays(n){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);return d}
+function parse(s){var a=s.split('-');return new Date(+a[0],+a[1]-1,+a[2],12)}
+function seedDate(k){
+  var dow=new Date().getDay();
+  if(k==='today')return iso(plusDays(0));
+  if(k==='tomorrow')return iso(plusDays(1));
+  if(k==='sat')return iso(plusDays((6-dow+7)%7));
+  return iso(plusDays((7-dow)%7));
+}
+function dayLabel(s){
+  if(s===iso(plusDays(0)))return t('today');
+  if(s===iso(plusDays(1)))return t('tomorrow');
+  var d=parse(s);return t('wd')[d.getDay()]+' '+('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2);
+}
+function isWeekend(s){var g=parse(s).getDay();return g===0||g===6}
+function dayOk(date){
+  var today=iso(plusDays(0));
+  if(date<today)return false;
+  if(ui.day==='today')return date===today;
+  if(ui.day==='tomorrow')return date===iso(plusDays(1));
+  return isWeekend(date);
+}
+function upcoming(date){return date>=iso(plusDays(0))}
+function districtOk(d){return ui.district==='all'||d===ui.district}
+
+/* ---------- requests to examples: they are "approved" after a short delay ---------- */
+function exStatus(id){
+  var r=local.req[id];if(!r)return null;
+  return r.s;
+}
+function exRequest(id){local.req[id]={s:'pending',t:Date.now()};saveLocal()}
+function exCancel(id){
+  delete local.req[id];
+  local.demoChats=local.demoChats.filter(function(c){return c.planId!==id&&c.eventId!==id});
+  saveLocal();
+}
+function exTick(){
+  var changed=false;
+  Object.keys(local.req).forEach(function(id){
+    var r=local.req[id];
+    if(r.s!=='pending'||Date.now()-r.t<DEMO_APPROVE_MS)return;
+    r.s='accepted';changed=true;
+    var now=Date.now(),chat;
+    var e=SEED_EVENTS.filter(function(x){return x.id===id})[0];
+    if(e){chat={id:'c'+(local.seq++),eventId:id,msgs:[{from:e.who[0],text:t('greetEvent'),t:now}]};
+    }else{
+      var p=SEED.filter(function(x){return x.id===id})[0];if(!p)return;
+      chat={id:'c'+(local.seq++),planId:id,msgs:[{from:'sys',text:(db.profile?db.profile.name:'')+t('joined'),t:now},{from:p.by,text:t('greetHost'),t:now}]};
+    }
+    local.demoChats.push(chat);
+    if(!ui.match)ui.match={chat:chat.id,ev:!!e};
+  });
+  if(changed){saveLocal();softRender()}
+}
+
+/* ---------- plans ---------- */
+function membersOf(pid,status){return db.members.filter(function(m){return m.plan_id===pid&&m.status===status})}
+function myStatus(pid){for(var i=0;i<db.members.length;i++){var m=db.members[i];if(m.plan_id===pid&&m.user_id===uid)return m.status}return null}
+function seedPlans(){return SEED.map(function(p){
+  var st=exStatus(p.id);
+  return {id:p.id,example:true,act:p.act,date:seedDate(p.d),time:p.time,district:p.district,by:p.by,need:p.need,langs:p.langs,
+    with:p.with.concat(st==='accepted'?[uid||'me']:[]),note:L(p.note),place:'',address:p.address||'',budget:txt(p.budget),eventId:null,status:st};
+})}
+function serverPlan(r){
+  return {id:r.id,act:r.act,date:r.date,time:r.time,district:r.district,by:r.host,need:r.need,langs:r.langs||[],note:r.note||'',place:r.place||'',
+    budget:r.budget||'',eventId:r.event_id||null,with:membersOf(r.id,'accepted').map(function(m){return m.user_id}),status:r.host===uid?'mine':myStatus(r.id)};
+}
+function realPlans(){return db.plans.map(serverPlan)}
+function allPlans(){return realPlans().concat(seedPlans())}
+function findPlan(id){var a=allPlans();for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null}
+function feed(){
+  return allPlans().filter(function(p){
+    if(p.act==='party'||local.swiped[p.id]||p.status)return false;
+    return districtOk(p.district)&&dayOk(p.date);
+  });
+}
+// the list of people in a plan is shown only to its host and approved guests
+function inPlan(p){return p.status==='mine'||p.status==='accepted'}
+function planPeople(p){return [p.by].concat(p.with||[])}
+function partyAddress(p){
+  if(p.example)return p.status==='accepted'?p.address:'';
+  return db.secrets[p.id]||'';
+}
+
+/* ---------- venues and events ---------- */
+function seedVenue(id){
+  var v=SEED_VENUES[id];
+  return {id:id,example:true,name:v.name,kind:v.kind,district:v.district,address:v.address,about:txt(v.about),contacts:v.contacts,verified:v.verified,
+    photo:U(PH[KINDS[v.kind].ph],160,160),cover:U(PH[KINDS[v.kind].ph],720),photos:[U(PH[KINDS[v.kind].ph],720)].concat(v.more.map(function(g){return U(PH[g],720)}))};
+}
+function serverVenue(r){
+  var fb=U(PH[KINDS[r.kind].ph],720);
+  return {id:r.id,owner:r.owner,name:r.name,kind:r.kind,district:r.district,address:r.address,about:r.about,contacts:r.contacts,verified:r.verified,
+    photo:r.photo||U(PH[KINDS[r.kind].ph],160,160),cover:r.photo||fb,photos:[r.photo||fb].concat(r.photos||[])};
+}
+function findVenue(id){
+  if(SEED_VENUES[id])return seedVenue(id);
+  for(var i=0;i<db.venues.length;i++)if(db.venues[i].id===id)return serverVenue(db.venues[i]);
+  return null;
+}
+function myVenue(){for(var i=0;i<db.venues.length;i++)if(db.venues[i].owner===uid)return serverVenue(db.venues[i]);return null}
+function serverEvent(e){
+  var v=findVenue(e.venue_id);if(!v)return null;
+  var rows=db.going.filter(function(g){return g.event_id===e.id});
+  var mineRow=rows.filter(function(g){return g.user_id===uid})[0];
+  var mine=v.owner===uid,st=mine?'mine':(mineRow?mineRow.status:null);
+  var see=mine||st==='accepted';
+  return {id:e.id,venue:v,title:e.title,format:e.format,date:e.date,time:e.time,end:e.end_time,minAge:e.min_age,dress:e.dress_code,face:e.face_control,
+    entry:e.entry_type,price:e.price,includes:e.deposit_includes,capacity:e.capacity,music:e.music,langs:e.langs||[],about:e.about,
+    photo:e.photo||v.cover,photos:[e.photo||v.cover].concat(e.photos||[]),
+    status:st,mine:mine,count:db.counts[e.id]||0,
+    goers:see?rows.filter(function(g){return g.status==='accepted'}).map(function(g){return g.user_id}):[],
+    pending:mine?rows.filter(function(g){return g.status==='pending'}).map(function(g){return g.user_id}):[]};
+}
+function seedEvent(e){
+  var st=exStatus(e.id);
+  return {id:e.id,example:true,venue:seedVenue(e.v),title:L(e.title),format:e.format,date:seedDate(e.d),time:e.time,end:e.end,minAge:e.minAge,
+    dress:txt(e.dress),face:e.face,entry:e.entry,price:e.price,includes:txt(e.includes),capacity:e.capacity,music:txt(e.music),langs:e.langs,about:L(e.about),
+    photo:U(PH[e.ph[0]],720),photos:e.ph.map(function(g){return U(PH[g],720)}),status:st,mine:false,
+    count:e.going+(st==='accepted'?1:0),goers:st==='accepted'?e.who.concat([uid||'me']):[],pending:[]};
+}
+function allEvents(){
+  var real=db.events.map(serverEvent).filter(Boolean);
+  var ex=SEED_EVENTS.map(seedEvent);
+  return real.concat(ex).sort(function(a,b){return (a.date+a.time)<(b.date+b.time)?-1:1});
+}
+function findEvent(id){var a=allEvents();for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null}
+function tooYoung(e){return !!(db.profile&&e.minAge&&db.profile.age<e.minAge)}
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+var NOBODY={name:'?',age:'',langs:[],ints:[],c:'#A2A8B4'};
+function person(id){
+  if(id==='me'||(uid&&id===uid))return db.profile||NOBODY;
+  return PEOPLE[id]||db.profiles[id]||NOBODY;
+}
+function realId(id){return id==='me'?uid:id}
+var PALETTE=['#F5A524','#E58FA6','#7FD1C8','#C9A27E','#9DB7F5','#A8D672'];
+function colorFor(id){var s=0;for(var i=0;i<id.length;i++)s+=id.charCodeAt(i);return PALETTE[s%PALETTE.length]}
+function ava(p,size){
+  var st='width:'+size+'px;height:'+size+'px;font-size:'+Math.round(size*.42)+'px;';
+  var src=p&&safeImg(p.photo);
+  if(src)return '<img class="ava" alt="" src="'+src+'" style="'+st+'">';
+  var n=(p&&p.name)||'?';
+  return '<span class="ava" aria-hidden="true" style="'+st+'background:'+((p&&p.c)||'#F5A524')+'">'+esc(n.charAt(0).toUpperCase())+'</span>';
+}
+function nameAge(p){return esc(p.name)+(p.age?', '+p.age:'')}
+function plink(id,size){var p=person(id);return '<button type="button" class="plink" data-act="person" data-val="'+esc(realId(id))+'">'+ava(p,size)+'<span class="pn">'+nameAge(p)+'</span></button>'}
+function faces(ids,max){
+  return '<div class="faces">'+ids.slice(0,max).map(function(id){var p=person(id);
+    return '<button type="button" class="plink" data-act="person" data-val="'+esc(realId(id))+'" aria-label="'+esc(p.name)+'">'+ava(p,40)+'</button>'}).join('')+'</div>';
+}
+function personRow(id){
+  var p=person(id);
+  return '<button type="button" class="prow" data-act="person" data-val="'+esc(realId(id))+'">'+ava(p,46)+'<span class="mid"><b>'+nameAge(p)+'</b>'+
+    '<br><span class="sub">'+esc(txt(p.about)||langTags(p.langs))+'</span></span></button>';
+}
+function planRow(p){
+  return '<button type="button" class="prow" data-act="details" data-val="'+p.id+'"><img class="thumb" alt="" src="'+U(PH[p.act],120,120)+'">'+
+    '<span class="mid"><b>'+esc(planTitle(p))+'</b><br><span class="sub">'+esc(planLine(p))+'</span></span></button>';
+}
+function eventRow(e,extra){
+  return '<button type="button" class="prow" data-act="epage" data-val="'+e.id+'"><img class="thumb" alt="" src="'+safeImg(e.photo)+'">'+
+    '<span class="mid"><b>'+esc(e.title)+'</b><br><span class="sub">'+esc(extra||(dayLabel(e.date)+' · '+timeRange(e)+' · '+e.venue.name))+'</span></span></button>';
+}
+function gallery(list,wide){
+  var a=(list||[]).map(safeImg).filter(Boolean);
+  if(!a.length)return '';
+  return '<div class="gal'+(wide?' wide':'')+'">'+a.map(function(s){return '<img alt="" src="'+s+'">'}).join('')+'</div>';
+}
+function langTags(a){return (a||[]).map(function(l){return l.toUpperCase()}).join(' · ')}
+function planTitle(p){return L(ACTS[p.act])+' · '+p.time}
+function planLine(p){return dayLabel(p.date)+' · '+p.district+(p.place?' · '+p.place:'')}
+function timeRange(e){return e.time+(e.end?'–'+e.end:'')}
+function entryText(e){
+  if(e.entry==='ticket')return t('ticket')+' · '+e.price;
+  if(e.entry==='deposit')return t('deposit')+' · '+e.price+(e.includes?' ('+t('includes')+': '+e.includes+')':'');
+  return t('free');
+}
+function statusPill(st){
+  if(st==='pending')return '<span class="pill wait">'+t('requested')+'</span>';
+  if(st==='accepted')return '<span class="pill ok">✓ '+t('accepted')+'</span>';
+  if(st==='declined')return '<span class="pill no">'+t('declined')+'</span>';
+  return '';
+}
+function mapsLink(v){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(v.name+', '+v.address+', Novi Sad')}
+var IC={
+ afisha:'<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8a2 2 0 0 0 0 4v4h18v-4a2 2 0 0 1 0-4V4H3z" transform="translate(0 2)"/><path d="M14 6v12" stroke-dasharray="2 2.5"/></svg>',
+ plans:'<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="3" width="13" height="17" rx="3"/><path d="M3 7v10" stroke-linecap="round"/></svg>',
+ chats:'<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+ profile:'<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-5 8-5s6.5 1 8 5"/></svg>',
+ vRequests:'<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 19c1-3.5 3.5-4.5 6.5-4.5s5.5 1 6.5 4.5"/><path d="M16 11l2 2 4-4"/></svg>',
+ vProfile:'<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10l9-6 9 6v10H3z"/><path d="M9 20v-6h6v6"/></svg>',
+ plus:'<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+ x:'<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+ ok:'<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg>',
+ back:'<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>'
+};
+IC.vEvents=IC.afisha;
+var toastTimer=null;
+function toast(msg){
+  var old=document.querySelector('.toast');if(old)old.remove();
+  var el=document.createElement('div');el.className='toast';el.setAttribute('role','status');el.textContent=msg;
+  document.getElementById('app').appendChild(el);
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.remove()},2800);
+}
+function chipSet(group,items,labelFn){
+  var sel=ui.draft[group]||[];
+  return '<div class="chips">'+items.map(function(k){
+    var on=sel.indexOf(k)>=0;
+    return '<button type="button" class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="chip" data-group="'+group+'" data-val="'+k+'">'+esc(labelFn(k))+'</button>';
+  }).join('')+'</div>';
+}
+// single choice chips (age limit, entry type)
+function pickSet(group,items,labelFn){
+  return '<div class="chips">'+items.map(function(k){
+    var on=String(ui.draft[group])===String(k);
+    return '<button type="button" class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="pick" data-group="'+group+'" data-val="'+k+'">'+esc(labelFn(k))+'</button>';
+  }).join('')+'</div>';
+}
+// photo tiles with "add" and "remove"
+function galEdit(arr){
+  return '<div id="gal-edit"><div class="gal-edit">'+arr.map(function(s,i){
+    return '<span class="gtile" style="background-image:url(\''+safeImg(s)+'\')"><button type="button" data-act="gal-del" data-val="'+i+'" aria-label="'+t('removePhoto')+'">×</button></span>';
+  }).join('')+(arr.length<4?'<label class="gtile" for="f-gallery" aria-label="'+t('addMore')+'">+</label>':'')+
+  '</div><input id="f-gallery" type="file" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px"></div>';
+}
+function refreshGal(){var el=document.getElementById('gal-edit');if(el&&ui.draft)el.outerHTML=galEdit(ui.draft.photos)}
+function coverPick(src){
+  var s=safeImg(src);
+  return '<label class="cover-pick" id="cover" for="f-cover" style="'+(s?"background-image:url('"+s+"')":'')+'">'+(s?'':t('vPhoto'))+'</label>'+
+    '<input id="f-cover" type="file" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px">';
+}
+
+/* ---------- onboarding ---------- */
+function startDraft(){
+  var p=db.profile||{};
+  ui.draft={name:p.name||'',age:p.age||'',photo:p.photo||'',about:p.about||'',photos:(db.galleries[uid]||[]).slice(),gal:[480,600],ints:(p.ints||[]).slice(),
+    langs:(p.langs&&p.langs.length?p.langs:(local.lang?[local.lang]:[])).slice(),likes:(p.likes||[]).slice(),err:''};
+}
+function viewOnboarding(){
+  var h='',d;
+  if(ui.ob==='lang'){
+    return '<div class="ob"><div class="photo-hero" style="min-height:220px;'+bg(U(PH.city,880))+'"></div><div class="brand">Just <span>One</span></div><p class="muted" style="margin:0">Компания на вечер · Društvo za večeras · Company for tonight</p>'+
+       '<div class="field"><span class="label">Язык · Jezik · Language</span><div style="display:flex;flex-direction:column;gap:10px">'+
+       Object.keys(LANGS).map(function(k){return '<button class="btn ghost block" data-act="lang" data-val="'+k+'">'+LANGS[k]+'</button>'}).join('')+
+       '</div></div><div class="grow"></div></div>';
+  }
+  if(ui.ob==='kind'){
+    return '<div class="ob"><div class="brand">Just <span>One</span></div><h2>'+t('kindTitle')+'</h2>'+
+      '<button class="kind" data-act="kind" data-val="person"><span class="pic" style="'+bg(U(PH.beer,720))+'"></span><span class="tx"><b>'+t('kindPerson')+'</b><span class="muted small">'+t('kindPersonSub')+'</span></span></button>'+
+      '<button class="kind" data-act="kind" data-val="venue"><span class="pic" style="'+bg(U(PH.bar,720))+'"></span><span class="tx"><b>'+t('kindVenue')+'</b><span class="muted small">'+t('kindVenueSub')+'</span></span></button>'+
+      '<div class="grow"></div><button class="btn ghost sm" data-act="ob-to" data-val="lang">'+t('language')+' · '+LANGS[local.lang||'ru']+'</button></div>';
+  }
+  if(ui.ob==='vauth'){
+    var up=ui.authMode==='up';
+    return '<form class="ob" id="auth-form"><h1>'+t('vAuthTitle')+'</h1>'+
+      '<div class="seg"><button type="button" class="'+(up?'on':'')+'" data-act="auth-mode" data-val="up">'+t('signUp')+'</button><button type="button" class="'+(up?'':'on')+'" data-act="auth-mode" data-val="in">'+t('signIn')+'</button></div>'+
+      '<div class="field"><label for="a-email">'+t('email')+'</label><input class="input" id="a-email" type="email" autocomplete="email" required></div>'+
+      '<div class="field"><label for="a-pass">'+t('password')+'</label><input class="input" id="a-pass" type="password" minlength="8" autocomplete="'+(up?'new-password':'current-password')+'" required><span class="hint">'+t('passwordHint')+'</span></div>'+
+      '<div class="err" role="alert">'+esc(ui.authErr)+'</div>'+(ui.authInfo?'<div class="note">'+esc(ui.authInfo)+'</div>':'')+
+      '<div class="grow"></div><div class="row"><button type="button" class="btn ghost" data-act="ob-to" data-val="kind">'+t('back')+'</button><button class="btn" type="submit">'+(up?t('signUp'):t('signIn'))+'</button></div></form>';
+  }
+  if(!ui.draft)startDraft();
+  d=ui.draft;
+  if(ui.ob==='p1'){
+    h+='<div class="ob"><h1>'+t('aboutYou')+'</h1>'+
+       '<div style="display:flex;align-items:center;gap:14px">'+ava({name:d.name||'?',photo:d.photo},72)+
+       '<label class="btn ghost sm" style="display:inline-flex;align-items:center" for="f-photo">'+(d.photo?t('changePhoto'):t('addPhoto'))+'</label>'+
+       '<input id="f-photo" type="file" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px"></div>'+
+       '<div class="field"><label for="f-name">'+t('name')+'</label><input class="input" id="f-name" maxlength="24" autocomplete="given-name" value="'+esc(d.name)+'"></div>'+
+       '<div class="field"><label for="f-age">'+t('age')+'</label><input class="input" id="f-age" type="number" inputmode="numeric" min="18" max="99" value="'+esc(d.age)+'"></div>'+
+       '<div class="field"><label for="f-about">'+t('aboutMe')+'</label><textarea class="input" id="f-about" maxlength="200" placeholder="'+esc(t('aboutMePh'))+'">'+esc(d.about)+'</textarea></div>'+
+       '<div class="field"><span class="label">'+t('morePhotos')+'</span>'+galEdit(d.photos)+'</div>'+
+       '<div class="err" role="alert">'+esc(d.err)+'</div><div class="grow"></div>'+
+       '<div class="row">'+(ui.editing?'<button class="btn ghost" data-act="ob-cancel">'+t('cancel')+'</button>':'<button class="btn ghost" data-act="ob-to" data-val="kind">'+t('back')+'</button>')+
+       '<button class="btn" data-act="ob-next1">'+t('next')+'</button></div></div>';
+  }else{
+    h+='<div class="ob"><h1>'+t('aboutYou')+'</h1>'+
+       '<div class="field"><span class="label">'+t('langs')+'</span>'+chipSet('langs',Object.keys(LANGS),function(k){return LANGS[k]})+'</div>'+
+       '<div class="field"><span class="label">'+t('likes')+'</span>'+chipSet('likes',Object.keys(ACTS),function(k){return L(ACTS[k])})+'</div>'+
+       '<div class="field"><span class="label">'+t('interests')+'</span>'+chipSet('ints',Object.keys(INTS),function(k){return L(INTS[k])})+'</div>'+
+       '<div class="err" role="alert">'+esc(d.err)+'</div><div class="grow"></div>'+
+       '<div class="row"><button class="btn ghost" data-act="ob-to" data-val="p1">'+t('back')+'</button><button class="btn" data-act="ob-done">'+(ui.editing?t('save'):t('start'))+'</button></div></div>';
+  }
+  return h;
+}
+
+/* ---------- person: plans ---------- */
+function topFilters(title){
+  return '<div class="top"><div class="line"><h1>'+title+'</h1>'+
+     '<select class="select" id="f-district" aria-label="'+t('district')+'"><option value="all">'+t('allCity')+'</option>'+
+     DISTRICTS.map(function(x){return '<option'+(ui.district===x?' selected':'')+'>'+x+'</option>'}).join('')+'</select></div>'+
+     '<div class="chips">'+['today','tomorrow','weekend'].map(function(k){return '<button class="chip'+(ui.day===k?' on':'')+'" aria-pressed="'+(ui.day===k)+'" data-act="day" data-val="'+k+'">'+t(k)+'</button>'}).join('')+'</div>'+
+     '<div class="demo">'+t('demo')+'</div></div>';
+}
+function viewPlans(){
+  var f=feed(),h=topFilters(t('plans'));
+  h+='<div class="body" style="overflow:hidden">';
+  if(!f.length){
+    h+='<div class="empty"><h2>'+t('emptyFeed')+'</h2><button class="btn" data-act="create">'+t('newPlan')+'</button>'+
+       '<button class="btn ghost sm" data-act="unskip">'+t('showAgain')+'</button></div>';
+  }else{
+    h+='<div class="stack">';
+    if(f[1])h+=card(f[1],false);
+    h+=card(f[0],true);
+    h+='</div><div class="actions"><button class="round no" data-act="swipe" data-val="no" aria-label="'+t('skip')+'">'+IC.x+'</button>'+
+       '<button class="round yes" data-act="swipe" data-val="yes" aria-label="'+t('join')+'">'+IC.ok+'</button></div>';
+  }
+  return h+'</div>';
+}
+function card(p,top){
+  var a=person(p.by);
+  return '<div class="card '+(top?'top':'under')+'" data-id="'+p.id+'"'+(top?'':' aria-hidden="true"')+'>'+
+    '<div class="hero" style="background-color:'+ACTS[p.act].c+';'+bg(U(PH[p.act],720),true)+'"><span class="stamp yes">'+t('yes')+'</span><span class="stamp no">'+t('no')+'</span>'+
+    (p.example?'<span class="ex">'+t('example')+'</span>':'')+
+    '<div class="act">'+esc(L(ACTS[p.act]))+'</div><div class="when">'+esc(dayLabel(p.date))+' · '+p.time+' · '+esc(p.district)+'</div></div>'+
+    '<div class="info"><div class="who">'+ava(a,36)+'<span>'+nameAge(a)+'</span><span class="muted small" style="font-weight:600">'+langTags(p.langs)+'</span></div>'+
+    '<div>'+esc(p.note)+'</div><div class="small muted">'+t('spots')+p.need+(p.budget?' · '+t('budget')+': '+esc(p.budget):'')+'</div></div></div>';
+}
+
+/* ---------- person: afisha ---------- */
+function venueLine(v){
+  return '<button type="button" class="plink venue" data-act="vpage" data-val="'+v.id+'"><img alt="" src="'+safeImg(v.photo)+'"><span class="pn">'+esc(v.name)+'</span>'+
+    (v.verified?'<span class="ok-badge" title="'+t('verified')+'" aria-label="'+t('verified')+'">✓</span>':'')+
+    '<span class="muted" style="font-weight:600">· '+esc(L(KINDS[v.kind]))+'</span></button>';
+}
+function evCard(e){
+  var v=e.venue;
+  var tags=['<span class="pill">'+e.minAge+'+</span>','<span class="pill">'+esc(e.entry==='free'?t('free'):(e.entry==='ticket'?t('ticket'):t('deposit'))+' '+e.price)+'</span>'];
+  if(e.dress)tags.push('<span class="pill">'+esc(e.dress)+'</span>');
+  if(e.face)tags.push('<span class="pill">'+t('fFace')+'</span>');
+  return '<article class="ev"><button type="button" class="pic" style="'+bg(e.photo)+'" data-act="epage" data-val="'+e.id+'" aria-label="'+esc(e.title)+'">'+(e.example?'<span class="ex">'+t('example')+'</span>':'')+'</button>'+
+    '<div class="bd">'+venueLine(v)+'<button type="button" class="ttl" data-act="epage" data-val="'+e.id+'">'+esc(e.title)+'</button>'+
+    '<div class="meta">'+esc(L(FORMATS[e.format]||FORMATS.other))+' · '+esc(dayLabel(e.date))+' · '+esc(timeRange(e))+' · '+esc(v.district)+'</div>'+
+    '<div class="tags">'+tags.join('')+'</div>'+
+    '<div class="row2"><span class="muted small">'+t('goingN')+e.count+'</span>'+(statusPill(e.status)||'<button class="btn sm" data-act="epage" data-val="'+e.id+'">'+t('open')+'</button>')+'</div></div></article>';
+}
+function partyCard(p){
+  var st=p.status,btn;
+  if(st==='mine')btn='<span class="pill">'+t('yourParty')+'</span>';
+  else if(st)btn=statusPill(st);
+  else btn='<button class="btn sm" data-act="party-join" data-val="'+p.id+'">'+t('wantGo')+'</button>';
+  return '<article class="ev"><button type="button" class="pic" style="'+bg(U(PH.party,720))+'" data-act="details" data-val="'+p.id+'" aria-label="'+t('partyLabel')+'">'+(p.example?'<span class="ex">'+t('example')+'</span>':'')+'</button>'+
+    '<div class="bd">'+plink(p.by,28)+
+    '<button type="button" class="ttl" data-act="details" data-val="'+p.id+'">'+t('partyLabel')+' · '+esc(p.district)+'</button>'+
+    '<div class="meta">'+esc(dayLabel(p.date))+' · '+esc(p.time)+' · '+t('spots')+p.need+'</div>'+
+    (p.note?'<div class="small">'+esc(p.note)+'</div>':'')+
+    (p.budget?'<div class="small"><b>'+t('contrib')+':</b> '+esc(p.budget)+'</div>':'')+
+    '<div class="small"><b>'+t('address')+':</b> '+esc(partyAddress(p)||t('addrHidden'))+'</div>'+
+    '<div class="row2"><span></span>'+btn+'</div></div></article>';
+}
+function viewAfisha(){
+  var h=topFilters(t('afisha'))+'<div class="body">';
+  var evs=allEvents().filter(function(e){return districtOk(e.venue.district)&&dayOk(e.date)});
+  h+='<h2>'+t('events')+'</h2>';
+  if(!evs.length)h+='<p class="muted" style="margin:0">'+t('noEvents')+'</p>';
+  evs.forEach(function(e){h+=evCard(e)});
+  var ps=allPlans().filter(function(p){return p.act==='party'&&districtOk(p.district)&&dayOk(p.date)});
+  h+='<div class="sec"><h2>'+t('parties')+'</h2><button class="btn sm ghost" data-act="new-party">+ '+t('newParty')+'</button></div>';
+  if(!ps.length)h+='<p class="muted" style="margin:0">'+t('noParties')+'</p>';
+  ps.forEach(function(p){h+=partyCard(p)});
+  return h+'</div>';
+}
+
+/* ---------- chats ---------- */
+function msgsFor(pid){
+  return db.msgs.filter(function(m){return m.plan_id===pid}).map(function(m){
+    if(m.kind==='join')return {from:'sys',text:m.body+t('joined'),t:Date.parse(m.created_at)};
+    return {from:m.user_id===uid?'me':m.user_id,text:m.body,t:Date.parse(m.created_at)};
+  });
+}
+function evMsgsFor(eid){
+  return db.evMsgs.filter(function(m){return m.event_id===eid}).map(function(m){
+    return {from:m.user_id===uid?'me':m.user_id,text:m.body,t:Date.parse(m.created_at)};
+  });
+}
+function planChat(p,id,msgs,demo){
+  return {id:id,kind:'plan',target:p.id,demo:!!demo,title:planTitle(p)+' · '+p.district,photo:U(PH[p.act],120,120),members:planPeople(p),msgs:msgs,
+    pin:dayLabel(p.date)+' · '+p.time+' · '+p.district+' · '+(p.act==='party'?(partyAddress(p)||t('addrHidden')):(p.place||t('tbd')))};
+}
+function eventChat(e,id,msgs,demo){
+  return {id:id,kind:'event',target:e.id,demo:!!demo,title:e.title,photo:safeImg(e.photo),members:e.goers,msgs:msgs,
+    pin:dayLabel(e.date)+' · '+timeRange(e)+' · '+e.venue.name+(e.venue.address?' · '+e.venue.address:'')};
+}
+function chatList(){
+  var out=[];
+  realPlans().forEach(function(p){
+    if((p.status==='mine'&&p.with.length)||p.status==='accepted')out.push(planChat(p,p.id,msgsFor(p.id)));
+  });
+  db.events.map(serverEvent).filter(Boolean).forEach(function(e){
+    if(e.status==='accepted'||e.mine)out.push(eventChat(e,'ev:'+e.id,evMsgsFor(e.id)));
+  });
+  local.demoChats.forEach(function(c){
+    if(c.eventId){var e=findEvent(c.eventId);if(e)out.push(eventChat(e,c.id,c.msgs,true));return}
+    var p=findPlan(c.planId);if(p)out.push(planChat(p,c.id,c.msgs,true));
+  });
+  function last(c){var m=c.msgs[c.msgs.length-1];return m&&m.t?m.t:0}
+  return out.sort(function(a,b){return last(b)-last(a)});
+}
+function chatById(id){var a=chatList();for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null}
+function viewChats(){
+  var h='<div class="top"><h1>'+t('chats')+'</h1></div><div class="body">',list=chatList();
+  if(!list.length)h+='<div class="empty"><p class="muted">'+t('noChats')+'</p></div>';
+  list.forEach(function(c){
+    var last=c.msgs[c.msgs.length-1];
+    h+='<button class="item" data-act="open-chat" data-val="'+esc(c.id)+'"><img class="thumb" alt="" src="'+c.photo+'" style="border-radius:23px">'+
+       '<span class="mid"><span class="ttl">'+esc(c.title)+'</span><br><span class="sub">'+esc(last?last.text:c.pin)+'</span></span></button>';
+  });
+  return h+'</div>';
+}
+
+/* ---------- person: my profile ---------- */
+function viewProfile(){
+  var p=db.profile,h='<div class="top"><h1>'+t('profile')+'</h1></div><div class="body">';
+  var mine=realPlans().filter(function(pl){return pl.status==='mine'});
+  var waiting=allPlans().filter(function(pl){return pl.status==='pending'});
+  var evWait=allEvents().filter(function(e){return e.status==='pending'||e.status==='accepted'});
+  h+='<div class="box"><div style="display:flex;align-items:center;gap:14px">'+ava(p,72)+'<div><h2>'+nameAge(p)+'</h2><div class="muted small">'+langTags(p.langs)+'</div></div></div>'+
+     (p.about?'<div>'+esc(p.about)+'</div>':'')+
+     ((db.galleries[uid]||[]).length?gallery(db.galleries[uid]):'')+
+     '<div class="tags">'+(p.likes||[]).map(function(k){return '<span class="tag">'+esc(L(ACTS[k]))+'</span>'}).join('')+(p.ints||[]).map(function(k){return '<span class="tag">'+esc(L(INTS[k]))+'</span>'}).join('')+'</div>'+
+     '<div class="chips"><button class="btn ghost sm" data-act="edit">'+t('edit')+'</button><button class="btn ghost sm" data-act="person" data-val="'+uid+'">'+t('seeAs')+'</button></div></div>';
+  h+='<h2>'+t('myPlans')+'</h2>';
+  if(!mine.length)h+='<div class="box"><span class="muted">'+t('noMyPlans')+'</span><button class="btn sm" data-act="create">'+t('newPlan')+'</button></div>';
+  mine.forEach(function(pl){
+    var reqs=membersOf(pl.id,'pending').map(function(m){return m.user_id});
+    h+='<div class="box">'+planRow(pl);
+    if(pl.with.length)h+='<span class="label">'+t('participants')+' · '+(pl.with.length+1)+'</span>'+faces(planPeople(pl),12);
+    h+='<span class="label">'+t('requests')+'</span>';
+    if(!reqs.length)h+='<span class="muted small">'+t('noReq')+'</span>';
+    reqs.forEach(function(r){
+      h+='<div class="req">'+personRow(r)+'<button class="btn sm" data-act="accept" data-plan="'+pl.id+'" data-val="'+r+'">'+t('accept')+'</button>'+
+         '<button class="btn ghost sm" data-act="decline" data-plan="'+pl.id+'" data-val="'+r+'">'+t('decline')+'</button></div>';
+    });
+    h+='<button class="btn danger sm" data-act="del-plan" data-val="'+pl.id+'">'+t('del')+'</button></div>';
+  });
+  if(waiting.length||evWait.length){
+    h+='<h2>'+t('waiting')+'</h2>';
+    waiting.forEach(function(pl){h+=planRow(pl)});
+    evWait.forEach(function(e){h+=eventRow(e,(e.status==='accepted'?'✓ '+t('accepted'):t('requested'))+' · '+dayLabel(e.date))});
+  }
+  h+='<div class="box"><span class="label">'+t('language')+'</span><div class="chips">'+Object.keys(LANGS).map(function(k){return '<button class="chip'+(local.lang===k?' on':'')+'" aria-pressed="'+(local.lang===k)+'" data-act="set-lang" data-val="'+k+'">'+LANGS[k]+'</button>'}).join('')+'</div>'+
+     '<button class="btn danger sm" data-act="logout">'+t('logout')+'</button></div>';
+  return h+'</div>';
+}
+
+/* ---------- venue account ---------- */
+function myEvents(){var v=myVenue();return v?allEvents().filter(function(e){return e.venue.id===v.id}):[]}
+function viewVEvents(){
+  var v=myVenue(),evs=myEvents(),h='<div class="top"><div class="line"><h1>'+t('myEvents')+'</h1><button class="btn sm" data-act="new-event">+ '+t('newEvent')+'</button></div>'+
+    '<span class="small '+(v.verified?'':'muted')+'">'+esc(v.name)+' · '+(v.verified?'✓ '+t('verified'):t('notVerified'))+'</span></div><div class="body">';
+  if(!evs.length)h+='<div class="note">'+t('noMyEvents')+'</div>';
+  evs.forEach(function(e){h+=eventRow(e,dayLabel(e.date)+' · '+timeRange(e)+' · '+t('reqsN')+e.pending.length+' · '+t('guestsN')+e.goers.length)});
+  return h+'</div>';
+}
+function viewVRequests(){
+  var evs=myEvents().filter(function(e){return e.pending.length}),h='<div class="top"><h1>'+t('vRequests')+'</h1></div><div class="body">';
+  if(!evs.length)h+='<div class="note">'+t('noRequests')+'</div>';
+  evs.forEach(function(e){
+    h+='<div class="box">'+eventRow(e);
+    e.pending.forEach(function(r){
+      h+='<div class="req">'+personRow(r)+'<button class="btn sm" data-act="ev-accept" data-ev="'+e.id+'" data-val="'+r+'">'+t('accept')+'</button>'+
+         '<button class="btn ghost sm" data-act="ev-decline" data-ev="'+e.id+'" data-val="'+r+'">'+t('decline')+'</button></div>';
+    });
+    h+='</div>';
+  });
+  return h+'</div>';
+}
+function venueInfo(v,withEvents){
+  var evs=allEvents().filter(function(e){return e.venue.id===v.id&&upcoming(e.date)});
+  return gallery(v.photos,true)+
+   '<div><h1>'+esc(v.name)+'</h1><div class="muted small">'+esc(L(KINDS[v.kind]))+' · '+esc(v.district)+(v.verified?' · ✓ '+t('verified'):'')+'</div></div>'+
+   (v.address?'<div class="field"><span class="label">'+t('address')+'</span><div class="row2"><span>'+esc(v.address)+'</span>'+
+     '<a class="btn ghost sm" target="_blank" rel="noopener" href="'+esc(mapsLink(v))+'">'+t('route')+'</a></div></div>':'')+
+   (v.about?'<div class="field"><span class="label">'+t('vAbout')+'</span><div>'+esc(v.about)+'</div></div>':'')+
+   (v.contacts?'<div class="field"><span class="label">'+t('contacts')+'</span><div style="user-select:all">'+esc(v.contacts)+'</div></div>':'')+
+   (withEvents?'<div class="field"><span class="label">'+t('venueEvents')+'</span>'+(evs.length?evs.map(function(e){return eventRow(e)}).join(''):'<span class="muted small">'+t('noVenueEvents')+'</span>')+'</div>':'');
+}
+function viewVProfile(){
+  var v=myVenue(),p=db.vprivate||{},h='<div class="top"><h1>'+t('vProfile')+'</h1></div><div class="body">';
+  h+=venueInfo(v,false);
+  h+='<div class="box"><span class="label">'+t('vPrivate')+' · '+t('privateOnly')+'</span>'+
+     '<div class="small">'+esc(t('vContactName'))+': <b>'+esc(p.contact_name||'—')+'</b></div>'+
+     '<div class="small">'+esc(t('vPib'))+': <b>'+esc(p.pib||'—')+'</b></div>'+
+     '<div class="small">'+esc(t('vPhone'))+': <b>'+esc(p.phone||'—')+'</b></div></div>';
+  h+='<button class="btn ghost" data-act="venue-edit">'+t('editVenue')+'</button>';
+  h+='<div class="box"><span class="label">'+t('language')+'</span><div class="chips">'+Object.keys(LANGS).map(function(k){return '<button class="chip'+(local.lang===k?' on':'')+'" aria-pressed="'+(local.lang===k)+'" data-act="set-lang" data-val="'+k+'">'+LANGS[k]+'</button>'}).join('')+'</div>'+
+     '<button class="btn danger sm" data-act="logout">'+t('logout')+'</button></div>';
+  return h+'</div>';
+}
+function venueForm(isSetup){
+  var v=myVenue()||{name:'',kind:'bar',district:DISTRICTS[0],address:'',about:'',contacts:''},p=db.vprivate||{};
+  return (isSetup?'<form class="ob" id="venue-form"><h1>'+t('vSetupTitle')+'</h1>':'<form class="sheet" id="venue-form">'+sheetHead(t('vSetupTitle'))+'<div class="content">')+
+   coverPick(ui.draft.photo)+
+   '<div class="field"><span class="label">'+t('evPhotos')+'</span>'+galEdit(ui.draft.photos)+'</div>'+
+   '<div class="field"><label for="v-name">'+t('vName')+'</label><input class="input" id="v-name" maxlength="40" value="'+esc(v.name)+'"></div>'+
+   '<div class="row"><div class="field"><label for="v-kind">'+t('vKind')+'</label><select class="input" id="v-kind">'+Object.keys(KINDS).map(function(k){return '<option value="'+k+'"'+(v.kind===k?' selected':'')+'>'+esc(L(KINDS[k]))+'</option>'}).join('')+'</select></div>'+
+   '<div class="field"><label for="v-district">'+t('district')+'</label><select class="input" id="v-district">'+DISTRICTS.map(function(x){return '<option'+(v.district===x?' selected':'')+'>'+x+'</option>'}).join('')+'</select></div></div>'+
+   '<div class="field"><label for="v-address">'+t('address')+'</label><input class="input" id="v-address" maxlength="80" value="'+esc(v.address)+'"></div>'+
+   '<div class="field"><label for="v-about">'+t('vAbout')+'</label><textarea class="input" id="v-about" maxlength="280">'+esc(v.about)+'</textarea></div>'+
+   '<div class="field"><label for="v-contacts">'+t('vContacts')+'</label><input class="input" id="v-contacts" maxlength="80" placeholder="'+esc(t('vContactsPh'))+'" value="'+esc(v.contacts)+'"></div>'+
+   '<div class="box"><b>'+t('vPrivate')+'</b><span class="hint">'+t('vPrivateSub')+'</span>'+
+   '<div class="field"><label for="v-cname">'+t('vContactName')+'</label><input class="input" id="v-cname" maxlength="60" value="'+esc(p.contact_name||'')+'"></div>'+
+   '<div class="field"><label for="v-pib">'+t('vPib')+'</label><input class="input" id="v-pib" inputmode="numeric" maxlength="9" value="'+esc(p.pib||'')+'"></div>'+
+   '<div class="field"><label for="v-phone">'+t('vPhone')+'</label><input class="input" id="v-phone" type="tel" maxlength="30" value="'+esc(p.phone||'')+'"></div></div>'+
+   (isSetup?'<div class="row"><button type="button" class="btn ghost" data-act="logout">'+t('logout')+'</button><button class="btn" type="submit">'+t('save')+'</button></div></form>'
+     :'</div><div class="foot"><button class="btn" type="submit">'+t('save')+'</button></div></form>');
+}
+function nav(){
+  if(myVenue()){
+    var pend=myEvents().some(function(e){return e.pending.length});
+    var vb=function(k,dot){return '<button class="'+(ui.tab===k?'on':'')+'" data-act="tab" data-val="'+k+'"'+(ui.tab===k?' aria-current="page"':'')+'>'+IC[k]+'<span>'+t(k)+'</span>'+(dot?'<span class="dot"></span>':'')+'</button>'};
+    return '<nav class="nav">'+vb('vEvents')+vb('vRequests',pend)+'<button class="plus" data-act="new-event" aria-label="'+t('newEventTitle')+'">'+IC.plus+'</button>'+vb('chats')+vb('vProfile')+'</nav>';
+  }
+  var pending=db.plans.some(function(p){return p.host===uid&&membersOf(p.id,'pending').length});
+  function b(k){return '<button class="'+(ui.tab===k?'on':'')+'" data-act="tab" data-val="'+k+'"'+(ui.tab===k?' aria-current="page"':'')+'>'+IC[k]+'<span>'+t(k)+'</span>'+(k==='profile'&&pending?'<span class="dot"></span>':'')+'</button>'}
+  return '<nav class="nav">'+b('plans')+b('afisha')+'<button class="plus" data-act="create" aria-label="'+t('newPlan')+'">'+IC.plus+'</button>'+b('chats')+b('profile')+'</nav>';
+}
+
+/* ---------- sheets (pages on top; "back" returns to the previous one) ---------- */
+function sheetHead(title,sub){return '<div class="head"><button type="button" class="icon" data-act="close" aria-label="'+t('back')+'">'+IC.back+'</button><div class="t"><b>'+title+'</b>'+(sub?'<span class="muted small">'+sub+'</span>':'')+'</div></div>'}
+function dayOptions(sel){var days='';for(var i=0;i<30;i++){var s=iso(plusDays(i));days+='<option value="'+s+'"'+(s===sel?' selected':'')+'>'+esc(dayLabel(s))+'</option>'}return days}
+function sheetCreate(){
+  var d=ui.draft,party=d.mode==='party',pre=d.prefill||{};
+  var need=party?[2,4,6,8,10,15,20,30]:[1,2,3,4,5];
+  return '<form class="sheet" id="create-form">'+sheetHead(party?t('partyTitle'):t('newPlan'))+
+   '<div class="content">'+
+   (party?'<div class="photo-hero" style="min-height:120px;'+bg(U(PH.party,720))+'"></div>':
+   '<div class="field"><span class="label">'+t('what')+'</span><div class="chips">'+PLAN_ACTS.map(function(k){var on=d.act===k;return '<button type="button" class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="pick-act" data-val="'+k+'">'+esc(L(ACTS[k]))+'</button>'}).join('')+'</div></div>')+
+   '<div class="row"><div class="field"><label for="c-day">'+t('day')+'</label><select class="input" id="c-day">'+dayOptions(pre.date)+'</select></div>'+
+   '<div class="field"><label for="c-time">'+t('time')+'</label><input class="input" id="c-time" type="time" value="'+esc(pre.time||(party?'21:00':'20:00'))+'" required></div></div>'+
+   '<div class="row"><div class="field"><label for="c-district">'+t('district')+'</label><select class="input" id="c-district">'+DISTRICTS.map(function(x){return '<option'+(pre.district===x?' selected':'')+'>'+x+'</option>'}).join('')+'</select></div>'+
+   '<div class="field"><label for="c-need">'+(party?t('guests'):t('people'))+'</label><select class="input" id="c-need">'+need.map(function(n,i){return '<option'+(i===(party?2:1)?' selected':'')+'>'+n+'</option>'}).join('')+'</select></div></div>'+
+   (party?'<div class="field"><label for="c-addr">'+t('partyAddr')+'</label><input class="input" id="c-addr" maxlength="120" required placeholder="'+esc(t('partyAddrPh'))+'"></div>':
+   '<div class="field"><label for="c-place">'+t('place')+'</label><input class="input" id="c-place" maxlength="40" placeholder="'+esc(t('placePh'))+'" value="'+esc(pre.place||'')+'"></div>')+
+   '<div class="field"><label for="c-budget">'+(party?t('contrib'):t('budget'))+'</label><input class="input" id="c-budget" maxlength="40" placeholder="'+esc(party?t('contribPh'):t('budgetPh'))+'"></div>'+
+   '<div class="field"><span class="label">'+t('planLangs')+'</span>'+chipSet('langs',Object.keys(LANGS),function(k){return LANGS[k]})+'</div>'+
+   '<div class="field"><label for="c-note">'+(party?t('partyNote'):t('note'))+'</label><textarea class="input" id="c-note" maxlength="140" placeholder="'+esc(party?t('partyNotePh'):t('notePh'))+'">'+esc(pre.note||'')+'</textarea></div>'+
+   '</div><div class="foot"><button class="btn" type="submit">'+t('publish')+'</button></div></form>';
+}
+function sheetEvent(){
+  var d=ui.draft;
+  return '<form class="sheet" id="event-form">'+sheetHead(t('newEventTitle'))+'<div class="content">'+coverPick(d.photo)+
+   '<div class="field"><span class="label">'+t('evPhotos')+'</span>'+galEdit(d.photos)+'</div>'+
+   '<div class="field"><label for="e-title">'+t('evTitle')+'</label><input class="input" id="e-title" maxlength="60" placeholder="'+esc(t('evTitlePh'))+'"></div>'+
+   '<div class="field"><label for="e-format">'+t('evFormat')+'</label><select class="input" id="e-format">'+Object.keys(FORMATS).map(function(k){return '<option value="'+k+'">'+esc(L(FORMATS[k]))+'</option>'}).join('')+'</select></div>'+
+   '<div class="field"><label for="e-day">'+t('day')+'</label><select class="input" id="e-day">'+dayOptions()+'</select></div>'+
+   '<div class="row"><div class="field"><label for="e-time">'+t('evStart')+'</label><input class="input" id="e-time" type="time" value="21:00" required></div>'+
+   '<div class="field"><label for="e-end">'+t('evEnd')+'</label><input class="input" id="e-end" type="time" value="02:00"></div></div>'+
+   '<div class="field"><span class="label">'+t('evMinAge')+'</span>'+pickSet('minAge',AGES,function(a){return a+'+'})+'</div>'+
+   '<div class="field"><label for="e-dress">'+t('evDress')+'</label><input class="input" id="e-dress" maxlength="60" placeholder="'+esc(t('evDressPh'))+'"></div>'+
+   '<label class="check"><input type="checkbox" id="e-face"> '+t('evFace')+'</label>'+
+   '<div class="field"><span class="label">'+t('evEntry')+'</span>'+pickSet('entry',['free','ticket','deposit'],function(k){return k==='free'?t('free'):t(k)})+'</div>'+
+   '<div class="field" id="e-price-wrap"'+(d.entry==='free'?' hidden':'')+'><label for="e-price">'+t('evPrice')+'</label><input class="input" id="e-price" maxlength="30" placeholder="'+esc(t('evPricePh'))+'"></div>'+
+   '<div class="field" id="e-inc-wrap"'+(d.entry==='deposit'?'':' hidden')+'><label for="e-includes">'+t('evIncludes')+'</label><input class="input" id="e-includes" maxlength="80" placeholder="'+esc(t('evIncludesPh'))+'"></div>'+
+   '<div class="row"><div class="field"><label for="e-cap">'+t('evCapacity')+'</label><input class="input" id="e-cap" type="number" inputmode="numeric" min="1" max="5000"></div><div></div></div>'+
+   '<div class="field"><label for="e-music">'+t('evMusic')+'</label><input class="input" id="e-music" maxlength="80" placeholder="'+esc(t('evMusicPh'))+'"></div>'+
+   '<div class="field"><span class="label">'+t('fLang')+'</span>'+chipSet('langs',Object.keys(LANGS),function(k){return LANGS[k]})+'</div>'+
+   '<div class="field"><label for="e-about">'+t('evAbout')+'</label><textarea class="input" id="e-about" maxlength="280"></textarea></div>'+
+   '</div><div class="foot"><button class="btn" type="submit">'+t('publish')+'</button></div></form>';
+}
+// plan or party page
+function sheetDetails(id){
+  var p=findPlan(id);if(!p)return '';
+  var party=p.act==='party',foot='',a=person(p.by),ev=p.eventId?findEvent(p.eventId):null;
+  if(!p.status&&!myVenue()){
+    foot=party?'<div class="foot"><button class="btn" data-act="party-join" data-val="'+p.id+'">'+t('wantGo')+'</button></div>'
+      :'<div class="foot"><button class="btn ghost" data-act="swipe" data-val="no">'+t('skip')+'</button><button class="btn" data-act="swipe" data-val="yes">'+t('join')+'</button></div>';
+  }else if(p.status==='accepted'){
+    foot='<div class="foot"><button class="btn" data-act="open-plan-chat" data-val="'+p.id+'">'+t('openChat')+'</button></div>';
+  }
+  var ppl=planPeople(p);
+  return '<div class="sheet">'+sheetHead(esc(planTitle(p)),esc(planLine(p)))+
+   '<div class="content"><div class="photo-hero" style="background-color:'+ACTS[p.act].c+';'+bg(U(PH[p.act],720),true)+'">'+(p.example?'<span class="ex">'+t('example')+'</span>':'')+
+   '<h1>'+esc(L(ACTS[p.act]))+'</h1><b>'+esc(dayLabel(p.date))+' · '+p.time+' · '+esc(p.district)+'</b>'+
+   '<span>'+esc(party?(t('address')+': '+(partyAddress(p)||t('addrHidden'))):(p.place||t('tbd')))+'</span></div>'+
+   (p.status&&p.status!=='mine'?'<div>'+statusPill(p.status)+'</div>':'')+
+   (ev?'<div class="field"><span class="label">'+t('forEvent')+'</span>'+eventRow(ev)+'</div>':'')+
+   '<div class="field"><span class="label">'+t('about')+'</span><div>'+esc(p.note)+'</div><div class="muted small">'+t('spots')+p.need+' · '+langTags(p.langs)+'</div>'+
+   (p.budget?'<div><span class="budget">'+(party?t('contrib'):t('budget'))+': '+esc(p.budget)+'</span></div>':'')+'</div>'+
+   '<div class="field"><span class="label">'+t('host')+'</span>'+personRow(p.by)+
+   '<div class="tags">'+(a.ints||[]).map(function(k){return '<span class="tag">'+esc(L(INTS[k]))+'</span>'}).join('')+'</div></div>'+
+   '<div class="field"><span class="label">'+t('participants')+(inPlan(p)?' · '+ppl.length:'')+'</span>'+
+   (inPlan(p)?ppl.map(personRow).join(''):'<div class="note">'+t('hiddenList')+'</div>')+'</div>'+
+   '</div>'+foot+'</div>';
+}
+// a person's profile as others see it: no information about where they go
+function sheetPerson(id){
+  var p=person(id),me=id===uid;
+  var photos=PEOPLE[id]?p.photos:(db.galleries[id]||[]);
+  var big=photos&&photos.length?gallery(photos):'<div style="display:flex;justify-content:center">'+ava(p,150)+'</div>';
+  return '<div class="sheet">'+sheetHead(nameAge(p),me?t('youAre'):langTags(p.langs))+'<div class="content">'+big+
+   '<div><h1>'+nameAge(p)+'</h1><div class="muted small">'+langTags(p.langs)+'</div></div>'+
+   (txt(p.about)?'<div class="field"><span class="label">'+t('aboutMe')+'</span><div>'+esc(txt(p.about))+'</div></div>':'')+
+   ((p.likes||[]).length?'<div class="field"><span class="label">'+t('likes')+'</span><div class="tags">'+p.likes.map(function(k){return '<span class="tag">'+esc(L(ACTS[k]))+'</span>'}).join('')+'</div></div>':'')+
+   ((p.ints||[]).length?'<div class="field"><span class="label">'+t('interests')+'</span><div class="tags">'+p.ints.map(function(k){return '<span class="tag">'+esc(L(INTS[k]))+'</span>'}).join('')+'</div></div>':'')+
+   '</div></div>';
+}
+function sheetPeople(s){
+  return '<div class="sheet">'+sheetHead(esc(s.title),t('participants')+': '+s.ids.length)+'<div class="content">'+
+   s.ids.map(personRow).join('')+(s.more>0?'<span class="muted small">'+t('andMore')+s.more+' · '+t('example')+'</span>':'')+'</div></div>';
+}
+function sheetVenuePage(id){
+  var v=findVenue(id);if(!v)return '';
+  return '<div class="sheet">'+sheetHead(esc(v.name),esc(L(KINDS[v.kind]))+' · '+esc(v.district))+'<div class="content">'+
+   (v.example?'<span class="ex" style="background:var(--raised)">'+t('example')+'</span>':'')+venueInfo(v,true)+'</div></div>';
+}
+function eventFacts(e){
+  var rows=[[t('fFormat'),L(FORMATS[e.format]||FORMATS.other)],[t('fTime'),dayLabel(e.date)+' · '+timeRange(e)],[t('fAge'),e.minAge+'+'],
+    [t('fDress'),e.dress||t('dressFree')],[t('fFace'),e.face?t('yesW'):t('noW')],[t('fEntry'),entryText(e)]];
+  if(e.capacity)rows.push([t('fCapacity'),String(e.capacity)]);
+  if(e.music)rows.push([t('fMusic'),e.music]);
+  if(e.langs&&e.langs.length)rows.push([t('fLang'),e.langs.map(function(l){return LANGS[l]}).join(', ')]);
+  return '<dl class="facts">'+rows.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>'}).join('')+'</dl>';
+}
+function sheetEventPage(id){
+  var e=findEvent(id);if(!e)return '';
+  var v=e.venue,companies=realPlans().filter(function(p){return p.eventId===e.id&&upcoming(p.date)}),foot='',ex=e.example?' data-ex="1"':'';
+  if(!e.mine&&!myVenue()){
+    if(!e.status)foot=tooYoung(e)?'<div class="foot"><button class="btn" disabled>'+t('ageOnly')+e.minAge+'+</button></div>'
+      :'<div class="foot"><button class="btn" data-act="ev-apply" data-val="'+e.id+'"'+ex+'>'+t('apply')+'</button></div>';
+    else if(e.status==='pending')foot='<div class="foot"><button class="btn ghost" data-act="ev-cancel" data-val="'+e.id+'"'+ex+'>'+t('cancelReq')+'</button></div>';
+    else if(e.status==='accepted')foot='<div class="foot"><button class="btn ghost" data-act="ev-cancel" data-val="'+e.id+'"'+ex+'>'+t('notGoing')+'</button><button class="btn" data-act="event-chat" data-val="'+e.id+'">'+t('eventChat')+'</button></div>';
+  }
+  var h='<div class="sheet">'+sheetHead(esc(e.title),esc(dayLabel(e.date))+' · '+esc(timeRange(e)))+'<div class="content">'+
+   (e.example?'<span class="ex" style="background:var(--raised)">'+t('example')+'</span>':'')+gallery(e.photos,true)+
+   '<div><h1>'+esc(e.title)+'</h1></div>'+(e.status&&e.status!=='mine'?'<div>'+statusPill(e.status)+'</div>':'')+
+   (tooYoung(e)&&!e.status?'<div class="note">'+t('ageTooYoung')+'</div>':'')+
+   '<div class="field"><span class="label">'+t('venuePage')+'</span>'+venueLine(v)+
+   (v.address?'<div class="row2"><span class="small">'+esc(v.district)+' · '+esc(v.address)+'</span><a class="btn ghost sm" target="_blank" rel="noopener" href="'+esc(mapsLink(v))+'">'+t('route')+'</a></div>':'')+'</div>'+
+   eventFacts(e)+
+   (e.about?'<div class="field"><span class="label">'+t('evAbout')+'</span><div>'+esc(e.about)+'</div></div>':'')+
+   '<div class="field"><span class="label">'+t('goingN')+e.count+'</span>'+
+   (e.goers.length?faces(e.goers,12)+'<button class="btn ghost sm" data-act="people-event" data-val="'+e.id+'">'+t('allParticipants')+'</button>':'<div class="note">'+t('hiddenList')+'</div>')+'</div>';
+  if(e.mine){
+    h+='<div class="field"><span class="label">'+t('vRequests')+' · '+e.pending.length+'</span>';
+    if(!e.pending.length)h+='<span class="muted small">'+t('noRequests')+'</span>';
+    e.pending.forEach(function(r){
+      h+='<div class="req">'+personRow(r)+'<button class="btn sm" data-act="ev-accept" data-ev="'+e.id+'" data-val="'+r+'">'+t('accept')+'</button>'+
+         '<button class="btn ghost sm" data-act="ev-decline" data-ev="'+e.id+'" data-val="'+r+'">'+t('decline')+'</button></div>';
+    });
+    h+='</div><div class="chips"><button class="btn sm" data-act="event-chat" data-val="'+e.id+'">'+t('eventChat')+'</button><button class="btn danger sm" data-act="del-event" data-val="'+e.id+'">'+t('delEvent')+'</button></div>';
+  }else if(!myVenue()){
+    h+='<div class="field"><span class="label">'+t('companies')+'</span>'+companies.map(planRow).join('')+
+       '<button class="btn ghost sm" data-act="find-company" data-val="'+e.id+'">+ '+t('findCompany')+'</button></div>';
+  }
+  return h+'</div>'+foot+'</div>';
+}
+function sheetChat(id){
+  var c=chatById(id);if(!c)return '';
+  var h='<div class="sheet"><div class="head"><button class="icon" data-act="close" aria-label="'+t('back')+'">'+IC.back+'</button><div class="t"><b>'+esc(c.title)+'</b>'+
+   '<button type="button" class="plink muted small" style="font-weight:600" data-act="people-chat" data-val="'+esc(c.id)+'">'+t('participants')+': '+c.members.length+' ›</button></div>'+
+   '<button class="icon" data-act="'+(c.kind==='event'?'epage':'details')+'" data-val="'+c.target+'" aria-label="'+t('open')+'"><img class="ava" alt="" src="'+c.photo+'" style="width:34px;height:34px"></button></div>'+
+   '<div class="pin">'+esc(c.pin)+'</div><div class="msgs" id="msgs">';
+  c.msgs.forEach(function(m){
+    if(m.from==='sys')h+='<div class="msg sys">'+esc(m.text)+'</div>';
+    else if(m.from==='me')h+='<div class="msg me">'+esc(m.text)+'</div>';
+    else{
+      var who=person(m.from),vn=null;
+      if(who===NOBODY&&c.kind==='event'){var ev=findEvent(c.target);if(ev&&ev.venue.owner===m.from)vn=ev.venue.name}
+      h+='<div class="msg"><b>'+(vn?esc(vn):'<button type="button" class="plink" style="color:var(--accent);font-size:12px" data-act="person" data-val="'+esc(m.from)+'"><span class="pn">'+esc(who.name)+'</span></button>')+'</b>'+esc(m.text)+'</div>';
+    }
+  });
+  return h+'</div><form class="send" id="send-form"><input class="input" id="f-msg" autocomplete="off" maxlength="300" aria-label="'+esc(t('msgPh'))+'" placeholder="'+esc(t('msgPh'))+'"><button class="btn" type="submit">'+t('send')+'</button></form></div>';
+}
+function viewMatch(){
+  return '<div class="match" role="dialog" aria-modal="true"><h1>'+t('matchTitle')+'</h1><p style="margin:0">'+(ui.match.ev?t('matchTextEv'):t('matchText'))+'</p>'+
+   '<button class="btn block" data-act="open-chat" data-val="'+esc(ui.match.chat)+'">'+t('openChat')+'</button><button class="btn ghost block" data-act="close-match">'+t('keep')+'</button></div>';
+}
+
+/* ---------- server ---------- */
+function check(r){if(r&&r.error)throw r.error;return r}
+function run(fn){
+  if(busy)return Promise.resolve();
+  busy=true;
+  return Promise.resolve().then(fn).catch(function(e){console.error(e);toast(t('netErr'))})
+    .then(function(){busy=false});
+}
+function loadAll(){
+  var today=iso(plusDays(0));
+  return Promise.all([
+    sb.from('profiles').select('id,name,age,photo,langs,likes,ints,about').limit(1000),
+    sb.from('plans').select('*').gte('date',today).order('date').order('time').limit(500),
+    sb.from('plan_members').select('*').limit(3000),
+    sb.from('messages').select('*').order('created_at',{ascending:false}).limit(1000),
+    sb.from('venues').select('*').limit(500),
+    sb.from('events').select('*').gte('date',today).order('date').order('time').limit(500),
+    sb.from('event_going').select('event_id,user_id,status').limit(5000),
+    sb.from('plan_secrets').select('*').limit(500),
+    sb.from('event_messages').select('*').order('created_at',{ascending:false}).limit(1000),
+    sb.from('profiles').select('photos').eq('id',uid).maybeSingle(),
+    sb.rpc('event_counts'),
+    sb.from('venue_private').select('*').limit(1)
+  ]).then(function(res){
+    res.forEach(check);
+    var nd=freshDb();
+    nd.galleries=db.galleries||{};
+    res[0].data.forEach(function(p){p.c=colorFor(p.id);nd.profiles[p.id]=p});
+    nd.profile=nd.profiles[uid]||null;
+    nd.plans=res[1].data;nd.members=res[2].data;nd.msgs=res[3].data.reverse();
+    nd.venues=res[4].data;nd.events=res[5].data;nd.going=res[6].data;
+    res[7].data.forEach(function(s){nd.secrets[s.plan_id]=s.address});
+    nd.evMsgs=res[8].data.reverse();
+    nd.galleries[uid]=(res[9].data&&res[9].data.photos)||[];
+    (res[10].data||[]).forEach(function(c){nd.counts[c.event_id]=+c.going});
+    nd.vprivate=(res[11].data||[])[0]||null;
+    db=nd;
+    // my request was approved since last time → show the "you're in" screen
+    db.members.forEach(function(m){
+      if(m.user_id!==uid)return;
+      if(local.seen[m.plan_id]==='pending'&&m.status==='accepted'&&!ui.match)ui.match={chat:m.plan_id,ev:false};
+      local.seen[m.plan_id]=m.status;
+    });
+    db.going.forEach(function(g){
+      if(g.user_id!==uid)return;
+      if(local.seenEv[g.event_id]==='pending'&&g.status==='accepted'&&!ui.match)ui.match={chat:'ev:'+g.event_id,ev:true};
+      local.seenEv[g.event_id]=g.status;
+    });
+    saveLocal();
+  });
+}
+function ensureGallery(id){
+  if(!id||PEOPLE[id]||db.galleries[id]!==undefined||!sb||!uid)return;
+  db.galleries[id]=null;
+  sb.from('profiles').select('photos').eq('id',id).maybeSingle().then(function(r){
+    db.galleries[id]=(r.data&&r.data.photos)||[];softRender();
+  },function(){delete db.galleries[id]});
+}
+function subscribe(){
+  if(chan||!uid)return;
+  chan=sb.channel('justone');
+  ['profiles','plans','plan_members','messages','plan_secrets','venues','events','event_going','event_messages'].forEach(function(tb){
+    chan.on('postgres_changes',{event:'*',schema:'public',table:tb},queueReload);
+  });
+  chan.subscribe();
+}
+function queueReload(){
+  if(!uid)return;
+  clearTimeout(reloadT);
+  reloadT=setTimeout(function(){loadAll().then(softRender).catch(function(e){console.error(e)})},250);
+}
+var FORM_SHEETS=/^(create|venue|event)$/;
+function softRender(){
+  if(dragging||ui.editing||!mode()||mode()==='onboard'||mode()==='vsetup'||(ui.sheet&&FORM_SHEETS.test(ui.sheet.type)))return;
+  var f=document.getElementById('f-msg'),keep=f?f.value:null,foc=f&&document.activeElement===f;
+  var sc=document.querySelector('.sheet .content')||document.querySelector('.body'),top=sc?sc.scrollTop:0;
+  render();
+  var g=document.getElementById('f-msg');
+  if(g&&keep!==null){g.value=keep;if(foc)g.focus()}
+  var sc2=document.querySelector('.sheet .content')||document.querySelector('.body');if(sc2)sc2.scrollTop=top;
+}
+// which part of the app this account sees
+function mode(){
+  if(!ready||fatal)return null;
+  if(!uid)return 'onboard';
+  if(myVenue())return 'venue';
+  if(db.profile)return 'person';
+  if(!isAnon)return 'vsetup';
+  return 'onboard';
+}
+
+/* ---------- navigation between pages ---------- */
+function openSheet(s){if(ui.sheet)ui.stack.push(ui.sheet);ui.sheet=s}
+function closeSheet(){
+  ui.sheet=ui.stack.pop()||null;
+  if(!ui.sheet||!FORM_SHEETS.test(ui.sheet.type))ui.draft=null;
+}
+function clearSheets(){ui.sheet=null;ui.stack=[]}
+
+/* ---------- actions ---------- */
+function doSwipe(dir){
+  var id=(ui.sheet&&ui.sheet.type==='details')?ui.sheet.id:(feed()[0]||{}).id;
+  if(!id)return;
+  var p=findPlan(id);
+  function finish(){
+    local.swiped[id]=dir;clearSheets();
+    if(dir==='yes'&&p.example){exRequest(id);toast(t('sent'))}
+    else if(dir==='yes'){
+      db.members.push({plan_id:id,user_id:uid,status:'pending'});local.seen[id]='pending';
+      run(function(){return sb.from('plan_members').insert({plan_id:id,user_id:uid,status:'pending'}).then(check).then(function(){toast(t('sent'))})});
+    }
+    saveLocal();render();
+  }
+  var el=document.querySelector('.card.top');
+  var still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(el&&!ui.sheet&&!still){
+    el.style.transform='translateX('+(dir==='yes'?520:-520)+'px) rotate('+(dir==='yes'?18:-18)+'deg)';el.style.opacity='0';
+    setTimeout(finish,200);
+  }else finish();
+}
+function bindSwipe(){
+  var el=document.querySelector('.card.top');if(!el)return;
+  var sx=0,dx=0,drag=false,moved=false;
+  el.addEventListener('pointerdown',function(e){drag=true;dragging=true;moved=false;sx=e.clientX;dx=0;try{el.setPointerCapture(e.pointerId)}catch(x){}el.style.transition='none'});
+  el.addEventListener('pointermove',function(e){
+    if(!drag)return;dx=e.clientX-sx;if(Math.abs(dx)>6)moved=true;
+    el.style.transform='translateX('+dx+'px) rotate('+(dx/18)+'deg)';
+    el.dataset.dir=dx>40?'yes':dx<-40?'no':'';
+  });
+  el.addEventListener('pointerup',function(){
+    if(!drag)return;drag=false;dragging=false;el.style.transition='';
+    if(dx>90)doSwipe('yes');else if(dx<-90)doSwipe('no');
+    else{el.style.transform='';el.dataset.dir='';if(!moved){openSheet({type:'details',id:el.dataset.id});render()}}
+  });
+  el.addEventListener('pointercancel',function(){drag=false;dragging=false;el.style.transition='';el.style.transform='';el.dataset.dir=''});
+}
+// crop the picked picture to w×h and pass it on as a small jpeg
+function readImage(file,w,h,cb){
+  if(!file)return;
+  var r=new FileReader();
+  r.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var cv=document.createElement('canvas');cv.width=w;cv.height=h;
+      var k=Math.min(img.width/w,img.height/h),sw=w*k,sh=h*k;
+      cv.getContext('2d').drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,0,0,w,h);
+      cb(cv.toDataURL('image/jpeg',.78));
+    };
+    img.src=r.result;
+  };
+  r.readAsDataURL(file);
+}
+function readPhoto(file){readImage(file,240,240,function(s){keepStep1();ui.draft.photo=s;render()})}
+function readGallery(file){
+  var g=ui.draft&&ui.draft.gal||[480,600];
+  readImage(file,g[0],g[1],function(s){if(ui.draft&&ui.draft.photos.length<4){ui.draft.photos.push(s);refreshGal()}});
+}
+function readCover(file){
+  readImage(file,720,450,function(s){
+    ui.draft.photo=s;
+    var el=document.getElementById('cover');if(el){el.style.backgroundImage="url('"+s+"')";el.textContent=''}
+  });
+}
+function keepStep1(){
+  var n=document.getElementById('f-name'),a=document.getElementById('f-age'),ab=document.getElementById('f-about');
+  if(n)ui.draft.name=n.value.trim();
+  if(a)ui.draft.age=a.value;
+  if(ab)ui.draft.about=ab.value.trim();
+}
+function eventApply(e){
+  if(e.example){exRequest(e.id);toast(t('eventSent'));render();return}
+  local.seenEv[e.id]='pending';saveLocal();
+  run(function(){return sb.from('event_going').insert({event_id:e.id,user_id:uid,status:'pending'}).then(check).then(loadAll).then(function(){render();toast(t('eventSent'))})});
+}
+function eventCancel(e){
+  if(e.example){exCancel(e.id);render();return}
+  run(function(){return sb.from('event_going').delete().eq('event_id',e.id).eq('user_id',uid).then(check).then(loadAll).then(render)});
+}
+function eventDecide(eid,who,status){
+  run(function(){return sb.from('event_going').update({status:status}).eq('event_id',eid).eq('user_id',who).then(check).then(loadAll).then(render)});
+}
+function act(name,el){
+  var v=el.dataset.val,d=ui.draft,e,p;
+  switch(name){
+  case 'lang':local.lang=v;saveLocal();ui.ob='kind';break;
+  case 'ob-to':ui.ob=v;ui.authErr='';ui.authInfo='';if(d)d.err='';if(v==='p1'||v==='p2')keepStep1();break;
+  case 'kind':if(v==='person'){startDraft();ui.ob='p1'}else{ui.ob='vauth';ui.authMode='up'}break;
+  case 'auth-mode':ui.authMode=v;ui.authErr='';ui.authInfo='';break;
+  case 'ob-cancel':ui.editing=false;ui.draft=null;break;
+  case 'ob-next1':
+    keepStep1();var age=parseInt(d.age,10);
+    if(!d.name){d.err=t('nameErr');break}
+    if(!(age>=18&&age<=99)){d.err=t('ageErr');break}
+    d.age=age;d.err='';ui.ob='p2';break;
+  case 'ob-done':
+    if(!d.langs.length){d.err=t('pickOne');break}
+    run(function(){
+      var start=uid?Promise.resolve():sb.auth.signInAnonymously().then(check).then(function(r){uid=r.data.user.id;isAnon=true});
+      return start.then(function(){
+        return sb.from('profiles').upsert({id:uid,name:d.name,age:d.age,photo:d.photo||null,about:d.about||'',photos:d.photos||[],ints:d.ints,langs:d.langs,likes:d.likes}).then(check);
+      }).then(loadAll).then(function(){subscribe();ui.draft=null;ui.editing=false;ui.tab='plans';render()});
+    });
+    return;
+  case 'gal-del':keepStep1();d.photos.splice(+v,1);refreshGal();return;
+  case 'chip':
+    var arr=d[el.dataset.group],i=arr.indexOf(v);
+    if(i>=0)arr.splice(i,1);else arr.push(v);
+    el.classList.toggle('on',i<0);el.setAttribute('aria-pressed',String(i<0));return;
+  case 'pick':
+    d[el.dataset.group]=el.dataset.group==='minAge'?+v:v;
+    [].forEach.call(document.querySelectorAll('[data-act="pick"][data-group="'+el.dataset.group+'"]'),function(b){var on=b===el;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))});
+    if(el.dataset.group==='entry'){
+      var pw=document.getElementById('e-price-wrap'),iw=document.getElementById('e-inc-wrap');
+      if(pw)pw.hidden=v==='free';if(iw)iw.hidden=v!=='deposit';
+    }
+    return;
+  case 'pick-act':
+    d.act=v;
+    [].forEach.call(document.querySelectorAll('[data-act="pick-act"]'),function(b){var on=b.dataset.val===v;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))});
+    return;
+  case 'tab':ui.tab=v;clearSheets();ui.draft=null;break;
+  case 'day':ui.day=v;break;
+  case 'unskip':
+    Object.keys(local.swiped).forEach(function(k){if(local.swiped[k]==='no')delete local.swiped[k]});saveLocal();break;
+  case 'swipe':doSwipe(v);return;
+  case 'create':clearSheets();ui.draft={act:'beer',langs:(db.profile.langs||[]).slice()};ui.sheet={type:'create'};break;
+  case 'new-party':clearSheets();ui.draft={act:'party',mode:'party',langs:(db.profile.langs||[]).slice()};ui.sheet={type:'create'};break;
+  case 'find-company':
+    e=findEvent(v);if(!e)break;
+    ui.draft={act:KIND_ACT[e.venue.kind]||'beer',langs:(db.profile.langs||[]).slice(),
+      prefill:{date:e.date,time:e.time,district:e.venue.district,place:e.venue.name,note:t('companyNote')+e.title,eventId:e.example?null:e.id}};
+    openSheet({type:'create'});break;
+  case 'venue-edit':
+    var mv=myVenue();
+    ui.draft={photo:mv&&mv.cover&&mv.cover.indexOf('data:')===0?mv.cover:'',photos:(mv?mv.photos.slice(1):[]).filter(function(s){return s.indexOf('data:')===0}),gal:[720,450]};
+    openSheet({type:'venue'});break;
+  case 'new-event':clearSheets();ui.draft={photo:'',photos:[],gal:[720,450],minAge:18,entry:'free',langs:[local.lang||'sr']};ui.sheet={type:'event'};break;
+  case 'close':closeSheet();break;
+  case 'close-match':ui.match=null;break;
+  case 'open-chat':ui.match=null;clearSheets();ui.sheet={type:'chat',id:v};break;
+  case 'open-plan-chat':
+    var pc=chatList().filter(function(c){return c.kind==='plan'&&c.target===v})[0];
+    if(pc)openSheet({type:'chat',id:pc.id});break;
+  case 'event-chat':
+    var ec=chatList().filter(function(c){return c.kind==='event'&&c.target===v})[0];
+    if(ec)openSheet({type:'chat',id:ec.id});break;
+  case 'details':openSheet({type:'details',id:v});break;
+  case 'person':ensureGallery(v);openSheet({type:'person',id:v});break;
+  case 'vpage':openSheet({type:'vpage',id:v});break;
+  case 'epage':openSheet({type:'epage',id:v});break;
+  case 'people-event':
+    e=findEvent(v);if(!e)break;
+    openSheet({type:'people',title:e.title,ids:e.goers,more:Math.max(0,e.count-e.goers.length)});break;
+  case 'people-chat':
+    var ch=chatById(v);if(!ch)break;
+    openSheet({type:'people',title:ch.title,ids:ch.members,more:0});break;
+  case 'party-join':
+    p=findPlan(v);if(!p)break;
+    if(p.example){exRequest(v);local.swiped[v]='yes';saveLocal();toast(t('sent'));break}
+    ui.sheet={type:'details',id:v};doSwipe('yes');return;
+  case 'ev-apply':e=findEvent(v);if(e&&!tooYoung(e))eventApply(e);return;
+  case 'ev-cancel':e=findEvent(v);if(e)eventCancel(e);return;
+  case 'ev-accept':eventDecide(el.dataset.ev,v,'accepted');return;
+  case 'ev-decline':eventDecide(el.dataset.ev,v,'declined');return;
+  case 'del-event':
+    run(function(){return sb.from('events').delete().eq('id',v).then(check).then(loadAll).then(function(){closeSheet();render()})});
+    return;
+  case 'edit':clearSheets();ui.editing=true;startDraft();ui.ob='p1';break;
+  case 'set-lang':local.lang=v;saveLocal();break;
+  case 'accept':case 'decline':
+    var pid=el.dataset.plan,status=name==='accept'?'accepted':'declined';
+    run(function(){
+      return sb.from('plan_members').update({status:status}).eq('plan_id',pid).eq('user_id',v).then(check).then(function(){
+        if(status==='accepted')return sb.from('messages').insert({plan_id:pid,user_id:uid,kind:'join',body:person(v).name}).then(check);
+      }).then(loadAll).then(render);
+    });
+    return;
+  case 'del-plan':
+    run(function(){return sb.from('plans').delete().eq('id',v).then(check).then(loadAll).then(render)});
+    return;
+  case 'logout':
+    if(!window.confirm(isAnon?t('logoutAnonAsk'):t('logoutAsk')))return;
+    run(function(){
+      if(chan){sb.removeChannel(chan);chan=null}
+      return sb.auth.signOut().then(function(){
+        var lang=local.lang;local=freshLocal();local.lang=lang;saveLocal();
+        uid=null;isAnon=true;db=freshDb();ui.tab='plans';clearSheets();ui.match=null;ui.ob='kind';ui.draft=null;render();
+      });
+    });
+    return;
+  }
+  render();
+}
+function val(id){var el=document.getElementById(id);return el?el.value.trim():''}
+function submitAuth(){
+  var email=val('a-email'),pass=(document.getElementById('a-pass')||{}).value||'';
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)||pass.length<8){ui.authErr=t('authErrShort');render();return}
+  ui.authErr='';ui.authInfo='';
+  run(function(){
+    var q=ui.authMode==='up'?sb.auth.signUp({email:email,password:pass}):sb.auth.signInWithPassword({email:email,password:pass});
+    return q.then(function(r){
+      if(r.error){ui.authErr=t('authFailed')+r.error.message;render();return}
+      if(!r.data.session){ui.authInfo=t('authCheckMail');ui.authMode='in';render();return}
+      uid=r.data.user.id;isAnon=false;
+      return loadAll().then(function(){subscribe();ui.tab='vEvents';clearSheets();ui.draft={photo:'',photos:[],gal:[720,450]};render()});
+    });
+  });
+}
+function submitVenue(){
+  var name=val('v-name');if(!name){toast(t('vNameErr'));return}
+  var pib=val('v-pib');if(pib&&!/^[0-9]{9}$/.test(pib)){toast(t('vPibErr'));return}
+  var row={name:name,kind:val('v-kind'),district:val('v-district'),address:val('v-address'),about:val('v-about'),contacts:val('v-contacts'),photos:ui.draft.photos.slice()};
+  if(ui.draft.photo)row.photo=ui.draft.photo;
+  var priv={contact_name:val('v-cname'),pib:pib,phone:val('v-phone')};
+  var mv=myVenue();
+  run(function(){
+    var q=mv?sb.from('venues').update(row).eq('id',mv.id).select('id').single():sb.from('venues').insert(Object.assign({owner:uid},row)).select('id').single();
+    return q.then(check).then(function(r){
+      priv.venue_id=r.data.id;
+      return sb.from('venue_private').upsert(priv).then(check);
+    }).then(loadAll).then(function(){
+      if(mv)closeSheet();else{clearSheets();ui.tab='vEvents'}
+      ui.draft=null;render();toast(t('venueSaved'));
+    });
+  });
+}
+function submitCreate(){
+  var d=ui.draft;
+  if(!d.langs.length){toast(t('pickOne'));return}
+  var party=d.mode==='party',addr=party?val('c-addr'):'';
+  if(party&&!addr){toast(t('addrErr'));return}
+  var row={host:uid,act:party?'party':d.act,date:val('c-day'),time:val('c-time')||'20:00',district:val('c-district'),need:+val('c-need'),
+    place:party?'':val('c-place'),budget:val('c-budget'),note:val('c-note'),langs:d.langs.slice()};
+  if(d.prefill&&d.prefill.eventId)row.event_id=d.prefill.eventId;
+  run(function(){
+    return sb.from('plans').insert(row).select('id').single().then(check).then(function(r){
+      if(party)return sb.from('plan_secrets').insert({plan_id:r.data.id,address:addr}).then(check);
+    }).then(loadAll).then(function(){
+      var back=d.prefill;
+      ui.draft=null;
+      if(back)closeSheet();else{clearSheets();ui.tab=party?'afisha':'profile'}
+      render();toast(party?t('partyPublished'):t('published'));
+    });
+  });
+}
+function submitEvent(){
+  var d=ui.draft,title=val('e-title');
+  if(!title){toast(t('evTitleErr'));return}
+  if(d.entry!=='free'&&!val('e-price')){toast(t('evPriceErr'));return}
+  var mv=myVenue();if(!mv)return;
+  var cap=parseInt(val('e-cap'),10);
+  var row={venue_id:mv.id,title:title,format:val('e-format'),date:val('e-day'),time:val('e-time')||'21:00',end_time:val('e-end'),min_age:d.minAge||18,
+    dress_code:val('e-dress'),face_control:!!(document.getElementById('e-face')||{}).checked,entry_type:d.entry||'free',
+    price:d.entry==='free'?'':val('e-price'),deposit_includes:d.entry==='deposit'?val('e-includes'):'',capacity:cap>0?cap:null,
+    music:val('e-music'),langs:d.langs.slice(),about:val('e-about'),photos:d.photos.slice()};
+  if(d.photo)row.photo=d.photo;
+  run(function(){
+    return sb.from('events').insert(row).then(check).then(loadAll).then(function(){clearSheets();ui.draft=null;ui.tab='vEvents';render();toast(t('eventPublished'))});
+  });
+}
+function submitMsg(){
+  var inp=document.getElementById('f-msg'),text=inp.value.trim();
+  if(!text||!ui.sheet)return;
+  var c=chatById(ui.sheet.id);if(!c)return;
+  if(c.demo){
+    for(var i=0;i<local.demoChats.length;i++)if(local.demoChats[i].id===c.id)local.demoChats[i].msgs.push({from:'me',text:text,t:Date.now()});
+    saveLocal();render();
+    var again=document.getElementById('f-msg');if(again)again.focus();
+    return;
+  }
+  inp.value='';
+  var q=c.kind==='event'
+    ?sb.from('event_messages').insert({event_id:c.target,user_id:uid,body:text})
+    :sb.from('messages').insert({plan_id:c.target,user_id:uid,body:text});
+  q.then(check).then(function(){
+    var row={user_id:uid,body:text,created_at:new Date().toISOString()};
+    if(c.kind==='event'){row.event_id=c.target;db.evMsgs.push(row)}else{row.plan_id=c.target;row.kind='text';db.msgs.push(row)}
+    softRender();
+  }).catch(function(e){
+    console.error(e);toast(t('netErr'));
+    var f=document.getElementById('f-msg');if(f&&!f.value)f.value=text;
+  });
+}
+
+/* ---------- render ---------- */
+function render(){
+  var app=document.getElementById('app'),h,m=mode();
+  document.documentElement.lang=local.lang||'ru';
+  if(!m){
+    h='<div class="empty"><div class="brand">Just <span>One</span></div><p class="muted">'+esc(fatal||t('loading'))+'</p></div>';
+  }else if(!local.lang){
+    ui.ob='lang';h=viewOnboarding();
+  }else if(m==='onboard'||(m==='person'&&ui.editing)){
+    h=viewOnboarding();
+  }else if(m==='vsetup'){
+    if(!ui.draft||!ui.draft.gal)ui.draft={photo:'',photos:[],gal:[720,450]};
+    h=venueForm(true);
+  }else{
+    if(m==='venue'&&!/^(vEvents|vRequests|chats|vProfile)$/.test(ui.tab))ui.tab='vEvents';
+    if(m==='person'&&!/^(plans|afisha|chats|profile)$/.test(ui.tab))ui.tab='plans';
+    var views={plans:viewPlans,afisha:viewAfisha,chats:viewChats,profile:viewProfile,vEvents:viewVEvents,vRequests:viewVRequests,vProfile:viewVProfile};
+    h=views[ui.tab]()+nav();
+    var s=ui.sheet;
+    if(s){
+      if(s.type==='create')h+=sheetCreate();
+      else if(s.type==='details')h+=sheetDetails(s.id);
+      else if(s.type==='venue')h+=venueForm(false);
+      else if(s.type==='event')h+=sheetEvent();
+      else if(s.type==='person')h+=sheetPerson(s.id);
+      else if(s.type==='people')h+=sheetPeople(s);
+      else if(s.type==='vpage')h+=sheetVenuePage(s.id);
+      else if(s.type==='epage')h+=sheetEventPage(s.id);
+      else h+=sheetChat(s.id);
+    }
+    if(ui.match)h+=viewMatch();
+  }
+  var t0=document.querySelector('.toast');
+  app.innerHTML=h;
+  if(t0)app.appendChild(t0);
+  bindSwipe();
+  var msgs=document.getElementById('msgs');if(msgs)msgs.scrollTop=msgs.scrollHeight;
+}
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-act]');if(!el||el.disabled)return;
+  act(el.dataset.act,el);
+});
+document.addEventListener('change',function(e){
+  var id=e.target.id;
+  if(id==='f-district'){ui.district=e.target.value;render()}
+  else if(id==='f-photo'){readPhoto(e.target.files[0])}
+  else if(id==='f-gallery'){keepStep1();readGallery(e.target.files[0])}
+  else if(id==='f-cover'){readCover(e.target.files[0])}
+});
+document.addEventListener('submit',function(e){
+  e.preventDefault();
+  var id=e.target.id;
+  if(id==='create-form')submitCreate();
+  else if(id==='send-form')submitMsg();
+  else if(id==='venue-form')submitVenue();
+  else if(id==='event-form')submitEvent();
+  else if(id==='auth-form')submitAuth();
+});
+// phones drop the live connection while asleep: refresh when the app comes back
+document.addEventListener('visibilitychange',function(){if(!document.hidden)queueReload()});
+setInterval(exTick,1000);
+
+/* ---------- start ---------- */
+function boot(){
+  if(!window.supabase||SUPABASE_KEY.indexOf('PASTE')===0){fatal=window.supabase?t('noConfig'):t('netErr');ready=true;render();return}
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  render();
+  sb.auth.getSession().then(function(r){
+    var s=r.data&&r.data.session;
+    if(!s)return;
+    uid=s.user.id;isAnon=!!s.user.is_anonymous;
+    return loadAll().then(subscribe);
+  }).catch(function(e){console.error(e);toast(t('netErr'))}).then(function(){ready=true;render()});
+}
+boot();
+})();
+</script>
+</body>
+</html>
