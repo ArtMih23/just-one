@@ -418,13 +418,13 @@ Object.keys(T6).forEach(function(l){for(var k in T6[l])T[l][k]=T6[l][k]});
 var T7={
 ru:{verifiedT:'профиль проверен',verifyTitle:'Пройди проверку',verifySub:'Проверка открывает «Афишу» и даёт синюю галочку. Скоро здесь будет проверка по селфи, а пока профиль проверяет команда Just One.',
  verifyBtn:'Отправить на проверку',verifySent:'Заявка на проверку отправлена. Мы сообщим, когда профиль проверят.',yesterday:'Вчера',
- whatPh:'Например: пиво в центре, настолки, прогулка у Дуная',whatHint:'До 40 символов',whatErr:'Напиши, что делаем',profilesLocked:'Профили видны после проверки'},
+ whatPh:'Например: пиво в центре, настолки, прогулка у Дуная',whatHint:'До 40 символов',whatErr:'Напиши, что делаем',applyTitle:'Заявка',applyNote:'Пара слов организатору',applyNotePh:'Например: привет! Тоже люблю джаз, могу прийти с подругой',applyHint:'Необязательно, до 200 символов',applySend:'Отправить заявку',profilesLocked:'Профили видны после проверки'},
 sr:{verifiedT:'profil je proveren',verifyTitle:'Prođi proveru',verifySub:'Provera otvara „Događaje“ i daje plavu kvačicu. Uskoro ovde stiže provera selfijem, a do tada profil proverava tim Just One.',
  verifyBtn:'Pošalji na proveru',verifySent:'Zahtev za proveru je poslat. Javićemo kad profil bude proveren.',yesterday:'Juče',
- whatPh:'Na primer: pivo u centru, društvene igre, šetnja pored Dunava',whatHint:'Do 40 znakova',whatErr:'Napiši šta radimo',profilesLocked:'Profili se vide posle provere'},
+ whatPh:'Na primer: pivo u centru, društvene igre, šetnja pored Dunava',whatHint:'Do 40 znakova',whatErr:'Napiši šta radimo',applyTitle:'Zahtev',applyNote:'Par reči organizatoru',applyNotePh:'Na primer: ćao! I ja volim džez, mogu da dođem sa drugaricom',applyHint:'Nije obavezno, do 200 znakova',applySend:'Pošalji zahtev',profilesLocked:'Profili se vide posle provere'},
 en:{verifiedT:'verified profile',verifyTitle:'Get verified',verifySub:'Verification opens Events and gives you a blue tick. A selfie check is coming soon; for now the Just One team checks profiles.',
  verifyBtn:'Request verification',verifySent:'Verification requested. We will let you know when your profile is checked.',yesterday:'Yesterday',
- whatPh:'For example: beer in the centre, board games, a walk by the Danube',whatHint:'Up to 40 characters',whatErr:'Write what we are doing',profilesLocked:'Profiles open after verification'}
+ whatPh:'For example: beer in the centre, board games, a walk by the Danube',whatHint:'Up to 40 characters',whatErr:'Write what we are doing',applyTitle:'Request',applyNote:'A few words to the host',applyNotePh:'For example: hi! I love jazz too, I could bring a friend',applyHint:'Optional, up to 200 characters',applySend:'Send request',profilesLocked:'Profiles open after verification'}
 };
 Object.keys(T7).forEach(function(l){for(var k in T7[l])T[l][k]=T7[l][k]});function t(k){var D=T[local.lang||'ru'];return D[k]!==undefined?D[k]:k}
 function L(o){return o[local.lang||'ru']}
@@ -1093,7 +1093,8 @@ function viewProfile(){
     h+='<span class="label">'+t('requests')+'</span>';
     if(!reqs.length)h+='<span class="muted small">'+t('noReq')+'</span>';
     reqs.forEach(function(r){
-      h+='<div class="req">'+personRow(r)+'<button class="btn sm" data-act="accept" data-plan="'+pl.id+'" data-val="'+r+'"'+(planFull(pl)?' disabled':'')+'>'+(planFull(pl)?t('full'):t('accept'))+'</button>'+
+      var note=(membersOf(pl.id,'pending').filter(function(m){return m.user_id===r})[0]||{}).note;
+      h+='<div class="req">'+personRow(r)+(note?'<div class="note" style="width:100%">«'+esc(note)+'»</div>':'')+'<button class="btn sm" data-act="accept" data-plan="'+pl.id+'" data-val="'+r+'"'+(planFull(pl)?' disabled':'')+'>'+(planFull(pl)?t('full'):t('accept'))+'</button>'+
          '<button class="btn ghost sm" data-act="decline" data-plan="'+pl.id+'" data-val="'+r+'">'+t('decline')+'</button></div>';
     });
     h+='<button class="btn danger sm" data-act="del-plan" data-val="'+pl.id+'">'+t('del')+'</button></div>';
@@ -1473,7 +1474,7 @@ function queueReload(){
   clearTimeout(reloadT);
   reloadT=setTimeout(function(){loadAll().then(softRender).catch(function(e){console.error(e)})},250);
 }
-var FORM_SHEETS=/^(create|venue|event)$/;
+var FORM_SHEETS=/^(create|venue|event|apply)$/;
 function softRender(){
   if(dragging||ui.editing||!mode()||mode()==='onboard'||mode()==='vsetup'||(ui.sheet&&FORM_SHEETS.test(ui.sheet.type)))return;
   var f=document.getElementById('f-msg'),keep=f?f.value:null,foc=f&&document.activeElement===f;
@@ -1502,18 +1503,30 @@ function closeSheet(){
 function clearSheets(){ui.sheet=null;ui.stack=[]}
 
 /* ---------- actions ---------- */
+function sheetApply(id){
+  var p=findPlan(id);if(!p)return '';
+  return '<form class="sheet" id="apply-form" data-id="'+esc(id)+'">'+sheetHead(t('applyTitle'),esc(p.act==='party'?partyTitle(p):planTitle(p)))+'<div class="content">'+planRow(p)+
+    '<div class="field"><label for="a-note">'+t('applyNote')+'</label><textarea class="input" id="a-note" maxlength="200" placeholder="'+esc(t('applyNotePh'))+'"></textarea><span class="hint">'+t('applyHint')+'</span></div>'+
+    '</div><div class="foot"><button class="btn" type="submit">'+t('applySend')+'</button></div></form>';
+}
+function sendRequest(id,note){
+  var p=findPlan(id);if(!p)return;
+  local.swiped[id]='yes';clearSheets();
+  if(p.example){exRequest(id);toast(t('sent'))}
+  else{
+    db.members.push({plan_id:id,user_id:uid,status:'pending',note:note});local.seen[id]='pending';
+    run(function(){return sb.from('plan_members').insert({plan_id:id,user_id:uid,status:'pending',note:note}).then(check).then(function(){toast(t('sent'))})});
+  }
+  saveLocal();render();
+}
 function doSwipe(dir){
   var id=(ui.sheet&&ui.sheet.type==='details')?ui.sheet.id:(feed()[0]||{}).id;
   if(!id)return;
   var p=findPlan(id);
   function finish(){
-    local.swiped[id]=dir;clearSheets();
-    if(dir==='yes'&&p.example){exRequest(id);toast(t('sent'))}
-    else if(dir==='yes'){
-      db.members.push({plan_id:id,user_id:uid,status:'pending'});local.seen[id]='pending';
-      run(function(){return sb.from('plan_members').insert({plan_id:id,user_id:uid,status:'pending'}).then(check).then(function(){toast(t('sent'))})});
-    }
-    saveLocal();render();
+    // a request opens a short form with an optional note to the host
+    if(dir==='yes'){clearSheets();ui.sheet={type:'apply',id:id};render();return}
+    local.swiped[id]=dir;clearSheets();saveLocal();render();
   }
   var el=document.querySelector('.card.top');
   var still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1680,8 +1693,7 @@ function act(name,el){
     openSheet({type:'people',title:ch.title,ids:ch.members,more:0});break;
   case 'party-join':
     p=findPlan(v);if(!p)break;
-    if(p.example){exRequest(v);local.swiped[v]='yes';saveLocal();toast(t('sent'));break}
-    ui.sheet={type:'details',id:v};doSwipe('yes');return;
+    openSheet({type:'apply',id:v});break;
   case 'ev-apply':e=findEvent(v);if(e&&!tooYoung(e))eventApply(e);return;
   case 'ev-cancel':e=findEvent(v);if(e)eventCancel(e);return;
   case 'ev-remove':eventRemoveGuest(el.dataset.ev,v);return;
@@ -1848,6 +1860,7 @@ function render(){
       else if(s.type==='epage')h+=sheetEventPage(s.id);
       else if(s.type==='upgrade')h+=sheetUpgrade();
       else if(s.type==='locked')h+=sheetLocked();
+      else if(s.type==='apply')h+=sheetApply(s.id);
       else h+=sheetChat(s.id);
     }
     if(ui.match)h+=viewMatch();
@@ -1895,6 +1908,7 @@ document.addEventListener('submit',function(e){
   else if(id==='venue-form')submitVenue();
   else if(id==='event-form')submitEvent();
   else if(id==='auth-form')submitAuth();
+  else if(id==='apply-form')sendRequest(e.target.dataset.id,val('a-note'));
 });
 // phones drop the live connection while asleep: refresh when the app comes back
 document.addEventListener('visibilitychange',function(){if(!document.hidden)queueReload()});
