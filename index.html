@@ -27,6 +27,8 @@
 [hidden]{display:none!important}
 /* long words in names and descriptions wrap instead of pushing the screen wider */
 .body,.sheet .content,.ob{overflow-x:hidden}
+/* blocks in scrolling pages keep their natural height (otherwise headers squeeze and labels slide out of them) */
+.body>*,.sheet .content>*,.ob>*{flex-shrink:0}
 .body *,.sheet .content *,.ob *,.msg,.pin{overflow-wrap:anywhere;min-width:0}
 /* one-line subtitles in list rows end with "…" instead of running past the edge */
 .prow .sub,.item .sub{display:block;max-width:100%}
@@ -415,11 +417,14 @@ en:{fromT:'From',fromPh:'For example: London',jobT:'Work or study',jobPh:'For ex
 Object.keys(T6).forEach(function(l){for(var k in T6[l])T[l][k]=T6[l][k]});
 var T7={
 ru:{verifiedT:'профиль проверен',verifyTitle:'Пройди проверку',verifySub:'Проверка открывает «Афишу» и даёт синюю галочку. Скоро здесь будет проверка по селфи, а пока профиль проверяет команда Just One.',
- verifyBtn:'Отправить на проверку',verifySent:'Заявка на проверку отправлена. Мы сообщим, когда профиль проверят.',yesterday:'Вчера'},
+ verifyBtn:'Отправить на проверку',verifySent:'Заявка на проверку отправлена. Мы сообщим, когда профиль проверят.',yesterday:'Вчера',
+ whatPh:'Например: пиво в центре, настолки, прогулка у Дуная',whatHint:'До 40 символов',whatErr:'Напиши, что делаем',profilesLocked:'Профили видны после проверки'},
 sr:{verifiedT:'profil je proveren',verifyTitle:'Prođi proveru',verifySub:'Provera otvara „Događaje“ i daje plavu kvačicu. Uskoro ovde stiže provera selfijem, a do tada profil proverava tim Just One.',
- verifyBtn:'Pošalji na proveru',verifySent:'Zahtev za proveru je poslat. Javićemo kad profil bude proveren.',yesterday:'Juče'},
+ verifyBtn:'Pošalji na proveru',verifySent:'Zahtev za proveru je poslat. Javićemo kad profil bude proveren.',yesterday:'Juče',
+ whatPh:'Na primer: pivo u centru, društvene igre, šetnja pored Dunava',whatHint:'Do 40 znakova',whatErr:'Napiši šta radimo',profilesLocked:'Profili se vide posle provere'},
 en:{verifiedT:'verified profile',verifyTitle:'Get verified',verifySub:'Verification opens Events and gives you a blue tick. A selfie check is coming soon; for now the Just One team checks profiles.',
- verifyBtn:'Request verification',verifySent:'Verification requested. We will let you know when your profile is checked.',yesterday:'Yesterday'}
+ verifyBtn:'Request verification',verifySent:'Verification requested. We will let you know when your profile is checked.',yesterday:'Yesterday',
+ whatPh:'For example: beer in the centre, board games, a walk by the Danube',whatHint:'Up to 40 characters',whatErr:'Write what we are doing',profilesLocked:'Profiles open after verification'}
 };
 Object.keys(T7).forEach(function(l){for(var k in T7[l])T[l][k]=T7[l][k]});function t(k){var D=T[local.lang||'ru'];return D[k]!==undefined?D[k]:k}
 function L(o){return o[local.lang||'ru']}
@@ -433,7 +438,7 @@ var PH={
  party:'photo-1645730826845-cd2ddec9984f',city:'photo-1564982547455-b9e810ae9223',
  bar:'photo-1739799120521-c5f44a9335a3',cafe:'photo-1521017432531-fbd92d768814',club:'photo-1470225620780-dba8ba36b745',
  wineBar:'photo-1597290282695-edc43d0e7129',anticafe:'photo-1629760946220-5693ee4c46ac',
- concert:'photo-1718182147550-5d6f9208432d',quiz:'photo-1558210598-89ba75b1724e'
+ other:'photo-1564982547455-b9e810ae9223',concert:'photo-1718182147550-5d6f9208432d',quiz:'photo-1558210598-89ba75b1724e'
 };
 // only our own Unsplash links and uploaded jpeg/png/webp pictures are ever put into the page
 function safeImg(s){
@@ -452,7 +457,8 @@ var ACTS={
  beer:{ru:'Пиво',sr:'Pivo',en:'Beer',c:'#F5A524'},wine:{ru:'Вино',sr:'Vino',en:'Wine',c:'#E58FA6'},
  cocktail:{ru:'Коктейли',sr:'Kokteli',en:'Cocktails',c:'#7FD1C8'},coffee:{ru:'Кофе',sr:'Kafa',en:'Coffee',c:'#C9A27E'},
  games:{ru:'Настолки',sr:'Društvene igre',en:'Board games',c:'#9DB7F5'},walk:{ru:'Прогулка',sr:'Šetnja',en:'Walk',c:'#A8D672'},
- party:{ru:'Вечеринка',sr:'Žurka',en:'Party',c:'#C792EA'}
+ party:{ru:'Вечеринка',sr:'Žurka',en:'Party',c:'#C792EA'},
+ other:{ru:'План',sr:'Plan',en:'Plan',c:'#9DB7F5'}
 };
 var PLAN_ACTS=['beer','wine','cocktail','coffee','games','walk'];
 var KINDS={
@@ -672,7 +678,7 @@ function seedPlans(){return SEED.map(function(p){
 function serverPlan(r){
   return {id:r.id,act:r.act,date:r.date,time:r.time,district:r.district,by:r.host,need:r.need,langs:r.langs||[],note:r.note||'',place:r.place||'',
     budget:r.budget||'',eventId:r.event_id||null,with:membersOf(r.id,'accepted').map(function(m){return m.user_id}),status:r.host===uid?'mine':myStatus(r.id),
-    pro:!!(r.title||r.need>5||(r.photos&&r.photos.length)),title:r.title||'',end:r.end_time||'',minAge:r.min_age||18,dress:r.dress_code||'',entry:r.entry_type||'free',
+    pro:r.act==='party'&&!!(r.title||r.need>5||(r.photos&&r.photos.length)),title:r.title||'',end:r.end_time||'',minAge:r.min_age||18,dress:r.dress_code||'',entry:r.entry_type||'free',
     music:r.music||'',photos:r.photos||[]};
 }
 function isVerified(){return !!(db.profile&&db.profile.verified)}
@@ -809,7 +815,16 @@ function personFacts(p){
   if(p.langs&&p.langs.length)rows.push([t('langs'),p.langs.map(function(l){return LANGS[l]||l}).join(', ')]);
   return rows.length?'<dl class="facts">'+rows.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>'}).join('')+'</dl>':'';
 }
-function planTitle(p){return L(ACTS[p.act])+' · '+p.time}
+// "what are we doing" is free text; the card photo is picked from words in it
+function guessAct(text){
+  var s=(text||'').toLowerCase();
+  var rules=[['beer',/пив|beer|pivo|паб|pub/],['wine',/вин|wine|vino/],['cocktail',/коктейл|cocktail|koktel|бар\b|bar\b/],['coffee',/коф|coffee|kaf|завтрак|brunch/],
+    ['games',/настол|игр|game|igr|квиз|quiz|kviz/],['walk',/прогул|walk|šet|set|дунай|danube|dunav|парк|park/]];
+  for(var i=0;i<rules.length;i++)if(rules[i][1].test(s))return rules[i][0];
+  return 'other';
+}
+function planWhat(p){return p.act!=='party'&&p.title?p.title:L(ACTS[p.act])}
+function planTitle(p){return planWhat(p)+' · '+p.time}
 function planLine(p){return dayLabel(p.date)+' · '+p.district+(p.place?' · '+p.place:'')}
 function timeRange(e){return e.time+(e.end?'–'+e.end:'')}
 function entryText(e){
@@ -957,7 +972,7 @@ function card(p,top){
   return '<div class="card '+(top?'top':'under')+'" data-id="'+p.id+'"'+(top?'':' aria-hidden="true"')+'>'+
     '<div class="hero" style="background-color:'+ACTS[p.act].c+';'+bg(U(PH[p.act],720),true)+'"><span class="stamp yes">'+t('yes')+'</span><span class="stamp no">'+t('no')+'</span>'+
     (p.example?'<span class="ex">'+t('example')+'</span>':'')+
-    '<div class="act">'+esc(L(ACTS[p.act]))+'</div><div class="when">'+esc(dayLabel(p.date))+' · '+p.time+' · '+esc(p.district)+'</div></div>'+
+    '<div class="act"'+(planWhat(p).length>12?' style="font-size:24px"':'')+'>'+esc(planWhat(p))+'</div><div class="when">'+esc(dayLabel(p.date))+' · '+p.time+' · '+esc(p.district)+'</div></div>'+
     '<div class="info"><div class="who">'+ava(a,36)+'<span>'+nameAge(a)+'</span><span class="muted small" style="font-weight:600">'+langTags(p.langs)+'</span></div>'+
     '<div>'+esc(p.note)+'</div><div class="small muted">'+spotsText(p)+(p.budget?' · '+(p.act==='party'?t('contrib'):t('budget'))+': '+esc(p.budget):'')+'</div></div></div>';
 }
@@ -1020,7 +1035,7 @@ function evMsgsFor(eid){
   });
 }
 function planChat(p,id,msgs,demo){
-  return {id:id,kind:'plan',target:p.id,demo:!!demo,title:(p.act==='party'?partyTitle(p):L(ACTS[p.act]))+' · '+dayLabel(p.date)+' '+p.time,photo:U(PH[p.act],120,120),members:planPeople(p),msgs:msgs,
+  return {id:id,kind:'plan',target:p.id,demo:!!demo,title:(p.act==='party'?partyTitle(p):planWhat(p))+' · '+dayLabel(p.date)+' '+p.time,photo:U(PH[p.act],120,120),members:planPeople(p),msgs:msgs,
     pin:dayLabel(p.date)+' · '+p.time+' · '+p.district+' · '+(p.act==='party'?(partyAddress(p)||t('addrHidden')):(p.place||t('tbd')))};
 }
 function eventChat(e,id,msgs,demo){
@@ -1201,7 +1216,7 @@ function sheetCreate(){
    '<div class="content">'+
    (party?'<div class="photo-hero" style="min-height:120px;'+bg(U(PH.party,720))+'"></div>'+
      '<button type="button" class="note" style="text-align:left" data-act="upgrade">'+t('proHintParty')+' <b style="color:var(--accent)">'+t('upgrade')+' ›</b></button>':
-   '<div class="field"><span class="label">'+t('what')+'</span><div class="chips">'+PLAN_ACTS.map(function(k){var on=d.act===k;return '<button type="button" class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="pick-act" data-val="'+k+'">'+esc(L(ACTS[k]))+'</button>'}).join('')+'</div></div>')+
+   '<div class="field"><label for="c-what">'+t('what')+'</label><input class="input" id="c-what" maxlength="40" required placeholder="'+esc(t('whatPh'))+'" value="'+esc(pre.what||'')+'"><span class="hint">'+t('whatHint')+'</span></div>')+
    '<div class="row"><div class="field"><label for="c-day">'+t('day')+'</label><select class="input" id="c-day">'+dayOptions(pre.date)+'</select></div>'+
    '<div class="field"><label for="c-time">'+t('time')+'</label><input class="input" id="c-time" type="time" value="'+esc(pre.time||(party?'21:00':'20:00'))+'" required></div></div>'+
    '<div class="row"><div class="field"><label for="c-district">'+t('district')+'</label><select class="input" id="c-district">'+DISTRICTS.map(function(x){return '<option'+(pre.district===x?' selected':'')+'>'+x+'</option>'}).join('')+'</select></div>'+
@@ -1262,7 +1277,7 @@ function sheetDetails(id){
    '<div class="content">'+
    '<div class="photo-hero" style="background-color:'+ACTS[p.act].c+';'+bg(heroImg,true)+'">'+(p.example?'<span class="ex">'+t('example')+'</span>':'')+
    (party?'<span class="pill" style="align-self:flex-start;background:rgba(20,17,10,.82);color:#fff">'+t('privParty')+'</span>':'')+
-   '<h1>'+esc(party?partyTitle(p):L(ACTS[p.act]))+'</h1><b>'+esc(dayLabel(p.date))+' · '+p.time+(p.end?'–'+p.end:'')+' · '+esc(p.district)+'</b>'+
+   '<h1>'+esc(party?partyTitle(p):planWhat(p))+'</h1><b>'+esc(dayLabel(p.date))+' · '+p.time+(p.end?'–'+p.end:'')+' · '+esc(p.district)+'</b>'+
    '<span>'+esc(party?(t('address')+': '+(partyAddress(p)||t('addrHidden'))):(p.place||t('tbd')))+'</span></div>'+
    (p.status&&p.status!=='mine'?'<div>'+statusPill(p.status)+'</div>':'')+facts+(party&&p.photos&&p.photos.length>1?gallery(p.photos.slice(1),true):'')+company+
    (ev?'<div class="field"><span class="label">'+t('forEvent')+'</span>'+eventRow(ev)+'</div>':'')+
@@ -1354,6 +1369,11 @@ function sheetUpgrade(){
 }
 function msgDay(ts){var d=new Date(ts),s=iso(d);if(s===iso(new Date()))return t('today');var y=new Date();y.setDate(y.getDate()-1);if(s===iso(y))return t('yesterday');return t('wd')[d.getDay()]+' '+('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)}
 function msgTime(ts){var d=new Date(ts);return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
+function sheetLocked(){
+  var p=db.profile||{};
+  return '<div class="sheet">'+sheetHead(t('verifyTitle'))+'<div class="content"><div class="box"><div class="row2"><h2>'+t('profilesLocked')+'</h2><span class="vbadge">✓</span></div>'+
+    '<span class="small muted">'+t('verifySub')+'</span>'+(p.verify_requested?'<div class="note">'+t('verifySent')+'</div>':'<button class="btn block" data-act="request-verify">'+t('verifyBtn')+'</button>')+'</div></div></div>';
+}
 function sheetChat(id){
   var c=chatById(id);if(!c)return '';
   var h='<div class="sheet"><div class="head"><button class="icon" data-act="close" aria-label="'+t('back')+'">'+IC.back+'</button><div class="t"><b>'+esc(c.title)+'</b>'+
@@ -1614,12 +1634,12 @@ function act(name,el){
   case 'find-company':
     e=findEvent(v);if(!e||e.status!=='accepted')break;
     ui.draft={act:KIND_ACT[e.venue.kind]||'beer',langs:(db.profile.langs||[]).slice(),
-      prefill:{date:e.date,time:e.time,district:e.where.district||DISTRICTS[0],place:e.where.name,note:t('companyNote')+e.title,eventId:e.example?null:e.id}};
+      prefill:{what:(t('companyNote')+e.title).slice(0,40),date:e.date,time:e.time,district:e.where.district||DISTRICTS[0],place:e.where.name,note:t('companyNote')+e.title,eventId:e.example?null:e.id}};
     openSheet({type:'create'});break;
   case 'find-company-party':
     p=findPlan(v);if(!p||p.status!=='accepted')break;
     ui.draft={act:'beer',langs:(db.profile.langs||[]).slice(),
-      prefill:{date:p.date,time:p.time,district:p.district,place:'',note:t('findCompanyParty')+partyTitle(p)}};
+      prefill:{what:(t('findCompanyParty')+partyTitle(p)).slice(0,40),date:p.date,time:p.time,district:p.district,place:'',note:t('findCompanyParty')+partyTitle(p)}};
     openSheet({type:'create'});break;
   case 'upgrade':openSheet({type:'upgrade'});break;
   case 'request-verify':
@@ -1646,7 +1666,10 @@ function act(name,el){
     var ec=chatList().filter(function(c){return c.kind==='event'&&c.target===v})[0];
     if(ec)openSheet({type:'chat',id:ec.id});break;
   case 'details':openSheet({type:'details',id:v});break;
-  case 'person':ensureGallery(v);openSheet({type:'person',id:v});break;
+  case 'person':
+    // unverified people cannot open other people's profiles
+    if(myVenue()||isVerified()||v===uid){ensureGallery(v);openSheet({type:'person',id:v})}else openSheet({type:'locked'});
+    break;
   case 'vpage':openSheet({type:'vpage',id:v});break;
   case 'epage':openSheet({type:'epage',id:v});break;
   case 'people-event':
@@ -1730,7 +1753,9 @@ function submitCreate(){
   var party=d.mode==='party',pro=party&&isPro(),addr=party?val('c-addr'):'';
   if(party&&!addr){toast(t('addrErr'));return}
   var need=Math.max(1,Math.min(pro?100:5,parseInt(val('c-need'),10)||1));
-  var row={host:uid,act:party?'party':d.act,date:val('c-day'),time:val('c-time')||'20:00',district:val('c-district'),need:need,
+  var what=party?'':val('c-what');
+  if(!party&&!what){toast(t('whatErr'));return}
+  var row={host:uid,act:party?'party':guessAct(what),title:what,date:val('c-day'),time:val('c-time')||'20:00',district:val('c-district'),need:need,
     place:party?'':val('c-place'),budget:val('c-budget'),note:val('c-note'),langs:d.langs.slice()};
   if(pro){
     row.title=val('c-title');row.end_time=val('c-end');row.min_age=d.minAge||18;row.dress_code=val('c-dress');
@@ -1821,6 +1846,7 @@ function render(){
       else if(s.type==='vpage')h+=sheetVenuePage(s.id);
       else if(s.type==='epage')h+=sheetEventPage(s.id);
       else if(s.type==='upgrade')h+=sheetUpgrade();
+      else if(s.type==='locked')h+=sheetLocked();
       else h+=sheetChat(s.id);
     }
     if(ui.match)h+=viewMatch();
