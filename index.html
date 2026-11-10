@@ -40,6 +40,9 @@
 .ava.pro{box-shadow:0 0 0 2px var(--ground),0 0 0 4px #F5A524}
 .prow.pro{border-color:#8a6418;background:linear-gradient(90deg,rgba(245,165,36,.10),var(--surface) 60%)}
 .dsep{align-self:center;font-size:12px;color:var(--muted);padding:4px 10px;border-radius:10px;background:var(--surface)}
+.swrap{position:relative;overflow:hidden;border-radius:18px;flex:none}
+.swrap .sdel{position:absolute;right:0;top:0;bottom:0;width:96px;border:none;background:#B3261E;color:#fff;font-weight:800}
+.swrap .item{position:relative;transition:transform .2s;touch-action:pan-y}
 .msg .tm{display:block;font-size:10px;opacity:.6;margin-top:2px;text-align:right}
 html,body{height:100%;margin:0}
 body{background:#07080A;color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased}
@@ -229,7 +232,7 @@ var local=store.get()||freshLocal();
 function saveLocal(){store.set(local)}
 
 /* ---------- state ---------- */
-var sb=null,uid=null,isAnon=true,ready=false,fatal='',chan=null,reloadT=null,busy=false,dragging=false;
+var sb=null,uid=null,isAnon=true,userKind='person',ready=false,fatal='',chan=null,reloadT=null,busy=false,dragging=false;
 function freshDb(){return {profile:null,profiles:{},plans:[],members:[],msgs:[],venues:[],events:[],going:[],counts:{},planCounts:{},evMsgs:[],secrets:{},galleries:{},vprivate:null}}
 var db=freshDb();
 var ui={tab:local.tab||'plans',day:'today',district:'all',sheet:null,stack:[],ob:local.lang?'kind':'lang',draft:null,editing:false,match:null,authMode:'up',authErr:'',authInfo:''};
@@ -418,13 +421,13 @@ Object.keys(T6).forEach(function(l){for(var k in T6[l])T[l][k]=T6[l][k]});
 var T7={
 ru:{verifiedT:'профиль проверен',verifyTitle:'Пройди проверку',verifySub:'Проверка открывает «Афишу» и даёт синюю галочку. Скоро здесь будет проверка по селфи, а пока профиль проверяет команда Just One.',
  verifyBtn:'Отправить на проверку',verifySent:'Заявка на проверку отправлена. Мы сообщим, когда профиль проверят.',yesterday:'Вчера',
- whatPh:'Например: пиво в центре, настолки, прогулка у Дуная',whatHint:'До 40 символов',whatErr:'Напиши, что делаем',applyTitle:'Заявка',applyNote:'Пара слов организатору',applyNotePh:'Например: привет! Тоже люблю джаз, могу прийти с подругой',applyHint:'Необязательно, до 200 символов',applySend:'Отправить заявку',profilesLocked:'Профили видны после проверки'},
+ whatPh:'Например: пиво в центре, настолки, прогулка у Дуная',whatHint:'До 40 символов',whatErr:'Напиши, что делаем',applyTitle:'Заявка',haveAccount:'У меня уже есть аккаунт — войти',doSignUp:'Зарегистрироваться',doSignIn:'Войти',leave:'Выйти',leftOk:'Ты вышел из чата и больше не записан',ownPlanLeave:'Это твой план — удалить его можно в профиле',swipeHint:'Смахни чат влево, чтобы выйти из него',applyNote:'Пара слов организатору',applyNotePh:'Например: привет! Тоже люблю джаз, могу прийти с подругой',applyHint:'Необязательно, до 200 символов',applySend:'Отправить заявку',profilesLocked:'Профили видны после проверки'},
 sr:{verifiedT:'profil je proveren',verifyTitle:'Prođi proveru',verifySub:'Provera otvara „Događaje“ i daje plavu kvačicu. Uskoro ovde stiže provera selfijem, a do tada profil proverava tim Just One.',
  verifyBtn:'Pošalji na proveru',verifySent:'Zahtev za proveru je poslat. Javićemo kad profil bude proveren.',yesterday:'Juče',
- whatPh:'Na primer: pivo u centru, društvene igre, šetnja pored Dunava',whatHint:'Do 40 znakova',whatErr:'Napiši šta radimo',applyTitle:'Zahtev',applyNote:'Par reči organizatoru',applyNotePh:'Na primer: ćao! I ja volim džez, mogu da dođem sa drugaricom',applyHint:'Nije obavezno, do 200 znakova',applySend:'Pošalji zahtev',profilesLocked:'Profili se vide posle provere'},
+ whatPh:'Na primer: pivo u centru, društvene igre, šetnja pored Dunava',whatHint:'Do 40 znakova',whatErr:'Napiši šta radimo',applyTitle:'Zahtev',haveAccount:'Već imam nalog — prijavi se',doSignUp:'Registruj se',doSignIn:'Prijavi se',leave:'Izađi',leftOk:'Izašao si iz četa i više nisi prijavljen',ownPlanLeave:'Ovo je tvoj plan — možeš ga obrisati u profilu',swipeHint:'Prevuci čet ulevo da izađeš',applyNote:'Par reči organizatoru',applyNotePh:'Na primer: ćao! I ja volim džez, mogu da dođem sa drugaricom',applyHint:'Nije obavezno, do 200 znakova',applySend:'Pošalji zahtev',profilesLocked:'Profili se vide posle provere'},
 en:{verifiedT:'verified profile',verifyTitle:'Get verified',verifySub:'Verification opens Events and gives you a blue tick. A selfie check is coming soon; for now the Just One team checks profiles.',
  verifyBtn:'Request verification',verifySent:'Verification requested. We will let you know when your profile is checked.',yesterday:'Yesterday',
- whatPh:'For example: beer in the centre, board games, a walk by the Danube',whatHint:'Up to 40 characters',whatErr:'Write what we are doing',applyTitle:'Request',applyNote:'A few words to the host',applyNotePh:'For example: hi! I love jazz too, I could bring a friend',applyHint:'Optional, up to 200 characters',applySend:'Send request',profilesLocked:'Profiles open after verification'}
+ whatPh:'For example: beer in the centre, board games, a walk by the Danube',whatHint:'Up to 40 characters',whatErr:'Write what we are doing',applyTitle:'Request',haveAccount:'I already have an account — log in',doSignUp:'Sign up',doSignIn:'Log in',leave:'Leave',leftOk:'You left the chat and are no longer signed up',ownPlanLeave:'This is your plan — you can delete it in your profile',swipeHint:'Swipe a chat left to leave it',applyNote:'A few words to the host',applyNotePh:'For example: hi! I love jazz too, I could bring a friend',applyHint:'Optional, up to 200 characters',applySend:'Send request',profilesLocked:'Profiles open after verification'}
 };
 Object.keys(T7).forEach(function(l){for(var k in T7[l])T[l][k]=T7[l][k]});function t(k){var D=T[local.lang||'ru'];return D[k]!==undefined?D[k]:k}
 function L(o){return o[local.lang||'ru']}
@@ -905,16 +908,18 @@ function viewOnboarding(){
     return '<div class="ob"><div class="brand">Just <span>One</span></div><h2>'+t('kindTitle')+'</h2>'+
       '<button class="kind" data-act="kind" data-val="person"><span class="pic" style="'+bg(U(PH.beer,720))+'"></span><span class="tx"><b>'+t('kindPerson')+'</b><span class="muted small">'+t('kindPersonSub')+'</span></span></button>'+
       '<button class="kind" data-act="kind" data-val="venue"><span class="pic" style="'+bg(U(PH.bar,720))+'"></span><span class="tx"><b>'+t('kindVenue')+'</b><span class="muted small">'+t('kindVenueSub')+'</span></span></button>'+
+      '<button class="btn ghost block" data-act="login">'+t('haveAccount')+'</button>'+
       '<div class="grow"></div><button class="btn ghost sm" data-act="ob-to" data-val="lang">'+t('language')+' · '+LANGS[local.lang||'ru']+'</button></div>';
   }
-  if(ui.ob==='vauth'){
+  // one sign-in / sign-up screen for everyone: email and password
+  if(ui.ob==='auth'){
     var up=ui.authMode==='up';
-    return '<form class="ob" id="auth-form"><h1>'+t('vAuthTitle')+'</h1>'+
+    return '<form class="ob" id="auth-form"><h1>'+(up?(ui.kind==='venue'?t('vAuthTitle'):t('signUp')):t('signIn'))+'</h1>'+
       '<div class="seg"><button type="button" class="'+(up?'on':'')+'" data-act="auth-mode" data-val="up">'+t('signUp')+'</button><button type="button" class="'+(up?'':'on')+'" data-act="auth-mode" data-val="in">'+t('signIn')+'</button></div>'+
       '<div class="field"><label for="a-email">'+t('email')+'</label><input class="input" id="a-email" type="email" autocomplete="email" required></div>'+
       '<div class="field"><label for="a-pass">'+t('password')+'</label><input class="input" id="a-pass" type="password" minlength="8" autocomplete="'+(up?'new-password':'current-password')+'" required><span class="hint">'+t('passwordHint')+'</span></div>'+
       '<div class="err" role="alert">'+esc(ui.authErr)+'</div>'+(ui.authInfo?'<div class="note">'+esc(ui.authInfo)+'</div>':'')+
-      '<div class="grow"></div><div class="row"><button type="button" class="btn ghost" data-act="ob-to" data-val="kind">'+t('back')+'</button><button class="btn" type="submit">'+(up?t('signUp'):t('signIn'))+'</button></div></form>';
+      '<div class="grow"></div><div class="row"><button type="button" class="btn ghost" data-act="ob-to" data-val="kind">'+t('back')+'</button><button class="btn" type="submit">'+(up?t('doSignUp'):t('doSignIn'))+'</button></div></form>';
   }
   if(!ui.draft)startDraft();
   d=ui.draft;
@@ -927,12 +932,11 @@ function viewOnboarding(){
        '<div class="field"><label for="f-age">'+t('age')+'</label><input class="input" id="f-age" type="number" inputmode="numeric" min="18" max="99" value="'+esc(d.age)+'"></div>'+
        '<div class="field"><label for="f-about">'+t('aboutMe')+'</label><textarea class="input" id="f-about" maxlength="200" placeholder="'+esc(t('aboutMePh'))+'">'+esc(d.about)+'</textarea></div>'+
        '<div class="field"><span class="label">'+t('morePhotos')+'</span>'+galEdit(d.photos)+'</div>'+
-       '<div class="row"><div class="field"><label for="f-from">'+t('fromT')+'</label><input class="input" id="f-from" maxlength="40" placeholder="'+esc(t('fromPh'))+'" value="'+esc(d.from_city)+'"></div>'+
-       '<div class="field"><label for="f-home">'+t('homeDistrict')+'</label><select class="input" id="f-home"><option value="">—</option>'+DISTRICTS.map(function(x){return '<option'+(d.district===x?' selected':'')+'>'+x+'</option>'}).join('')+'</select></div></div>'+
+       '<div class="field"><label for="f-from">'+t('fromT')+'</label><input class="input" id="f-from" maxlength="40" placeholder="'+esc(t('fromPh'))+'" value="'+esc(d.from_city)+'"></div>'+
        '<div class="field"><label for="f-job">'+t('jobT')+'</label><input class="input" id="f-job" maxlength="40" placeholder="'+esc(t('jobPh'))+'" value="'+esc(d.job)+'"></div>'+
        '<div class="field"><span class="label">'+t('alcoholT')+'</span>'+pickSet('alcohol',['no','some','yes'],function(k){return t('alc_'+k)})+'</div>'+
        '<div class="err" role="alert">'+esc(d.err)+'</div><div class="grow"></div>'+
-       '<div class="row">'+(ui.editing?'<button class="btn ghost" data-act="ob-cancel">'+t('cancel')+'</button>':'<button class="btn ghost" data-act="ob-to" data-val="kind">'+t('back')+'</button>')+
+       '<div class="row">'+(ui.editing?'<button class="btn ghost" data-act="ob-cancel">'+t('cancel')+'</button>':(uid?'':'<button class="btn ghost" data-act="ob-to" data-val="kind">'+t('back')+'</button>'))+
        '<button class="btn" data-act="ob-next1">'+t('next')+'</button></div></div>';
   }else{
     h+='<div class="ob"><h1>'+t('aboutYou')+'</h1>'+
@@ -969,7 +973,7 @@ function viewPlans(){
 }
 function card(p,top){
   var a=person(p.by);
-  return '<div class="card '+(top?'top':'under')+'" data-id="'+p.id+'"'+(top?'':' aria-hidden="true"')+'>'+
+  return '<div class="card '+(top?'front':'under')+'" data-id="'+p.id+'"'+(top?'':' aria-hidden="true"')+'>'+
     '<div class="hero" style="background-color:'+ACTS[p.act].c+';'+bg(U(PH[p.act],720),true)+'"><span class="stamp yes">'+t('yes')+'</span><span class="stamp no">'+t('no')+'</span>'+
     (p.example?'<span class="ex">'+t('example')+'</span>':'')+
     '<div class="act"'+(planWhat(p).length>12?' style="font-size:24px"':'')+'>'+esc(planWhat(p))+'</div><div class="when">'+esc(dayLabel(p.date))+' · '+p.time+' · '+esc(p.district)+'</div></div>'+
@@ -1061,10 +1065,11 @@ function chatById(id){var a=chatList();for(var i=0;i<a.length;i++)if(a[i].id===i
 function viewChats(){
   var h='<div class="top"><h1>'+t('chats')+'</h1></div><div class="body">',list=chatList();
   if(!list.length)h+='<div class="empty"><p class="muted">'+t('noChats')+'</p></div>';
+  else h+='<span class="hint">'+t('swipeHint')+'</span>';
   list.forEach(function(c){
     var last=c.msgs[c.msgs.length-1];
-    h+='<button class="item" data-act="open-chat" data-val="'+esc(c.id)+'"><img class="thumb" alt="" src="'+c.photo+'" style="border-radius:23px">'+
-       '<span class="mid"><span class="ttl">'+esc(c.title)+'</span><br><span class="sub">'+esc(last?last.text:c.pin)+'</span></span></button>';
+    h+='<div class="swrap"><button class="sdel" data-act="leave-chat" data-val="'+esc(c.id)+'">'+t('leave')+'</button><button class="item" data-act="open-chat" data-val="'+esc(c.id)+'"><img class="thumb" alt="" src="'+c.photo+'" style="border-radius:23px">'+
+       '<span class="mid"><span class="ttl">'+esc(c.title)+'</span><br><span class="sub">'+esc(last?last.text:c.pin)+'</span></span></button></div>';
   });
   return h+'</div>';
 }
@@ -1490,7 +1495,7 @@ function mode(){
   if(!uid)return 'onboard';
   if(myVenue())return 'venue';
   if(db.profile)return 'person';
-  if(!isAnon)return 'vsetup';
+  if(!isAnon&&userKind==='venue')return 'vsetup';
   return 'onboard';
 }
 
@@ -1519,6 +1524,29 @@ function sendRequest(id,note){
   }
   saveLocal();render();
 }
+// leaving a chat: swipe a chat to the left in the Chats tab, then "Leave" removes you from the event, plan or party
+function leaveChat(id){
+  var c=chatById(id);if(!c)return;
+  if(c.demo){exCancel(c.target);toast(t('leftOk'));render();return}
+  if(c.kind==='event'){var e=findEvent(c.target);if(e){eventCancel(e);toast(t('leftOk'))}return}
+  var p=findPlan(c.target);if(!p)return;
+  if(p.status==='mine'){toast(t('ownPlanLeave'));render();return}
+  run(function(){return sb.from('plan_members').delete().eq('plan_id',p.id).eq('user_id',uid).then(check).then(loadAll).then(function(){render();toast(t('leftOk'))})});
+}
+function bindChatSwipe(){
+  [].forEach.call(document.querySelectorAll('.swrap'),function(w){
+    var it=w.querySelector('.item'),sx=0,dx=0,down=false;
+    it.addEventListener('pointerdown',function(e){down=true;sx=e.clientX;dx=0;it.style.transition='none'});
+    it.addEventListener('pointermove',function(e){if(!down)return;dx=e.clientX-sx;var base=w.classList.contains('open')?-96:0;it.style.transform='translateX('+Math.min(0,Math.max(-120,base+dx))+'px)'});
+    function end(){if(!down)return;down=false;it.style.transition='';
+      var open=w.classList.contains('open');
+      if(dx<-40)w.classList.add('open');else if(dx>40)w.classList.remove('open');
+      it.style.transform=w.classList.contains('open')?'translateX(-96px)':'';
+      if(Math.abs(dx)>8)w.dataset.moved='1';
+    }
+    it.addEventListener('pointerup',end);it.addEventListener('pointercancel',end);
+  });
+}
 function doSwipe(dir){
   var id=(ui.sheet&&ui.sheet.type==='details')?ui.sheet.id:(feed()[0]||{}).id;
   if(!id)return;
@@ -1528,7 +1556,7 @@ function doSwipe(dir){
     if(dir==='yes'){clearSheets();ui.sheet={type:'apply',id:id};render();return}
     local.swiped[id]=dir;clearSheets();saveLocal();render();
   }
-  var el=document.querySelector('.card.top');
+  var el=document.querySelector('.card.front');
   var still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(el&&!ui.sheet&&!still){
     el.style.transform='translateX('+(dir==='yes'?520:-520)+'px) rotate('+(dir==='yes'?18:-18)+'deg)';el.style.opacity='0';
@@ -1536,7 +1564,7 @@ function doSwipe(dir){
   }else finish();
 }
 function bindSwipe(){
-  var el=document.querySelector('.card.top');if(!el)return;
+  var el=document.querySelector('.card.front');if(!el)return;
   var sx=0,dx=0,drag=false,moved=false;
   el.addEventListener('pointerdown',function(e){drag=true;dragging=true;moved=false;sx=e.clientX;dx=0;try{el.setPointerCapture(e.pointerId)}catch(x){}el.style.transition='none'});
   el.addEventListener('pointermove',function(e){
@@ -1603,7 +1631,9 @@ function act(name,el){
   switch(name){
   case 'lang':local.lang=v;saveLocal();ui.ob='kind';break;
   case 'ob-to':ui.ob=v;ui.authErr='';ui.authInfo='';if(d)d.err='';if(v==='p1'||v==='p2')keepStep1();break;
-  case 'kind':if(v==='person'){startDraft();ui.ob='p1'}else{ui.ob='vauth';ui.authMode='up'}break;
+  case 'kind':ui.kind=v;ui.ob='auth';ui.authMode='up';ui.authErr='';ui.authInfo='';break;
+  case 'login':ui.kind=null;ui.ob='auth';ui.authMode='in';ui.authErr='';ui.authInfo='';break;
+  case 'leave-chat':leaveChat(v);return;
   case 'auth-mode':ui.authMode=v;ui.authErr='';ui.authInfo='';break;
   case 'ob-cancel':ui.editing=false;ui.draft=null;break;
   case 'ob-next1':
@@ -1719,7 +1749,7 @@ function act(name,el){
       if(chan){sb.removeChannel(chan);chan=null}
       return sb.auth.signOut().then(function(){
         var lang=local.lang;local=freshLocal();local.lang=lang;saveLocal();
-        uid=null;isAnon=true;db=freshDb();ui.tab='plans';clearSheets();ui.match=null;ui.ob='kind';ui.draft=null;render();
+        uid=null;isAnon=true;userKind='person';db=freshDb();ui.tab='plans';clearSheets();ui.match=null;ui.ob='kind';ui.draft=null;render();
       });
     });
     return;
@@ -1732,12 +1762,18 @@ function submitAuth(){
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)||pass.length<8){ui.authErr=t('authErrShort');render();return}
   ui.authErr='';ui.authInfo='';
   run(function(){
-    var q=ui.authMode==='up'?sb.auth.signUp({email:email,password:pass}):sb.auth.signInWithPassword({email:email,password:pass});
+    var q=ui.authMode==='up'?sb.auth.signUp({email:email,password:pass,options:{data:{kind:ui.kind||'person'}}}):sb.auth.signInWithPassword({email:email,password:pass});
     return q.then(function(r){
       if(r.error){ui.authErr=t('authFailed')+r.error.message;render();return}
       if(!r.data.session){ui.authInfo=t('authCheckMail');ui.authMode='in';render();return}
-      uid=r.data.user.id;isAnon=false;
-      return loadAll().then(function(){subscribe();ui.tab='vEvents';clearSheets();ui.draft={photo:'',photos:[],gal:[720,450]};render()});
+      uid=r.data.user.id;isAnon=false;userKind=(r.data.user.user_metadata||{}).kind||'person';
+      return loadAll().then(function(){
+        subscribe();clearSheets();
+        if(myVenue()){ui.tab='vEvents'}else if(db.profile){ui.tab=local.tab||'plans'}
+        else if(userKind==='venue'){ui.draft={photo:'',photos:[],gal:[720,450]}}
+        else{startDraft();ui.ob='p1'}
+        render();
+      });
     });
   });
 }
@@ -1838,6 +1874,7 @@ function render(){
   }else if(!local.lang){
     ui.ob='lang';h=viewOnboarding();
   }else if(m==='onboard'||(m==='person'&&ui.editing)){
+    if(m==='onboard'&&uid&&!/^p[12]$/.test(ui.ob)){startDraft();ui.ob='p1'}   // registered: straight to the profile form
     h=viewOnboarding();
   }else if(m==='vsetup'){
     if(!ui.draft||!ui.draft.gal)ui.draft={photo:'',photos:[],gal:[720,450]};
@@ -1869,7 +1906,7 @@ function render(){
   rememberScroll();
   app.innerHTML=h;
   if(t0)app.appendChild(t0);
-  bindSwipe();
+  bindSwipe();bindChatSwipe();
   restoreScroll();
   var msgs=document.getElementById('msgs');if(msgs)msgs.scrollTop=msgs.scrollHeight;
 }
@@ -1890,6 +1927,12 @@ function restoreScroll(){
   if(ob&&shown.ob&&scrollMem[shown.ob])ob.scrollTop=scrollMem[shown.ob];
 }
 document.addEventListener('click',function(e){
+  var sw=e.target.closest('.swrap');
+  if(sw&&!e.target.closest('.sdel')){
+    // a swipe is not a tap; a tap on an open row just closes it
+    if(sw.dataset.moved){delete sw.dataset.moved;return}
+    if(sw.classList.contains('open')){sw.classList.remove('open');sw.querySelector('.item').style.transform='';return}
+  }
   var el=e.target.closest('[data-act]');if(!el||el.disabled)return;
   act(el.dataset.act,el);
 });
@@ -1922,7 +1965,7 @@ function boot(){
   sb.auth.getSession().then(function(r){
     var s=r.data&&r.data.session;
     if(!s)return;
-    uid=s.user.id;isAnon=!!s.user.is_anonymous;
+    uid=s.user.id;isAnon=!!s.user.is_anonymous;userKind=(s.user.user_metadata||{}).kind||'person';
     return loadAll().then(subscribe);
   }).catch(function(e){console.error(e);toast(t('netErr'))}).then(function(){ready=true;render()});
 }
