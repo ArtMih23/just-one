@@ -82,7 +82,10 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .input{height:50px;padding:0 15px;border-radius:14px;border:1px solid var(--line);background:var(--surface);width:100%}
 textarea.input{height:84px;padding:12px 15px;resize:none}
 .row{display:flex;gap:10px;align-items:flex-end}   /* fields in a row line up even when one label wraps */
-.lsel{height:50px;overflow:hidden}
+/* the phone's own multi-select shows its text in the phone language (e.g. 'Выбрано: 0'), so it is invisible and sits over our own field */
+.lwrap{position:relative}.lshow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:50px;cursor:pointer}
+.lshow span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.lshow span:last-child{flex-shrink:0;overflow:visible}.lshow .hint{margin:0}
+.lsel{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .row>*{flex:1;min-width:0}
 .err{color:var(--danger);font-size:13px;min-height:18px}
 .check{display:flex;align-items:center;gap:10px;font-weight:600}
@@ -433,6 +436,8 @@ en:{verifiedT:'verified profile',verifyTitle:'Get verified',verifySub:'Verificat
 Object.keys(T7).forEach(function(l){for(var k in T7[l])T[l][k]=T7[l][k]});function t(k){var D=T[local.lang||'ru'];return D[k]!==undefined?D[k]:k}
 function L(o){return o[local.lang||'ru']}
 function txt(x){return x==null?'':typeof x==='string'?x:L(x)}
+// user content is shown in the author's language, not the interface language
+function AL(x,lang){return x==null?'':typeof x==='string'?x:(x[lang]||x.en||x.ru||'')}
 
 /* ---------- photos (free Unsplash images, loaded by link) ---------- */
 function U(id,w,h){return 'https://images.unsplash.com/'+id+'?auto=format&fit=crop&q=70&w='+w+(h?'&h='+h+'&crop=faces':'')}
@@ -685,10 +690,10 @@ function exTick(){
 function membersOf(pid,status){return db.members.filter(function(m){return m.plan_id===pid&&m.status===status})}
 function myStatus(pid){for(var i=0;i<db.members.length;i++){var m=db.members[i];if(m.plan_id===pid&&m.user_id===uid)return m.status}return null}
 function seedPlans(){return SEED.map(function(p){
-  var st=exStatus(p.id);
+  var st=exStatus(p.id),al=p.langs[0];
   return {id:p.id,example:true,act:p.act,date:seedDate(p.d),time:p.time,district:p.district,by:p.by,need:p.need,langs:p.langs,
-    with:p.with.concat(st==='accepted'?[uid||'me']:[]),note:L(p.note),place:'',address:p.address||'',budget:txt(p.budget),eventId:null,status:st,
-    pro:!!p.pro,title:txt(p.title),end:p.end||'',minAge:p.minAge||18,dress:txt(p.dress),entry:p.entry||'free',music:txt(p.music),
+    with:p.with.concat(st==='accepted'?[uid||'me']:[]),note:AL(p.note,al),place:'',address:p.address||'',budget:AL(p.budget,al),eventId:null,status:st,
+    pro:!!p.pro,title:p.act==='party'?AL(p.title,al):AL(ACTS[p.act],al),end:p.end||'',minAge:p.minAge||18,dress:AL(p.dress,al),entry:p.entry||'free',music:AL(p.music,al),
     photos:(p.photos||[]).map(function(g){return U(PH[g],720)})};
 })}
 function serverPlan(r){
@@ -726,7 +731,7 @@ function partyAddress(p){
 /* ---------- venues and events ---------- */
 function seedVenue(id){
   var v=SEED_VENUES[id];
-  return {id:id,example:true,name:v.name,kind:v.kind,district:v.district,address:v.address,about:txt(v.about),contacts:v.contacts,verified:v.verified,
+  return {id:id,example:true,name:v.name,kind:v.kind,district:v.district,address:v.address,about:AL(v.about,'sr'),contacts:v.contacts,verified:v.verified,
     photo:U(PH[KINDS[v.kind].ph],160,160),cover:U(PH[KINDS[v.kind].ph],720),photos:[U(PH[KINDS[v.kind].ph],720)].concat(v.more.map(function(g){return U(PH[g],720)}))};
 }
 function serverVenue(r){
@@ -755,9 +760,9 @@ function serverEvent(e){
     pending:mine?rows.filter(function(g){return g.status==='pending'}).map(function(g){return g.user_id}):[]};
 }
 function seedEvent(e){
-  var st=exStatus(e.id),v=seedVenue(e.v),at=e.at?seedVenue(e.at):v;
-  return {id:e.id,example:true,venue:v,where:{name:at.name,address:at.address,district:at.district},title:L(e.title),format:e.format,date:seedDate(e.d),time:e.time,end:e.end,minAge:e.minAge,
-    dress:txt(e.dress),face:e.face,entry:e.entry,price:e.price,includes:txt(e.includes),capacity:e.capacity,music:txt(e.music),langs:e.langs,about:L(e.about),
+  var st=exStatus(e.id),v=seedVenue(e.v),at=e.at?seedVenue(e.at):v,al=e.langs[0];
+  return {id:e.id,example:true,venue:v,where:{name:at.name,address:at.address,district:at.district},title:AL(e.title,al),format:e.format,date:seedDate(e.d),time:e.time,end:e.end,minAge:e.minAge,
+    dress:AL(e.dress,al),face:e.face,entry:e.entry,price:e.price,includes:AL(e.includes,al),capacity:e.capacity,music:AL(e.music,al),langs:e.langs,about:AL(e.about,al),
     photo:U(PH[e.ph[0]],720),photos:e.ph.map(function(g){return U(PH[g],720)}),status:st,mine:false,
     count:e.going+(st==='accepted'?1:0),goers:st==='accepted'?e.who.concat([uid||'me']):[],pending:[]};
 }
@@ -800,7 +805,7 @@ function faces(ids,max){
 function personRow(id){
   var p=person(id);
   return '<button type="button" class="prow'+(hasPro(p)?' pro':'')+'" data-act="person" data-val="'+esc(realId(id))+'">'+ava(p,46)+'<span class="mid"><b>'+nameAge(p)+'</b>'+
-    '<br><span class="sub">'+esc(txt(p.about)||langTags(p.langs))+'</span></span></button>';
+    '<br><span class="sub">'+esc(AL(p.about,(p.langs||[])[0])||langTags(p.langs))+'</span></span></button>';
 }
 function planRow(p){
   return '<button type="button" class="prow" data-act="details" data-val="'+p.id+'"><img class="thumb" alt="" src="'+U(PH[p.act],120,120)+'">'+
@@ -826,7 +831,7 @@ function eventCountText(e){return t('goingN')+e.count+(e.capacity?'/'+e.capacity
 function personFacts(p){
   var rows=[];
   if(p.from_city)rows.push([t('fromT'),p.from_city]);
-  if(txt(p.job))rows.push([t('jobT'),txt(p.job)]);
+  if(AL(p.job,(p.langs||[])[0]))rows.push([t('jobT'),AL(p.job,(p.langs||[])[0])]);
   if(p.district)rows.push([t('homeDistrict'),p.district]);
   if(p.alcohol)rows.push([t('alcoholT'),t('alc_'+p.alcohol)]);
   if(p.langs&&p.langs.length)rows.push([t('langs'),p.langs.filter(function(l){return l!=='int'}).map(function(l){return LANGS_PLAN[l]||l}).join(', ')]);
@@ -879,11 +884,11 @@ function toast(msg){
 // languages are picked from a pop-up list (the phone shows it with tick boxes); the chosen ones are shown as tags under it
 function langSelect(id,map,sel){
   sel=sel||[];
-  return '<select class="input lsel" id="'+id+'" multiple size="1" aria-label="'+esc(t('langs'))+'">'+Object.keys(map).map(function(k){
-    return '<option value="'+k+'"'+(sel.indexOf(k)>=0?' selected':'')+'>'+esc(map[k])+'</option>'}).join('')+'</select>'+
-    '<div class="tags" id="'+id+'-tags">'+langChosen(map,sel)+'</div>';
+  return '<div class="lwrap"><div class="input lshow" id="'+id+'-tags">'+langChosen(map,sel)+'</div>'+
+    '<select class="lsel" id="'+id+'" multiple size="1" aria-label="'+esc(t('langs'))+'">'+Object.keys(map).map(function(k){
+    return '<option value="'+k+'"'+(sel.indexOf(k)>=0?' selected':'')+'>'+esc(map[k])+'</option>'}).join('')+'</select></div>';
 }
-function langChosen(map,sel){return sel.length?sel.map(function(k){return '<span class="tag">'+esc(map[k]||k)+'</span>'}).join(''):'<span class="hint">'+t('langsPick')+'</span>'}
+function langChosen(map,sel){return (sel.length?'<span>'+esc(sel.map(function(k){return map[k]||k}).join(', '))+'</span>':'<span class="hint">'+t('langsPick')+'</span>')+'<span aria-hidden="true">▾</span>'}
 function readLangs(id){var el=document.getElementById(id);return el?[].map.call(el.selectedOptions,function(o){return o.value}):null}
 function chipSet(group,items,labelFn){
   var sel=ui.draft[group]||[];
@@ -1324,7 +1329,7 @@ function sheetPerson(id){
   var big=photos&&photos.length?gallery(photos):'<div style="display:flex;justify-content:center">'+ava(p,150)+'</div>';
   return '<div class="sheet">'+sheetHead(nameAge(p),me?t('youAre'):langTags(p.langs))+'<div class="content">'+big+
    '<div><h1>'+nameAge(p)+'</h1><div class="muted small">'+langTags(p.langs)+'</div></div>'+
-   (txt(p.about)?'<div class="field"><span class="label">'+t('aboutMe')+'</span><div>'+esc(txt(p.about))+'</div></div>':'')+personFacts(p)+
+   (AL(p.about,(p.langs||[])[0])?'<div class="field"><span class="label">'+t('aboutMe')+'</span><div>'+esc(AL(p.about,(p.langs||[])[0]))+'</div></div>':'')+personFacts(p)+
    ('' ?'<div class="field"><span class="label">'+t('aboutMe')+'</span><div>'+esc(txt(p.about))+'</div></div>':'')+
    ((p.likes||[]).length?'<div class="field"><span class="label">'+t('likes')+'</span><div class="tags">'+p.likes.map(function(k){return '<span class="tag">'+esc(L(ACTS[k]))+'</span>'}).join('')+'</div></div>':'')+
    ((p.ints||[]).length?'<div class="field"><span class="label">'+t('interests')+'</span><div class="tags">'+p.ints.map(function(k){return '<span class="tag">'+esc(L(INTS[k]))+'</span>'}).join('')+'</div></div>':'')+
