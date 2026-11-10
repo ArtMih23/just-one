@@ -232,7 +232,7 @@ function saveLocal(){store.set(local)}
 var sb=null,uid=null,isAnon=true,ready=false,fatal='',chan=null,reloadT=null,busy=false,dragging=false;
 function freshDb(){return {profile:null,profiles:{},plans:[],members:[],msgs:[],venues:[],events:[],going:[],counts:{},planCounts:{},evMsgs:[],secrets:{},galleries:{},vprivate:null}}
 var db=freshDb();
-var ui={tab:'plans',day:'today',district:'all',sheet:null,stack:[],ob:local.lang?'kind':'lang',draft:null,editing:false,match:null,authMode:'up',authErr:'',authInfo:''};
+var ui={tab:local.tab||'plans',day:'today',district:'all',sheet:null,stack:[],ob:local.lang?'kind':'lang',draft:null,editing:false,match:null,authMode:'up',authErr:'',authInfo:''};
 
 /* ---------- texts ---------- */
 var T={
@@ -1624,7 +1624,7 @@ function act(name,el){
     d.act=v;
     [].forEach.call(document.querySelectorAll('[data-act="pick-act"]'),function(b){var on=b.dataset.val===v;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))});
     return;
-  case 'tab':ui.tab=v;clearSheets();ui.draft=null;break;
+  case 'tab':ui.tab=v;local.tab=v;saveLocal();clearSheets();ui.draft=null;break;
   case 'day':ui.day=v;break;
   case 'unskip':
     Object.keys(local.swiped).forEach(function(k){if(local.swiped[k]==='no')delete local.swiped[k]});saveLocal();break;
@@ -1833,6 +1833,7 @@ function render(){
   }else{
     if(m==='venue'&&!/^(vEvents|chats|vProfile)$/.test(ui.tab))ui.tab='vEvents';
     if(m==='person'&&(!/^(plans|afisha|chats|profile)$/.test(ui.tab)||(ui.tab==='afisha'&&!isVerified())))ui.tab='plans';
+    if(local.tab!==ui.tab){local.tab=ui.tab;saveLocal()}   // after a page reload the app opens the same tab
     var views={plans:viewPlans,afisha:viewAfisha,chats:viewChats,profile:viewProfile,vEvents:viewVEvents,vGuests:viewVGuests,vProfile:viewVProfile};
     h=views[ui.tab]()+nav();
     var s=ui.sheet;
@@ -1852,10 +1853,28 @@ function render(){
     if(ui.match)h+=viewMatch();
   }
   var t0=document.querySelector('.toast');
+  rememberScroll();
   app.innerHTML=h;
   if(t0)app.appendChild(t0);
   bindSwipe();
+  restoreScroll();
   var msgs=document.getElementById('msgs');if(msgs)msgs.scrollTop=msgs.scrollHeight;
+}
+// every list and page keeps its scroll position: going back, switching tabs or changing the language returns you to the same place
+var scrollMem={},shown={body:null,sheet:null,ob:null};
+function sheetKey(s){return s?s.type+':'+(s.id||s.title||''):null}
+function rememberScroll(){
+  var b=document.querySelector('#app>.body,#app .body'),sc=document.querySelector('.sheet .content'),ob=document.querySelector('.ob');
+  if(b&&shown.body)scrollMem[shown.body]=b.scrollTop;
+  if(sc&&shown.sheet)scrollMem[shown.sheet]=sc.scrollTop;
+  if(ob&&shown.ob)scrollMem[shown.ob]=ob.scrollTop;
+}
+function restoreScroll(){
+  shown.body='body:'+ui.tab;shown.sheet=ui.sheet?'sheet:'+sheetKey(ui.sheet):null;shown.ob=ui.editing||!db.profile?'ob:'+ui.ob:null;
+  var b=document.querySelector('.body'),sc=document.querySelector('.sheet .content'),ob=document.querySelector('.ob');
+  if(b&&scrollMem[shown.body])b.scrollTop=scrollMem[shown.body];
+  if(sc&&shown.sheet&&scrollMem[shown.sheet])sc.scrollTop=scrollMem[shown.sheet];
+  if(ob&&shown.ob&&scrollMem[shown.ob])ob.scrollTop=scrollMem[shown.ob];
 }
 document.addEventListener('click',function(e){
   var el=e.target.closest('[data-act]');if(!el||el.disabled)return;
