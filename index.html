@@ -81,7 +81,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .field>label,.label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .input{height:50px;padding:0 15px;border-radius:14px;border:1px solid var(--line);background:var(--surface);width:100%}
 textarea.input{height:84px;padding:12px 15px;resize:none}
-.row{display:flex;gap:10px}
+.row{display:flex;gap:10px;align-items:flex-end}   /* fields in a row line up even when one label wraps */
+.lsel{height:50px;overflow:hidden}
 .row>*{flex:1;min-width:0}
 .err{color:var(--danger);font-size:13px;min-height:18px}
 .check{display:flex;align-items:center;gap:10px;font-weight:600}
@@ -243,7 +244,7 @@ ru:{next:'Дальше',back:'Назад',save:'Сохранить',cancel:'От
  noConfig:'Сервер не настроен: впиши ключ SUPABASE_KEY в app/index.html.',example:'пример',demo:'Карточки с пометкой «пример» — демонстрационные.',open:'Открыть',
  delShort:'Удалить',logout:'Выйти',logoutAsk:'Выйти из аккаунта на этом устройстве?',logoutAnonAsk:'Профиль на этом устройстве будет потерян. Выйти?',language:'Язык',
  aboutYou:'Расскажи о себе',name:'Имя',age:'Возраст',nameErr:'Напиши имя',ageErr:'Приложение только для тех, кому есть 18',addPhoto:'Добавить фото',changePhoto:'Сменить фото',
- interests:'Увлечения',langsHint:'Отметь все языки, на которых можешь общаться',langs:'На каких языках общаешься',likes:'Что любишь',pickOne:'Выбери хотя бы один язык',aboutMe:'О себе',aboutMePh:'Пара слов о себе: чем занимаешься, что любишь',
+ interests:'Увлечения',langsHint:'Отметь все языки, на которых можешь общаться',langsPick:'Нажми, чтобы выбрать языки',langs:'На каких языках общаешься',likes:'Что любишь',pickOne:'Выбери хотя бы один язык',aboutMe:'О себе',aboutMePh:'Пара слов о себе: чем занимаешься, что любишь',
  morePhotos:'Фото (до 4)',addMore:'Добавить фото',removePhoto:'Убрать фото',
  kindTitle:'Как ты будешь пользоваться приложением?',kindPerson:'Для личного пользования',kindPersonSub:'Планы на вечер, вечеринки и события в городе',
  kindVenue:'Я представляю бизнес',kindVenueSub:'Заведения, организаторы квизов и вечеринок, бренды и фестивали',
@@ -285,7 +286,7 @@ sr:{next:'Dalje',back:'Nazad',save:'Sačuvaj',cancel:'Otkaži',start:'Počni',lo
  noConfig:'Server nije podešen: upiši ključ SUPABASE_KEY u app/index.html.',example:'primer',demo:'Kartice označene sa „primer“ su demonstracione.',open:'Otvori',
  delShort:'Obriši',logout:'Odjavi se',logoutAsk:'Odjaviti se sa ovog uređaja?',logoutAnonAsk:'Profil na ovom uređaju biće izgubljen. Odjaviti se?',language:'Jezik',
  aboutYou:'Reci nešto o sebi',name:'Ime',age:'Godine',nameErr:'Upiši ime',ageErr:'Aplikacija je samo za starije od 18',addPhoto:'Dodaj fotografiju',changePhoto:'Promeni fotografiju',
- interests:'Hobiji',langsHint:'Označi sve jezike na kojima možeš da pričaš',langs:'Na kojim jezicima pričaš',likes:'Šta voliš',pickOne:'Izaberi bar jedan jezik',aboutMe:'O meni',aboutMePh:'Par reči o sebi: čime se baviš, šta voliš',
+ interests:'Hobiji',langsHint:'Označi sve jezike na kojima možeš da pričaš',langsPick:'Dodirni da izabereš jezike',langs:'Na kojim jezicima pričaš',likes:'Šta voliš',pickOne:'Izaberi bar jedan jezik',aboutMe:'O meni',aboutMePh:'Par reči o sebi: čime se baviš, šta voliš',
  morePhotos:'Fotografije (do 4)',addMore:'Dodaj fotografiju',removePhoto:'Ukloni fotografiju',
  kindTitle:'Kako ćeš koristiti aplikaciju?',kindPerson:'Za ličnu upotrebu',kindPersonSub:'Planovi za veče, žurke i događaji u gradu',
  kindVenue:'Predstavljam biznis',kindVenueSub:'Lokali, organizatori kvizova i žurki, brendovi i festivali',
@@ -327,7 +328,7 @@ en:{next:'Next',back:'Back',save:'Save',cancel:'Cancel',start:'Start',loading:'L
  noConfig:'Server not configured: put SUPABASE_KEY into app/index.html.',example:'example',demo:'Cards marked “example” are for demonstration.',open:'Open',
  delShort:'Delete',logout:'Log out',logoutAsk:'Log out on this device?',logoutAnonAsk:'Your profile on this device will be lost. Log out?',language:'Language',
  aboutYou:'Tell us about yourself',name:'Name',age:'Age',nameErr:'Enter your name',ageErr:'This app is for people aged 18 and over',addPhoto:'Add a photo',changePhoto:'Change photo',
- interests:'Hobbies',langsHint:'Pick every language you can talk in',langs:'Languages you speak',likes:'What you like',pickOne:'Pick at least one language',aboutMe:'About me',aboutMePh:'A few words about you: what you do, what you like',
+ interests:'Hobbies',langsHint:'Pick every language you can talk in',langsPick:'Tap to choose languages',langs:'Languages you speak',likes:'What you like',pickOne:'Pick at least one language',aboutMe:'About me',aboutMePh:'A few words about you: what you do, what you like',
  morePhotos:'Photos (up to 4)',addMore:'Add a photo',removePhoto:'Remove photo',
  kindTitle:'How will you use the app?',kindPerson:'For personal use',kindPersonSub:'Plans for tonight, parties and events in town',
  kindVenue:'I represent a business',kindVenueSub:'Venues, quiz and party organisers, brands and festivals',
@@ -874,6 +875,15 @@ function toast(msg){
   document.getElementById('app').appendChild(el);
   clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.remove()},2800);
 }
+// languages are picked from a pop-up list (the phone shows it with tick boxes); the chosen ones are shown as tags under it
+function langSelect(id,map,sel){
+  sel=sel||[];
+  return '<select class="input lsel" id="'+id+'" multiple size="1" aria-label="'+esc(t('langs'))+'">'+Object.keys(map).map(function(k){
+    return '<option value="'+k+'"'+(sel.indexOf(k)>=0?' selected':'')+'>'+esc(map[k])+'</option>'}).join('')+'</select>'+
+    '<div class="tags" id="'+id+'-tags">'+langChosen(map,sel)+'</div>';
+}
+function langChosen(map,sel){return sel.length?sel.map(function(k){return '<span class="tag">'+esc(map[k]||k)+'</span>'}).join(''):'<span class="hint">'+t('langsPick')+'</span>'}
+function readLangs(id){var el=document.getElementById(id);return el?[].map.call(el.selectedOptions,function(o){return o.value}):null}
 function chipSet(group,items,labelFn){
   var sel=ui.draft[group]||[];
   return '<div class="chips">'+items.map(function(k){
@@ -941,6 +951,7 @@ function viewOnboarding(){
        '<input id="f-photo" type="file" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px"></div>'+
        '<div class="field"><label for="f-name">'+t('name')+'</label><input class="input" id="f-name" maxlength="24" autocomplete="given-name" value="'+esc(d.name)+'"></div>'+
        '<div class="field"><label for="f-age">'+t('age')+'</label><input class="input" id="f-age" type="number" inputmode="numeric" min="18" max="99" value="'+esc(d.age)+'"></div>'+
+       '<div class="field"><label for="f-langs">'+t('langs')+'</label>'+langSelect('f-langs',SPEAK,d.langs)+'</div>'+
        '<div class="field"><label for="f-about">'+t('aboutMe')+'</label><textarea class="input" id="f-about" maxlength="200" placeholder="'+esc(t('aboutMePh'))+'">'+esc(d.about)+'</textarea></div>'+
        '<div class="field"><span class="label">'+t('morePhotos')+'</span>'+galEdit(d.photos)+'</div>'+
        '<div class="field"><label for="f-from">'+t('fromT')+'</label><input class="input" id="f-from" maxlength="40" placeholder="'+esc(t('fromPh'))+'" value="'+esc(d.from_city)+'"></div>'+
@@ -950,7 +961,6 @@ function viewOnboarding(){
        '<button class="btn" data-act="ob-next1">'+t('next')+'</button></div></div>';
   }else{
     h+='<div class="ob"><h1>'+t('aboutYou')+'</h1>'+
-       '<div class="field"><span class="label">'+t('langs')+'</span><span class="hint">'+t('langsHint')+'</span>'+chipSet('langs',Object.keys(SPEAK),function(k){return SPEAK[k]})+'</div>'+
        '<div class="field"><span class="label">'+t('interests')+'</span>'+chipSet('ints',Object.keys(INTS),function(k){return L(INTS[k])})+'</div>'+
        '<div class="field"><span class="label">'+t('likes')+'</span>'+chipSet('likes',Object.keys(ACTS).filter(function(k){return k!=='other'}),function(k){return L(ACTS[k])})+'</div>'+
        '<div class="err" role="alert">'+esc(d.err)+'</div><div class="grow"></div>'+
@@ -1220,7 +1230,7 @@ function sheetPartyPro(){
    '<div class="field"><span class="label">'+t('evEntry')+'</span>'+pickSet('entry',['free','contrib','ticket'],function(k){return k==='free'?t('free'):k==='contrib'?t('entryContrib'):t('ticket')})+'</div>'+
    '<div class="field" id="e-price-wrap"'+(d.entry==='free'?' hidden':'')+'><label for="c-budget">'+t('evPrice')+'</label><input class="input" id="c-budget" maxlength="40" placeholder="'+esc(t('evPricePh'))+'"></div>'+
    '<div class="field"><label for="c-music">'+t('evMusic')+'</label><input class="input" id="c-music" maxlength="80" placeholder="'+esc(t('evMusicPh'))+'"></div>'+
-   '<div class="field"><span class="label">'+t('planLangs')+'</span>'+chipSet('langs',Object.keys(LANGS_PLAN),function(k){return LANGS_PLAN[k]})+'</div>'+
+   '<div class="field"><label for="c-langs">'+t('planLangs')+'</label>'+langSelect('c-langs',LANGS_PLAN,d.langs)+'</div>'+
    '<div class="field"><label for="c-note">'+t('partyNote')+'</label><textarea class="input" id="c-note" maxlength="500" placeholder="'+esc(t('partyNotePh'))+'"></textarea></div>'+
    '</div><div class="foot"><button class="btn" type="submit">'+t('publish')+'</button></div></form>';
 }
@@ -1232,7 +1242,7 @@ function sheetCreate(){
    '<div class="content">'+
    (party?'<div class="photo-hero" style="min-height:120px;'+bg(U(PH.party,720))+'"></div>'+
      '<button type="button" class="note" style="text-align:left" data-act="upgrade">'+t('proHintParty')+' <b style="color:var(--accent)">'+t('upgrade')+' ›</b></button>':
-   coverPick(d.photo)+'<div class="field"><span class="label">'+t('evPhotos')+'</span>'+galEdit(d.photos)+'</div>'+
+   coverPick(d.photo)+
    '<div class="field"><label for="c-what">'+t('what')+'</label><input class="input" id="c-what" maxlength="40" required placeholder="'+esc(t('whatPh'))+'" value="'+esc(pre.what||'')+'"><span class="hint">'+t('whatHint')+'</span></div>')+
    '<div class="row"><div class="field"><label for="c-day">'+t('day')+'</label><select class="input" id="c-day">'+dayOptions(pre.date)+'</select></div>'+
    '<div class="field"><label for="c-time">'+t('time')+'</label><input class="input" id="c-time" type="time" value="'+esc(pre.time||(party?'21:00':'20:00'))+'" required></div></div>'+
@@ -1241,7 +1251,7 @@ function sheetCreate(){
    (party?'<div class="field"><label for="c-addr">'+t('partyAddr')+'</label><input class="input" id="c-addr" maxlength="120" required placeholder="'+esc(t('partyAddrPh'))+'"></div>':
    '<div class="field"><label for="c-place">'+t('place')+'</label><input class="input" id="c-place" maxlength="40" placeholder="'+esc(t('placePh'))+'" value="'+esc(pre.place||'')+'"></div>')+
    '<div class="field"><label for="c-budget">'+(party?t('contrib'):t('budget'))+'</label><input class="input" id="c-budget" maxlength="40" placeholder="'+esc(party?t('contribPh'):t('budgetPh'))+'"></div>'+
-   '<div class="field"><span class="label">'+t('planLangs')+'</span>'+chipSet('langs',Object.keys(LANGS_PLAN),function(k){return LANGS_PLAN[k]})+'</div>'+
+   '<div class="field"><label for="c-langs">'+t('planLangs')+'</label>'+langSelect('c-langs',LANGS_PLAN,d.langs)+'</div>'+
    '<div class="field"><label for="c-note">'+(party?t('partyNote'):t('note'))+'</label><textarea class="input" id="c-note" maxlength="140" placeholder="'+esc(party?t('partyNotePh'):t('notePh'))+'">'+esc(pre.note||'')+'</textarea></div>'+
    '</div><div class="foot"><button class="btn" type="submit">'+t('publish')+'</button></div></form>';
 }
@@ -1651,6 +1661,7 @@ function act(name,el){
     keepStep1();var age=parseInt(d.age,10);
     if(!d.name){d.err=t('nameErr');break}
     if(!(age>=18&&age<=99)){d.err=t('ageErr');break}
+    if(!d.langs.length){d.err=t('pickOne');break}
     d.age=age;d.err='';ui.ob='p2';break;
   case 'ob-done':
     if(!d.langs.length){d.err=t('pickOne');break}
@@ -1684,16 +1695,16 @@ function act(name,el){
   case 'unskip':
     Object.keys(local.swiped).forEach(function(k){if(local.swiped[k]==='no')delete local.swiped[k]});saveLocal();break;
   case 'swipe':doSwipe(v);return;
-  case 'create':clearSheets();ui.draft={act:'beer',langs:(db.profile.langs||[]).slice(),photo:'',photos:[],gal:[720,450]};ui.sheet={type:'create'};break;
-  case 'new-party':clearSheets();ui.draft={act:'party',mode:'party',langs:(db.profile.langs||[]).slice(),photo:'',photos:[],gal:[720,450],minAge:18,entry:'free'};ui.sheet={type:'create'};break;
+  case 'create':clearSheets();ui.draft={act:'beer',langs:[],photo:'',photos:[],gal:[720,450]};ui.sheet={type:'create'};break;
+  case 'new-party':clearSheets();ui.draft={act:'party',mode:'party',langs:[],photo:'',photos:[],gal:[720,450],minAge:18,entry:'free'};ui.sheet={type:'create'};break;
   case 'find-company':
     e=findEvent(v);if(!e||e.status!=='accepted')break;
-    ui.draft={act:KIND_ACT[e.venue.kind]||'beer',langs:(db.profile.langs||[]).slice(),photo:'',photos:[],gal:[720,450],
+    ui.draft={act:KIND_ACT[e.venue.kind]||'beer',langs:[],photo:'',photos:[],gal:[720,450],
       prefill:{what:(t('companyNote')+e.title).slice(0,40),date:e.date,time:e.time,district:e.where.district||DISTRICTS[0],place:e.where.name,note:t('companyNote')+e.title,eventId:e.example?null:e.id}};
     openSheet({type:'create'});break;
   case 'find-company-party':
     p=findPlan(v);if(!p||p.status!=='accepted')break;
-    ui.draft={act:'beer',langs:(db.profile.langs||[]).slice(),photo:'',photos:[],gal:[720,450],
+    ui.draft={act:'beer',langs:[],photo:'',photos:[],gal:[720,450],
       prefill:{what:(t('findCompanyParty')+partyTitle(p)).slice(0,40),date:p.date,time:p.time,district:p.district,place:'',note:t('findCompanyParty')+partyTitle(p)}};
     openSheet({type:'create'});break;
   case 'upgrade':openSheet({type:'upgrade'});break;
@@ -1819,6 +1830,7 @@ function submitVenue(){
 }
 function submitCreate(){
   var d=ui.draft;
+  d.langs=readLangs('c-langs')||d.langs;
   if(!d.langs.length){toast(t('pickOne'));return}
   var party=d.mode==='party',pro=party&&isPro(),addr=party?val('c-addr'):'';
   if(party&&!addr){toast(t('addrErr'));return}
@@ -1965,6 +1977,11 @@ document.addEventListener('change',function(e){
   else if(id==='f-photo'){readPhoto(e.target.files[0])}
   else if(id==='f-gallery'){keepStep1();readGallery(e.target.files[0])}
   else if(id==='f-cover'){readCover(e.target.files[0])}
+  else if(id==='f-langs'||id==='c-langs'){
+    var picked=readLangs(id),box=document.getElementById(id+'-tags');
+    if(ui.draft)ui.draft.langs=picked;
+    if(box)box.innerHTML=langChosen(id==='f-langs'?SPEAK:LANGS_PLAN,picked);
+  }
 });
 document.addEventListener('submit',function(e){
   e.preventDefault();
