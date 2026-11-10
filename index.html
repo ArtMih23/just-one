@@ -25,6 +25,9 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+/* long words in names and descriptions wrap instead of pushing the screen wider */
+.body,.sheet .content,.ob{overflow-x:hidden}
+.body *,.sheet .content *,.ob *,.msg,.pin{overflow-wrap:anywhere;min-width:0}
 html,body{height:100%;margin:0}
 body{background:#07080A;color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -226,7 +229,7 @@ ru:{next:'Дальше',back:'Назад',save:'Сохранить',cancel:'От
  aboutYou:'Расскажи о себе',name:'Имя',age:'Возраст',nameErr:'Напиши имя',ageErr:'Приложение только для тех, кому есть 18',addPhoto:'Добавить фото',changePhoto:'Сменить фото',
  interests:'Интересы',langs:'На каких языках общаешься',likes:'Что любишь',pickOne:'Выбери хотя бы один язык',aboutMe:'О себе',aboutMePh:'Пара слов о себе: чем занимаешься, что любишь',
  morePhotos:'Фото (до 4)',addMore:'Добавить фото',removePhoto:'Убрать фото',
- kindTitle:'Как ты будешь пользоваться приложением?',kindPerson:'Для себя',kindPersonSub:'Планы на вечер, вечеринки и события в городе',
+ kindTitle:'Как ты будешь пользоваться приложением?',kindPerson:'Для личного пользования',kindPersonSub:'Планы на вечер, вечеринки и события в городе',
  kindVenue:'Я представляю бизнес',kindVenueSub:'Заведения, организаторы квизов и вечеринок, бренды и фестивали',
  vAuthTitle:'Бизнес-аккаунт',signUp:'Регистрация',signIn:'Вход',email:'Почта',password:'Пароль',passwordHint:'Не меньше 8 символов',
  authErrShort:'Проверь почту и пароль (не меньше 8 символов)',authCheckMail:'Мы отправили письмо для подтверждения. Подтверди почту и войди.',authFailed:'Не получилось: ',
@@ -268,7 +271,7 @@ sr:{next:'Dalje',back:'Nazad',save:'Sačuvaj',cancel:'Otkaži',start:'Počni',lo
  aboutYou:'Reci nešto o sebi',name:'Ime',age:'Godine',nameErr:'Upiši ime',ageErr:'Aplikacija je samo za starije od 18',addPhoto:'Dodaj fotografiju',changePhoto:'Promeni fotografiju',
  interests:'Interesovanja',langs:'Na kojim jezicima pričaš',likes:'Šta voliš',pickOne:'Izaberi bar jedan jezik',aboutMe:'O meni',aboutMePh:'Par reči o sebi: čime se baviš, šta voliš',
  morePhotos:'Fotografije (do 4)',addMore:'Dodaj fotografiju',removePhoto:'Ukloni fotografiju',
- kindTitle:'Kako ćeš koristiti aplikaciju?',kindPerson:'Za sebe',kindPersonSub:'Planovi za veče, žurke i događaji u gradu',
+ kindTitle:'Kako ćeš koristiti aplikaciju?',kindPerson:'Za ličnu upotrebu',kindPersonSub:'Planovi za veče, žurke i događaji u gradu',
  kindVenue:'Predstavljam biznis',kindVenueSub:'Lokali, organizatori kvizova i žurki, brendovi i festivali',
  vAuthTitle:'Poslovni nalog',signUp:'Registracija',signIn:'Prijava',email:'Imejl',password:'Lozinka',passwordHint:'Najmanje 8 znakova',
  authErrShort:'Proveri imejl i lozinku (najmanje 8 znakova)',authCheckMail:'Poslali smo imejl za potvrdu. Potvrdi adresu i prijavi se.',authFailed:'Nije uspelo: ',
@@ -310,7 +313,7 @@ en:{next:'Next',back:'Back',save:'Save',cancel:'Cancel',start:'Start',loading:'L
  aboutYou:'Tell us about yourself',name:'Name',age:'Age',nameErr:'Enter your name',ageErr:'This app is for people aged 18 and over',addPhoto:'Add a photo',changePhoto:'Change photo',
  interests:'Interests',langs:'Languages you speak',likes:'What you like',pickOne:'Pick at least one language',aboutMe:'About me',aboutMePh:'A few words about you: what you do, what you like',
  morePhotos:'Photos (up to 4)',addMore:'Add a photo',removePhoto:'Remove photo',
- kindTitle:'How will you use the app?',kindPerson:'For myself',kindPersonSub:'Plans for tonight, parties and events in town',
+ kindTitle:'How will you use the app?',kindPerson:'For personal use',kindPersonSub:'Plans for tonight, parties and events in town',
  kindVenue:'I represent a business',kindVenueSub:'Venues, quiz and party organisers, brands and festivals',
  vAuthTitle:'Business account',signUp:'Sign up',signIn:'Log in',email:'Email',password:'Password',passwordHint:'At least 8 characters',
  authErrShort:'Check the email and password (at least 8 characters)',authCheckMail:'We sent a confirmation email. Confirm the address, then log in.',authFailed:'Did not work: ',
@@ -929,7 +932,7 @@ function partyCard(p){
 }
 // one list: business events and PRO parties, by date
 function viewAfisha(){
-  var h=topFilters(t('afisha'))+'<div class="body"><div class="sec"><h2>'+t('events')+'</h2><button class="btn sm ghost" data-act="new-party">+ '+t('newParty')+'</button></div>';
+  var h=topFilters(t('afisha'))+'<div class="body">';
   var items=allEvents().filter(function(e){return districtOk(e.where.district||e.venue.district)&&dayOk(e.date)}).map(function(e){return {date:e.date,time:e.time,html:evCard(e)}})
     .concat(allPlans().filter(function(p){return p.act==='party'&&p.pro&&districtOk(p.district)&&dayOk(p.date)}).map(function(p){return {date:p.date,time:p.time,html:partyCard(p)}}))
     .sort(byDate);
@@ -997,9 +1000,11 @@ function viewProfile(){
      (p.about?'<div>'+esc(p.about)+'</div>':'')+
      ((db.galleries[uid]||[]).length?gallery(db.galleries[uid]):'')+
      '<div class="tags">'+(p.likes||[]).map(function(k){return '<span class="tag">'+esc(L(ACTS[k]))+'</span>'}).join('')+(p.ints||[]).map(function(k){return '<span class="tag">'+esc(L(INTS[k]))+'</span>'}).join('')+'</div>'+
-     '<div class="chips"><button class="btn ghost sm" data-act="edit">'+t('edit')+'</button><button class="btn ghost sm" data-act="person" data-val="'+uid+'">'+t('seeAs')+'</button></div></div>';
-  h+='<h2>'+t('myPlans')+'</h2>';
-  if(!mine.length)h+='<div class="box"><span class="muted">'+t('noMyPlans')+'</span><button class="btn sm" data-act="create">'+t('newPlan')+'</button></div>';
+     '<div class="chips"><button class="btn ghost sm" data-act="edit">'+t('edit')+'</button><button class="btn ghost sm" data-act="person" data-val="'+uid+'">'+t('seeAs')+'</button></div>'+
+     '<button class="btn block" data-act="upgrade">★ '+(isPro()?t('proT')+' · '+t('proActive')+esc(new Date(db.profile.pro_until).toLocaleDateString()):t('upgrade'))+'</button></div>';
+  h+='<div class="sec"><h2>'+t('myPlans')+'</h2></div>'+
+     '<div class="row"><button class="btn sm" data-act="create">+ '+t('newPlan')+'</button><button class="btn sm" data-act="new-party">+ '+t('newParty')+'</button></div>';
+  if(!mine.length)h+='<div class="note">'+t('noMyPlans')+'</div>';
   mine.forEach(function(pl){
     var reqs=membersOf(pl.id,'pending').map(function(m){return m.user_id});
     h+='<div class="box">'+planRow(pl);
@@ -1028,7 +1033,7 @@ function viewVEvents(){
   var v=myVenue(),evs=myEvents(),h='<div class="top"><div class="line"><h1>'+t('myEvents')+'</h1><button class="btn sm" data-act="new-event">+ '+t('newEvent')+'</button></div>'+
     '<span class="small '+(v.verified?'':'muted')+'">'+esc(v.name)+' · '+(v.verified?'✓ '+t('verified'):t('notVerified'))+'</span></div><div class="body">';
   if(!evs.length)h+='<div class="note">'+t('noMyEvents')+'</div>';
-  evs.forEach(function(e){h+=eventRow(e,dayLabel(e.date)+' · '+timeRange(e)+' · '+placeLine(e)+' · '+t('goingN')+e.goers.length)});
+  evs.forEach(function(e){h+=eventRow(e,dayLabel(e.date)+' · '+timeRange(e)+' · '+placeLine(e)+' · '+t('goingN')+e.count)});
   return h+'</div>';
 }
 // business events have no approval: the business sees its guests and can remove someone
@@ -1091,7 +1096,7 @@ function venueForm(isSetup){
 function nav(){
   if(myVenue()){
     var vb=function(k){return '<button class="'+(ui.tab===k?'on':'')+'" data-act="tab" data-val="'+k+'"'+(ui.tab===k?' aria-current="page"':'')+'>'+IC[k]+'<span>'+t(k)+'</span></button>'};
-    return '<nav class="nav">'+vb('vEvents')+vb('vGuests')+'<button class="plus" data-act="new-event" aria-label="'+t('newEventTitle')+'">'+IC.plus+'</button>'+vb('chats')+vb('vProfile')+'</nav>';
+    return '<nav class="nav">'+vb('vEvents')+'<button class="plus" data-act="new-event" aria-label="'+t('newEventTitle')+'">'+IC.plus+'</button>'+vb('chats')+vb('vProfile')+'</nav>';
   }
   var pending=db.plans.some(function(p){return p.host===uid&&membersOf(p.id,'pending').length});
   function b(k){return '<button class="'+(ui.tab===k?'on':'')+'" data-act="tab" data-val="'+k+'"'+(ui.tab===k?' aria-current="page"':'')+'>'+IC[k]+'<span>'+t(k)+'</span>'+(k==='profile'&&pending?'<span class="dot"></span>':'')+'</button>'}
@@ -1249,15 +1254,10 @@ function sheetEventPage(id){
    (w.address?'<div class="row2"><span class="small">'+esc((w.district?w.district+' · ':'')+w.address)+'</span><a class="btn ghost sm" target="_blank" rel="noopener" href="'+esc(mapsLink(wl))+'">'+t('route')+'</a></div>':'')+'</div>'+
    eventFacts(e)+
    (e.about?'<div class="field"><span class="label">'+t('evAbout')+'</span><div>'+esc(e.about)+'</div></div>':'')+
-   '<div class="field"><span class="label">'+t('goingN')+e.count+'</span>'+
-   (e.goers.length?faces(e.goers,12)+'<button class="btn ghost sm" data-act="people-event" data-val="'+e.id+'">'+t('allParticipants')+'</button>':'<div class="note">'+t('hiddenList')+'</div>')+'</div>';
+   // business events show only how many people are going, never who
+   '<div class="field"><span class="label">'+t('goingN')+e.count+'</span></div>';
   if(e.mine){
-    h+='<div class="field"><span class="label">'+t('vGuests')+': '+e.goers.length+'</span>';
-    if(!e.goers.length)h+='<span class="muted small">'+t('noGuests')+'</span>';
-    e.goers.forEach(function(r){
-      h+='<div class="req">'+personRow(r)+'<button class="btn ghost sm" data-act="ev-remove" data-ev="'+e.id+'" data-val="'+r+'">'+t('removeGuest')+'</button></div>';
-    });
-    h+='</div><div class="chips"><button class="btn sm" data-act="event-chat" data-val="'+e.id+'">'+t('eventChat')+'</button><button class="btn danger sm" data-act="del-event" data-val="'+e.id+'">'+t('delEvent')+'</button></div>';
+    h+='<div class="chips"><button class="btn sm" data-act="event-chat" data-val="'+e.id+'">'+t('eventChat')+'</button><button class="btn danger sm" data-act="del-event" data-val="'+e.id+'">'+t('delEvent')+'</button></div>';
   }else if(!myVenue()){
     h+='<div class="field"><span class="label">'+t('companies')+'</span>'+companies.map(planRow).join('')+
        (e.status==='accepted'?'<button class="btn ghost sm" data-act="find-company" data-val="'+e.id+'">+ '+t('findCompany')+'</button>'
@@ -1288,7 +1288,7 @@ function sheetUpgrade(){
 function sheetChat(id){
   var c=chatById(id);if(!c)return '';
   var h='<div class="sheet"><div class="head"><button class="icon" data-act="close" aria-label="'+t('back')+'">'+IC.back+'</button><div class="t"><b>'+esc(c.title)+'</b>'+
-   '<button type="button" class="plink muted small" style="font-weight:600" data-act="people-chat" data-val="'+esc(c.id)+'">'+t('participants')+': '+c.members.length+' ›</button></div>'+
+   '<button type="button" class="plink muted small" style="font-weight:600" data-act="people-chat" data-val="'+esc(c.id)+'"'+(c.kind==='event'?' hidden':'')+'>'+t('participants')+': '+c.members.length+' ›</button></div>'+
    '<button class="icon" data-act="'+(c.kind==='event'?'epage':'details')+'" data-val="'+c.target+'" aria-label="'+t('open')+'"><img class="ava" alt="" src="'+c.photo+'" style="width:34px;height:34px"></button></div>'+
    '<div class="pin">'+esc(c.pin)+'</div><div class="msgs" id="msgs">';
   c.msgs.forEach(function(m){
@@ -1723,7 +1723,7 @@ function render(){
     if(!ui.draft||!ui.draft.gal)ui.draft={photo:'',photos:[],gal:[720,450]};
     h=venueForm(true);
   }else{
-    if(m==='venue'&&!/^(vEvents|vGuests|chats|vProfile)$/.test(ui.tab))ui.tab='vEvents';
+    if(m==='venue'&&!/^(vEvents|chats|vProfile)$/.test(ui.tab))ui.tab='vEvents';
     if(m==='person'&&!/^(plans|afisha|chats|profile)$/.test(ui.tab))ui.tab='plans';
     var views={plans:viewPlans,afisha:viewAfisha,chats:viewChats,profile:viewProfile,vEvents:viewVEvents,vGuests:viewVGuests,vProfile:viewVProfile};
     h=views[ui.tab]()+nav();
