@@ -492,11 +492,11 @@ var INTS={
  anime:{ru:'аниме',sr:'anime',en:'anime'},design:{ru:'дизайн',sr:'dizajn',en:'design'}
 };
 var LANGS={ru:'Русский',sr:'Srpski',en:'English'};   // interface languages
-// languages people speak: a wide list, nobody is left out; "International" for plans open to everyone
+// languages people speak: a wide list, nobody is left out
 var SPEAK={ru:'Русский',sr:'Srpski',en:'English',uk:'Українська',be:'Беларуская',de:'Deutsch',fr:'Français',es:'Español',it:'Italiano',pt:'Português',
  pl:'Polski',cs:'Čeština',hr:'Hrvatski',bs:'Bosanski',mk:'Македонски',bg:'Български',sl:'Slovenščina',hu:'Magyar',ro:'Română',el:'Ελληνικά',
  tr:'Türkçe',ar:'العربية',he:'עברית',fa:'فارسی',hi:'हिन्दी',zh:'中文',ja:'日本語',ko:'한국어',kk:'Қазақша',hy:'Հայերեն',ka:'ქართული',az:'Azərbaycan'};
-var LANGS_PLAN=Object.assign({int:'International'},SPEAK);
+var LANGS_PLAN=SPEAK; // plans use the same list as profiles ("International" removed by the author)
 var DISTRICTS=['Centar','Liman','Grbavica','Detelinara','Novo Naselje','Podbara','Telep','Petrovaradin'];
 
 /* ---------- example people ---------- */
@@ -815,7 +815,7 @@ function gallery(list,wide){
   if(!a.length)return '';
   return '<div class="gal'+(wide?' wide':'')+'">'+a.map(function(s){return '<img alt="" src="'+s+'">'}).join('')+'</div>';
 }
-function langTags(a){return (a||[]).map(function(l){return l==='int'?'International':l.toUpperCase()}).join(' · ')}
+function langTags(a){return (a||[]).filter(function(l){return l!=='int'}).map(function(l){return l.toUpperCase()}).join(' · ')}
 // "35/40": approved guests out of the places the host asked for
 function planGoing(p){return p.example?Math.max(0,(p.with||[]).length):(db.planCounts[p.id]||0)}
 function spotsText(p){return t('placesT')+planGoing(p)+'/'+p.need}
@@ -829,7 +829,7 @@ function personFacts(p){
   if(txt(p.job))rows.push([t('jobT'),txt(p.job)]);
   if(p.district)rows.push([t('homeDistrict'),p.district]);
   if(p.alcohol)rows.push([t('alcoholT'),t('alc_'+p.alcohol)]);
-  if(p.langs&&p.langs.length)rows.push([t('langs'),p.langs.map(function(l){return LANGS_PLAN[l]||l}).join(', ')]);
+  if(p.langs&&p.langs.length)rows.push([t('langs'),p.langs.filter(function(l){return l!=='int'}).map(function(l){return LANGS_PLAN[l]||l}).join(', ')]);
   return rows.length?'<dl class="facts">'+rows.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>'}).join('')+'</dl>':'';
 }
 // "what are we doing" is free text; the card photo is picked from words in it
