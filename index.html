@@ -381,7 +381,7 @@ ru:{going:'Иду',goingSaved:'Ты в списке гостей. Открыт �
  proStarted:'ПРО включён на 30 дней',payLater:'Оплата в приложении появится позже',
  bizStart:'Старт',bizStartF:['Профиль и события без ограничений','Список гостей и чаты событий','Первые 3 месяца бесплатно'],
  bizBasic:'Базовый',bizBasicF:['Всё из «Старта»','Статистика по событиям','Продвижение события в афише — отдельно, 5–15 €'],bizBasicPrice:'25 € в месяц',
- privParty:'Частная вечеринка',untilT:'до ',findCompanyParty:'Идём вместе на вечеринку: '},
+ privParty:'Частная вечеринка',proNeedVerify:'ПРО можно оформить только после полной регистрации и проверки профиля.',untilT:'до ',findCompanyParty:'Идём вместе на вечеринку: '},
 sr:{going:'Idem',goingSaved:'Na listi gostiju si. Otvoren je čet događaja.',findLocked:'„Nađi društvo“ se otvara kad budeš na listi gostiju.',
  vGuests:'Gosti',removeGuest:'Ukloni',noGuests:'Još se niko nije prijavio',bizVenues:'Lokal',bizOrgs:'Organizator ili brend',
  placeT:'Gde se održava',placeName:'Mesto',placeNamePh:'Na primer: Craft Room ili Omladinski centar',placeAddr:'Adresa mesta',organizer:'Organizator',
@@ -394,7 +394,7 @@ sr:{going:'Idem',goingSaved:'Na listi gostiju si. Otvoren je čet događaja.',fi
  proStarted:'PRO je uključen na 30 dana',payLater:'Plaćanje u aplikaciji stiže kasnije',
  bizStart:'Start',bizStartF:['Profil i događaji bez ograničenja','Lista gostiju i četovi događaja','Prva 3 meseca besplatno'],
  bizBasic:'Osnovni',bizBasicF:['Sve iz „Starta“','Statistika događaja','Promocija događaja — posebno, 5–15 €'],bizBasicPrice:'25 € mesečno',
- privParty:'Privatna žurka',untilT:'do ',findCompanyParty:'Idemo zajedno na žurku: '},
+ privParty:'Privatna žurka',proNeedVerify:'PRO je dostupan tek posle pune registracije i provere profila.',untilT:'do ',findCompanyParty:'Idemo zajedno na žurku: '},
 en:{going:'Going',goingSaved:"You're on the guest list. The event chat is open.",findLocked:'“Find company” opens once you are on the guest list.',
  vGuests:'Guests',removeGuest:'Remove',noGuests:'Nobody yet',bizVenues:'Venue',bizOrgs:'Organiser or brand',
  placeT:'Where',placeName:'Venue',placeNamePh:'For example: Craft Room or the youth centre',placeAddr:'Venue address',organizer:'Organiser',
@@ -407,7 +407,7 @@ en:{going:'Going',goingSaved:"You're on the guest list. The event chat is open."
  proStarted:'PRO is on for 30 days',payLater:'In-app payments come later',
  bizStart:'Start',bizStartF:['Profile and unlimited events','Guest list and event chats','First 3 months free'],
  bizBasic:'Basic',bizBasicF:['Everything in Start','Event statistics','Event promotion — separately, €5–15'],bizBasicPrice:'€25 a month',
- privParty:'Private party',untilT:'until ',findCompanyParty:'Going together to the party: '}
+ privParty:'Private party',proNeedVerify:'PRO is available only after full registration and profile verification.',untilT:'until ',findCompanyParty:'Going together to the party: '}
 };
 Object.keys(T5).forEach(function(l){for(var k in T5[l])T[l][k]=T5[l][k]});
 var T6={
@@ -697,7 +697,7 @@ function serverPlan(r){
     pro:r.act==='party'&&!!(r.title||r.need>5||(r.photos&&r.photos.length)),title:r.title||'',end:r.end_time||'',minAge:r.min_age||18,dress:r.dress_code||'',entry:r.entry_type||'free',
     music:r.music||'',photos:r.photos||[]};
 }
-function isVerified(){return !!(db.profile&&db.profile.verified)}
+function isVerified(){return !!(db.profile&&(db.profile.verified||isPro()))}
 function isPro(){return !!(db.profile&&db.profile.pro_until&&Date.parse(db.profile.pro_until)>Date.now())}
 function partyTitle(p){return p.title||(t('partyLabel')+' · '+p.district)}
 function partyEntry(p){
@@ -789,7 +789,8 @@ function ava(p,size){
 }
 // blue tick for verified people, PRO badge for PRO accounts
 function hasPro(p){return !!(p&&(p.pro||(p.pro_until&&Date.parse(p.pro_until)>Date.now())))}
-function badges(p){return (p&&p.verified?'<span class="vbadge" title="'+t('verifiedT')+'" aria-label="'+t('verifiedT')+'">✓</span>':'')+(hasPro(p)?'<span class="probadge">PRO</span>':'')}
+// PRO already means a verified, fully registered profile, so PRO shows only its own badge
+function badges(p){return (p&&p.verified&&!hasPro(p)?'<span class="vbadge" title="'+t('verifiedT')+'" aria-label="'+t('verifiedT')+'">✓</span>':'')+(hasPro(p)?'<span class="probadge">PRO</span>':'')}
 function nameAge(p){return esc(p.name)+(p.age?', '+p.age:'')+badges(p)}
 function plink(id,size){var p=person(id);return '<button type="button" class="plink" data-act="person" data-val="'+esc(realId(id))+'">'+ava(p,size)+'<span class="pn">'+nameAge(p)+'</span></button>'}
 function faces(ids,max){
@@ -1100,12 +1101,12 @@ function viewProfile(){
   var mine=realPlans().filter(function(pl){return pl.status==='mine'});
   var waiting=allPlans().filter(function(pl){return pl.status==='pending'});
   var evWait=allEvents().filter(function(e){return e.status==='accepted'});
-  h+='<div class="box"><div style="display:flex;align-items:center;gap:14px">'+ava(p,72)+'<div><h2>'+nameAge(p)+(isPro()?' <span class="pill wait">'+t('proT')+'</span>':'')+'</h2><div class="muted small">'+langTags(p.langs)+'</div></div></div>'+
+  h+='<div class="box"><div style="display:flex;align-items:center;gap:14px">'+ava(p,72)+'<div><h2>'+nameAge(p)+'</h2><div class="muted small">'+langTags(p.langs)+'</div></div></div>'+
      (p.about?'<div>'+esc(p.about)+'</div>':'')+personFacts(p)+
      ((db.galleries[uid]||[]).length?gallery(db.galleries[uid]):'')+
      '<div class="tags">'+(p.likes||[]).map(function(k){return '<span class="tag">'+esc(L(ACTS[k]))+'</span>'}).join('')+(p.ints||[]).map(function(k){return '<span class="tag">'+esc(L(INTS[k]))+'</span>'}).join('')+'</div>'+
      '<div class="chips"><button class="btn ghost sm" data-act="edit">'+t('edit')+'</button><button class="btn ghost sm" data-act="person" data-val="'+uid+'">'+t('seeAs')+'</button></div>'+
-     '<button class="btn block" data-act="upgrade">★ '+(isPro()?t('proT')+' · '+t('proActive')+esc(new Date(db.profile.pro_until).toLocaleDateString()):t('upgrade'))+'</button></div>';
+     '<button class="btn block" data-act="upgrade">★ '+(isPro()?t('proT')+' '+t('untilT')+esc(new Date(db.profile.pro_until).toLocaleDateString()):t('upgrade'))+'</button></div>';
   if(!isVerified())h+='<div class="box"><div class="row2"><h2>'+t('verifyTitle')+'</h2><span class="vbadge">✓</span></div><span class="small muted">'+t('verifySub')+'</span>'+
      (p.verify_requested?'<div class="note">'+t('verifySent')+'</div>':'<button class="btn block" data-act="request-verify">'+t('verifyBtn')+'</button>')+'</div>';
   h+='<div class="sec"><h2>'+t('myPlans')+'</h2></div>'+
@@ -1388,6 +1389,7 @@ function sheetUpgrade(){
     var pro=isPro(),used=db.profile&&db.profile.trial_used;
     h+=tariffBox(t('freeT'),'0 €',t('freeF'),!pro,'');
     var action=pro?'<div class="pill ok">★ '+t('proActive')+esc(new Date(db.profile.pro_until).toLocaleDateString())+'</div>'
+      :!(db.profile&&db.profile.verified)?'<div class="note">'+t('proNeedVerify')+'</div>'+(db.profile&&db.profile.verify_requested?'<div class="note">'+t('verifySent')+'</div>':'<button class="btn block" data-act="request-verify">'+t('verifyBtn')+'</button>')
       :used?'<div class="note">'+t('trialUsed')+'</div>'
       :'<button class="btn block" data-act="start-trial">'+t('tryPro')+'</button><span class="hint">'+t('payLater')+'</span>';
     h+=tariffBox(t('proT'),t('proPrice'),t('proF'),pro,action);
