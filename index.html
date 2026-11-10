@@ -243,7 +243,7 @@ ru:{next:'Дальше',back:'Назад',save:'Сохранить',cancel:'От
  noConfig:'Сервер не настроен: впиши ключ SUPABASE_KEY в app/index.html.',example:'пример',demo:'Карточки с пометкой «пример» — демонстрационные.',open:'Открыть',
  delShort:'Удалить',logout:'Выйти',logoutAsk:'Выйти из аккаунта на этом устройстве?',logoutAnonAsk:'Профиль на этом устройстве будет потерян. Выйти?',language:'Язык',
  aboutYou:'Расскажи о себе',name:'Имя',age:'Возраст',nameErr:'Напиши имя',ageErr:'Приложение только для тех, кому есть 18',addPhoto:'Добавить фото',changePhoto:'Сменить фото',
- interests:'Интересы',langs:'На каких языках общаешься',likes:'Что любишь',pickOne:'Выбери хотя бы один язык',aboutMe:'О себе',aboutMePh:'Пара слов о себе: чем занимаешься, что любишь',
+ interests:'Увлечения',langsHint:'Отметь все языки, на которых можешь общаться',langs:'На каких языках общаешься',likes:'Что любишь',pickOne:'Выбери хотя бы один язык',aboutMe:'О себе',aboutMePh:'Пара слов о себе: чем занимаешься, что любишь',
  morePhotos:'Фото (до 4)',addMore:'Добавить фото',removePhoto:'Убрать фото',
  kindTitle:'Как ты будешь пользоваться приложением?',kindPerson:'Для личного пользования',kindPersonSub:'Планы на вечер, вечеринки и события в городе',
  kindVenue:'Я представляю бизнес',kindVenueSub:'Заведения, организаторы квизов и вечеринок, бренды и фестивали',
@@ -285,7 +285,7 @@ sr:{next:'Dalje',back:'Nazad',save:'Sačuvaj',cancel:'Otkaži',start:'Počni',lo
  noConfig:'Server nije podešen: upiši ključ SUPABASE_KEY u app/index.html.',example:'primer',demo:'Kartice označene sa „primer“ su demonstracione.',open:'Otvori',
  delShort:'Obriši',logout:'Odjavi se',logoutAsk:'Odjaviti se sa ovog uređaja?',logoutAnonAsk:'Profil na ovom uređaju biće izgubljen. Odjaviti se?',language:'Jezik',
  aboutYou:'Reci nešto o sebi',name:'Ime',age:'Godine',nameErr:'Upiši ime',ageErr:'Aplikacija je samo za starije od 18',addPhoto:'Dodaj fotografiju',changePhoto:'Promeni fotografiju',
- interests:'Interesovanja',langs:'Na kojim jezicima pričaš',likes:'Šta voliš',pickOne:'Izaberi bar jedan jezik',aboutMe:'O meni',aboutMePh:'Par reči o sebi: čime se baviš, šta voliš',
+ interests:'Hobiji',langsHint:'Označi sve jezike na kojima možeš da pričaš',langs:'Na kojim jezicima pričaš',likes:'Šta voliš',pickOne:'Izaberi bar jedan jezik',aboutMe:'O meni',aboutMePh:'Par reči o sebi: čime se baviš, šta voliš',
  morePhotos:'Fotografije (do 4)',addMore:'Dodaj fotografiju',removePhoto:'Ukloni fotografiju',
  kindTitle:'Kako ćeš koristiti aplikaciju?',kindPerson:'Za ličnu upotrebu',kindPersonSub:'Planovi za veče, žurke i događaji u gradu',
  kindVenue:'Predstavljam biznis',kindVenueSub:'Lokali, organizatori kvizova i žurki, brendovi i festivali',
@@ -327,7 +327,7 @@ en:{next:'Next',back:'Back',save:'Save',cancel:'Cancel',start:'Start',loading:'L
  noConfig:'Server not configured: put SUPABASE_KEY into app/index.html.',example:'example',demo:'Cards marked “example” are for demonstration.',open:'Open',
  delShort:'Delete',logout:'Log out',logoutAsk:'Log out on this device?',logoutAnonAsk:'Your profile on this device will be lost. Log out?',language:'Language',
  aboutYou:'Tell us about yourself',name:'Name',age:'Age',nameErr:'Enter your name',ageErr:'This app is for people aged 18 and over',addPhoto:'Add a photo',changePhoto:'Change photo',
- interests:'Interests',langs:'Languages you speak',likes:'What you like',pickOne:'Pick at least one language',aboutMe:'About me',aboutMePh:'A few words about you: what you do, what you like',
+ interests:'Hobbies',langsHint:'Pick every language you can talk in',langs:'Languages you speak',likes:'What you like',pickOne:'Pick at least one language',aboutMe:'About me',aboutMePh:'A few words about you: what you do, what you like',
  morePhotos:'Photos (up to 4)',addMore:'Add a photo',removePhoto:'Remove photo',
  kindTitle:'How will you use the app?',kindPerson:'For personal use',kindPersonSub:'Plans for tonight, parties and events in town',
  kindVenue:'I represent a business',kindVenueSub:'Venues, quiz and party organisers, brands and festivals',
@@ -482,10 +482,20 @@ var AGES=[18,21,23,25];
 var INTS={
  movies:{ru:'кино',sr:'filmovi',en:'films'},travel:{ru:'путешествия',sr:'putovanja',en:'travel'},music:{ru:'музыка',sr:'muzika',en:'music'},
  sport:{ru:'спорт',sr:'sport',en:'sport'},gaming:{ru:'игры',sr:'igre',en:'gaming'},tech:{ru:'технологии',sr:'tehnologija',en:'tech'},
- art:{ru:'искусство',sr:'umetnost',en:'art'},food:{ru:'еда',sr:'hrana',en:'food'},hiking:{ru:'походы',sr:'planinarenje',en:'hiking'},photo:{ru:'фото',sr:'fotografija',en:'photo'}
+ art:{ru:'искусство',sr:'umetnost',en:'art'},food:{ru:'еда',sr:'hrana',en:'food'},hiking:{ru:'походы',sr:'planinarenje',en:'hiking'},photo:{ru:'фото',sr:'fotografija',en:'photo'},
+ dance:{ru:'танцы',sr:'ples',en:'dancing'},books:{ru:'книги',sr:'knjige',en:'books'},cooking:{ru:'готовка',sr:'kuvanje',en:'cooking'},yoga:{ru:'йога',sr:'joga',en:'yoga'},
+ running:{ru:'бег',sr:'trčanje',en:'running'},cycling:{ru:'велосипед',sr:'biciklizam',en:'cycling'},theatre:{ru:'театр',sr:'pozorište',en:'theatre'},concerts:{ru:'концерты',sr:'koncerti',en:'concerts'},
+ languages:{ru:'иностранные языки',sr:'strani jezici',en:'languages'},boardgames:{ru:'настолки',sr:'društvene igre',en:'board games'},pets:{ru:'животные',sr:'životinje',en:'pets'},
+ fashion:{ru:'мода',sr:'moda',en:'fashion'},cars:{ru:'машины',sr:'automobili',en:'cars'},startups:{ru:'стартапы',sr:'startapi',en:'startups'},volunteering:{ru:'волонтёрство',sr:'volontiranje',en:'volunteering'},
+ football:{ru:'футбол',sr:'fudbal',en:'football'},fitness:{ru:'фитнес',sr:'fitnes',en:'fitness'},science:{ru:'наука',sr:'nauka',en:'science'},history:{ru:'история',sr:'istorija',en:'history'},
+ anime:{ru:'аниме',sr:'anime',en:'anime'},design:{ru:'дизайн',sr:'dizajn',en:'design'}
 };
-var LANGS={ru:'Русский',sr:'Srpski',en:'English'};
-var LANGS_PLAN={int:'International',ru:'Русский',sr:'Srpski',en:'English'};   // plans and parties can be for everyone
+var LANGS={ru:'Русский',sr:'Srpski',en:'English'};   // interface languages
+// languages people speak: a wide list, nobody is left out; "International" for plans open to everyone
+var SPEAK={ru:'Русский',sr:'Srpski',en:'English',uk:'Українська',be:'Беларуская',de:'Deutsch',fr:'Français',es:'Español',it:'Italiano',pt:'Português',
+ pl:'Polski',cs:'Čeština',hr:'Hrvatski',bs:'Bosanski',mk:'Македонски',bg:'Български',sl:'Slovenščina',hu:'Magyar',ro:'Română',el:'Ελληνικά',
+ tr:'Türkçe',ar:'العربية',he:'עברית',fa:'فارسی',hi:'हिन्दी',zh:'中文',ja:'日本語',ko:'한국어',kk:'Қазақша',hy:'Հայերեն',ka:'ქართული',az:'Azərbaycan'};
+var LANGS_PLAN=Object.assign({int:'International'},SPEAK);
 var DISTRICTS=['Centar','Liman','Grbavica','Detelinara','Novo Naselje','Podbara','Telep','Petrovaradin'];
 
 /* ---------- example people ---------- */
@@ -815,7 +825,7 @@ function personFacts(p){
   if(txt(p.job))rows.push([t('jobT'),txt(p.job)]);
   if(p.district)rows.push([t('homeDistrict'),p.district]);
   if(p.alcohol)rows.push([t('alcoholT'),t('alc_'+p.alcohol)]);
-  if(p.langs&&p.langs.length)rows.push([t('langs'),p.langs.map(function(l){return LANGS[l]||l}).join(', ')]);
+  if(p.langs&&p.langs.length)rows.push([t('langs'),p.langs.map(function(l){return LANGS_PLAN[l]||l}).join(', ')]);
   return rows.length?'<dl class="facts">'+rows.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>'}).join('')+'</dl>':'';
 }
 // "what are we doing" is free text; the card photo is picked from words in it
@@ -894,7 +904,7 @@ function coverPick(src){
 function startDraft(){
   var p=db.profile||{};
   ui.draft={name:p.name||'',age:p.age||'',photo:p.photo||'',about:p.about||'',from_city:p.from_city||'',job:p.job||'',district:p.district||'',alcohol:p.alcohol||'',photos:(db.galleries[uid]||[]).slice(),gal:[480,600],ints:(p.ints||[]).slice(),
-    langs:(p.langs&&p.langs.length?p.langs:(local.lang?[local.lang]:[])).slice(),likes:(p.likes||[]).slice(),err:''};
+    langs:(p.langs||[]).slice(),likes:(p.likes||[]).slice(),err:''};   // nothing pre-selected: the person picks their own languages
 }
 function viewOnboarding(){
   var h='',d;
@@ -933,15 +943,14 @@ function viewOnboarding(){
        '<div class="field"><span class="label">'+t('morePhotos')+'</span>'+galEdit(d.photos)+'</div>'+
        '<div class="field"><label for="f-from">'+t('fromT')+'</label><input class="input" id="f-from" maxlength="40" placeholder="'+esc(t('fromPh'))+'" value="'+esc(d.from_city)+'"></div>'+
        '<div class="field"><label for="f-job">'+t('jobT')+'</label><input class="input" id="f-job" maxlength="40" placeholder="'+esc(t('jobPh'))+'" value="'+esc(d.job)+'"></div>'+
-       '<div class="field"><span class="label">'+t('alcoholT')+'</span>'+pickSet('alcohol',['no','some','yes'],function(k){return t('alc_'+k)})+'</div>'+
        '<div class="err" role="alert">'+esc(d.err)+'</div><div class="grow"></div>'+
        '<div class="row">'+(ui.editing?'<button class="btn ghost" data-act="ob-cancel">'+t('cancel')+'</button>':(uid?'':'<button class="btn ghost" data-act="ob-to" data-val="kind">'+t('back')+'</button>'))+
        '<button class="btn" data-act="ob-next1">'+t('next')+'</button></div></div>';
   }else{
     h+='<div class="ob"><h1>'+t('aboutYou')+'</h1>'+
-       '<div class="field"><span class="label">'+t('langs')+'</span>'+chipSet('langs',Object.keys(LANGS),function(k){return LANGS[k]})+'</div>'+
-       '<div class="field"><span class="label">'+t('likes')+'</span>'+chipSet('likes',Object.keys(ACTS),function(k){return L(ACTS[k])})+'</div>'+
+       '<div class="field"><span class="label">'+t('langs')+'</span><span class="hint">'+t('langsHint')+'</span>'+chipSet('langs',Object.keys(SPEAK),function(k){return SPEAK[k]})+'</div>'+
        '<div class="field"><span class="label">'+t('interests')+'</span>'+chipSet('ints',Object.keys(INTS),function(k){return L(INTS[k])})+'</div>'+
+       '<div class="field"><span class="label">'+t('likes')+'</span>'+chipSet('likes',Object.keys(ACTS).filter(function(k){return k!=='other'}),function(k){return L(ACTS[k])})+'</div>'+
        '<div class="err" role="alert">'+esc(d.err)+'</div><div class="grow"></div>'+
        '<div class="row"><button class="btn ghost" data-act="ob-to" data-val="p1">'+t('back')+'</button><button class="btn" data-act="ob-done">'+(ui.editing?t('save'):t('start'))+'</button></div></div>';
   }
@@ -973,7 +982,7 @@ function viewPlans(){
 function card(p,top){
   var a=person(p.by);
   return '<div class="card '+(top?'front':'under')+'" data-id="'+p.id+'"'+(top?'':' aria-hidden="true"')+'>'+
-    '<div class="hero" style="background-color:'+ACTS[p.act].c+';'+bg(U(PH[p.act],720),true)+'"><span class="stamp yes">'+t('yes')+'</span><span class="stamp no">'+t('no')+'</span>'+
+    '<div class="hero" style="background-color:'+ACTS[p.act].c+';'+bg((p.photos&&p.photos[0])||U(PH[p.act],720),true)+'"><span class="stamp yes">'+t('yes')+'</span><span class="stamp no">'+t('no')+'</span>'+
     (p.example?'<span class="ex">'+t('example')+'</span>':'')+
     '<div class="act"'+(planWhat(p).length>12?' style="font-size:24px"':'')+'>'+esc(planWhat(p))+'</div><div class="when">'+esc(dayLabel(p.date))+' · '+p.time+' · '+esc(p.district)+'</div></div>'+
     '<div class="info"><div class="who">'+ava(a,36)+'<span>'+nameAge(a)+'</span><span class="muted small" style="font-weight:600">'+langTags(p.langs)+'</span></div>'+
@@ -1038,7 +1047,7 @@ function evMsgsFor(eid){
   });
 }
 function planChat(p,id,msgs,demo){
-  return {id:id,kind:'plan',target:p.id,demo:!!demo,title:(p.act==='party'?partyTitle(p):planWhat(p))+' · '+dayLabel(p.date)+' '+p.time,photo:U(PH[p.act],120,120),members:planPeople(p),msgs:msgs,
+  return {id:id,kind:'plan',target:p.id,demo:!!demo,title:(p.act==='party'?partyTitle(p):planWhat(p))+' · '+dayLabel(p.date)+' '+p.time,photo:safeImg(p.photos&&p.photos[0])||U(PH[p.act],120,120),members:planPeople(p),msgs:msgs,
     pin:dayLabel(p.date)+' · '+p.time+' · '+p.district+' · '+(p.act==='party'?(partyAddress(p)||t('addrHidden')):(p.place||t('tbd')))};
 }
 function eventChat(e,id,msgs,demo){
@@ -1221,6 +1230,7 @@ function sheetCreate(){
    '<div class="content">'+
    (party?'<div class="photo-hero" style="min-height:120px;'+bg(U(PH.party,720))+'"></div>'+
      '<button type="button" class="note" style="text-align:left" data-act="upgrade">'+t('proHintParty')+' <b style="color:var(--accent)">'+t('upgrade')+' ›</b></button>':
+   coverPick(d.photo)+'<div class="field"><span class="label">'+t('evPhotos')+'</span>'+galEdit(d.photos)+'</div>'+
    '<div class="field"><label for="c-what">'+t('what')+'</label><input class="input" id="c-what" maxlength="40" required placeholder="'+esc(t('whatPh'))+'" value="'+esc(pre.what||'')+'"><span class="hint">'+t('whatHint')+'</span></div>')+
    '<div class="row"><div class="field"><label for="c-day">'+t('day')+'</label><select class="input" id="c-day">'+dayOptions(pre.date)+'</select></div>'+
    '<div class="field"><label for="c-time">'+t('time')+'</label><input class="input" id="c-time" type="time" value="'+esc(pre.time||(party?'21:00':'20:00'))+'" required></div></div>'+
@@ -1277,7 +1287,7 @@ function sheetDetails(id){
   var company=party&&p.status!=='mine'?'<div class="field"><span class="label">'+t('findCompany')+'</span>'+
     (p.status==='accepted'?'<button class="btn ghost sm" data-act="find-company-party" data-val="'+p.id+'">+ '+t('findCompany')+'</button>'
       :'<button class="btn ghost sm" disabled>+ '+t('findCompany')+'</button><span class="hint">'+t('findLocked')+'</span>')+'</div>':'';
-  var heroImg=party&&p.photos&&p.photos.length?p.photos[0]:U(PH[p.act],720);
+  var heroImg=p.photos&&p.photos.length?p.photos[0]:U(PH[p.act],720);
   return '<div class="sheet">'+sheetHead(esc(party?partyTitle(p):planTitle(p)),esc(planLine(p)))+
    '<div class="content">'+
    '<div class="photo-hero" style="background-color:'+ACTS[p.act].c+';'+bg(heroImg,true)+'">'+(p.example?'<span class="ex">'+t('example')+'</span>':'')+
@@ -1671,16 +1681,16 @@ function act(name,el){
   case 'unskip':
     Object.keys(local.swiped).forEach(function(k){if(local.swiped[k]==='no')delete local.swiped[k]});saveLocal();break;
   case 'swipe':doSwipe(v);return;
-  case 'create':clearSheets();ui.draft={act:'beer',langs:(db.profile.langs||[]).slice()};ui.sheet={type:'create'};break;
+  case 'create':clearSheets();ui.draft={act:'beer',langs:(db.profile.langs||[]).slice(),photo:'',photos:[],gal:[720,450]};ui.sheet={type:'create'};break;
   case 'new-party':clearSheets();ui.draft={act:'party',mode:'party',langs:(db.profile.langs||[]).slice(),photo:'',photos:[],gal:[720,450],minAge:18,entry:'free'};ui.sheet={type:'create'};break;
   case 'find-company':
     e=findEvent(v);if(!e||e.status!=='accepted')break;
-    ui.draft={act:KIND_ACT[e.venue.kind]||'beer',langs:(db.profile.langs||[]).slice(),
+    ui.draft={act:KIND_ACT[e.venue.kind]||'beer',langs:(db.profile.langs||[]).slice(),photo:'',photos:[],gal:[720,450],
       prefill:{what:(t('companyNote')+e.title).slice(0,40),date:e.date,time:e.time,district:e.where.district||DISTRICTS[0],place:e.where.name,note:t('companyNote')+e.title,eventId:e.example?null:e.id}};
     openSheet({type:'create'});break;
   case 'find-company-party':
     p=findPlan(v);if(!p||p.status!=='accepted')break;
-    ui.draft={act:'beer',langs:(db.profile.langs||[]).slice(),
+    ui.draft={act:'beer',langs:(db.profile.langs||[]).slice(),photo:'',photos:[],gal:[720,450],
       prefill:{what:(t('findCompanyParty')+partyTitle(p)).slice(0,40),date:p.date,time:p.time,district:p.district,place:'',note:t('findCompanyParty')+partyTitle(p)}};
     openSheet({type:'create'});break;
   case 'upgrade':openSheet({type:'upgrade'});break;
@@ -1819,6 +1829,7 @@ function submitCreate(){
     row.entry_type=d.entry||'free';row.music=val('c-music');row.photos=(d.photo?[d.photo]:[]).concat(d.photos).slice(0,4);
     if(row.entry_type==='free')row.budget='';
   }else if(party){row.entry_type=row.budget?'contrib':'free'}
+  else{row.photos=(d.photo?[d.photo]:[]).concat(d.photos||[]).slice(0,4)}   // plans can carry their own photos
   if(d.prefill&&d.prefill.eventId)row.event_id=d.prefill.eventId;
   run(function(){
     return sb.from('plans').insert(row).select('id').single().then(check).then(function(r){
