@@ -21,8 +21,17 @@
   --ok:#7FD1A0;
   --font-display:"Unbounded","Manrope",system-ui,sans-serif;
   --font-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --outside:#07080A;
+  --danger-line:#5A2A2A;
   color-scheme:dark;
 }
+/* light theme: same layout, light paper and dark ink */
+html[data-theme="light"]{--ground:#F6F4EF;--surface:#FFFFFF;--raised:#ECE8E0;--line:#DCD6CA;--text:#17181C;--muted:#5E6470;--accent:#F0A020;--on-accent:#141006;--danger:#C0392B;--ok:#1E8A4C;--outside:#E7E3DB;--danger-line:#E8B4AE;color-scheme:light}
+html[data-theme="light"] .pill.wait{color:#9A5B00}html[data-theme="light"] .pill.ok{color:#1E7A44}
+.setlist{gap:0;padding:4px 16px}.setrow{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;background:none;border:none;border-bottom:1px solid var(--line);font-weight:600;font-size:15px;text-align:left;padding:0}
+.setlist .setrow:last-child{border-bottom:none}.setrow.danger{color:var(--danger)}
+.rules{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}.rulesbox summary{cursor:pointer;font-weight:700;color:var(--accent)}.rulesbox{font-size:14px}
+.ubadge{flex:none;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;align-self:center}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 /* long words in names and descriptions wrap instead of pushing the screen wider */
@@ -45,7 +54,7 @@
 .swrap .item{position:relative;transition:transform .2s;touch-action:pan-y}
 .msg .tm{display:block;font-size:10px;opacity:.6;margin-top:2px;text-align:right}
 html,body{height:100%;margin:0}
-body{background:#07080A;color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased}
+body{background:var(--outside);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 button:disabled{opacity:.45;cursor:not-allowed}
@@ -62,7 +71,7 @@ h2{font-size:18px;font-weight:600}
 .btn{height:50px;padding:0 22px;border-radius:25px;border:none;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:15px}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text);font-weight:600}
 .btn.sm{height:40px;padding:0 16px;font-size:13px;border-radius:20px}
-.btn.danger{background:transparent;border:1px solid #5A2A2A;color:var(--danger);font-weight:600}
+.btn.danger{background:transparent;border:1px solid var(--danger-line);color:var(--danger);font-weight:600}
 .btn.block{width:100%}
 .btn.on{background:transparent;border:1px solid var(--accent);color:var(--accent)}
 a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
@@ -86,8 +95,8 @@ textarea.input{height:84px;padding:12px 15px;resize:none}
 .lwrap{position:relative}.lshow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:50px;cursor:pointer}
 .chk{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}.chk input{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0}.field label.chk,label.chk{text-transform:none;letter-spacing:0;font-size:15px;font-weight:500;color:var(--text);margin:0}
 .phead{display:flex;align-items:center;gap:14px;min-width:0}.phead h2,.phead h1{margin:0;min-width:0;overflow-wrap:anywhere}.phead.col{flex-direction:column;text-align:center}
-.avabtn{position:relative;flex:none;padding:0;border:0;background:none;border-radius:50%;cursor:pointer;line-height:0}.avabtn:disabled{cursor:default}
-.avacount{position:absolute;right:0;bottom:2px;line-height:1;background:var(--raised);color:var(--text);font-size:12px;font-weight:700;border-radius:10px;padding:3px 7px;border:1px solid var(--line)}.insta{align-self:flex-start}.seg.ptabs{display:grid;grid-template-columns:1fr 1fr;gap:4px}.seg.ptabs button{white-space:nowrap;padding:10px 6px}
+.avabtn{position:relative;flex:none;padding:0;border:0;background:none;border-radius:50%;cursor:pointer;line-height:0}.avabtn:disabled{cursor:default;opacity:1}
+.avacount{position:absolute;right:0;bottom:2px;line-height:1;background:var(--raised);color:var(--text);font-size:12px;font-weight:700;border-radius:10px;padding:3px 7px;border:1px solid var(--line)}.insta{align-self:flex-start}.seg.ptabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.seg.ptabs button{font-size:13px}.seg.ptabs button{white-space:nowrap;padding:10px 6px}
 .lshow span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.lshow span:last-child{flex-shrink:0;overflow:visible}.lshow .hint{margin:0}
 .lsel{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .row>*{flex:1;min-width:0}
@@ -168,7 +177,7 @@ textarea.input{height:84px;padding:12px 15px;resize:none}
 .gal img:only-child{width:100%}
 .gal-edit{display:flex;gap:8px;flex-wrap:wrap}
 .gtile{width:72px;height:90px;border-radius:12px;background:var(--surface) center/cover no-repeat;border:1px solid var(--line);position:relative;display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--muted);cursor:pointer}
-.gtile button{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:13px;border:none;background:var(--text);color:#14110A;font-weight:800;line-height:1}
+.gtile button{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:13px;border:none;background:var(--text);color:var(--ground);font-weight:800;line-height:1}
 .plink{background:none;border:none;padding:0;color:inherit;font:inherit;text-align:left;display:inline-flex;align-items:center;gap:10px;font-weight:700;cursor:pointer}
 .plink:hover .pn,.plink:focus-visible .pn{text-decoration:underline}
 .faces{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
@@ -198,7 +207,7 @@ textarea.input{height:84px;padding:12px 15px;resize:none}
 .sheet .content{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:18px;min-height:0}
 .sheet .foot{padding:12px 16px 16px;flex:none;display:flex;gap:10px;flex-wrap:wrap}
 .sheet .foot>*{flex:1}
-.match{position:absolute;inset:0;z-index:8;background:rgba(7,8,10,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;text-align:center}
+.match{position:absolute;inset:0;z-index:8;background:var(--ground);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;text-align:center}
 .match h1{color:var(--accent);font-size:30px}
 
 /* chat */
@@ -212,7 +221,7 @@ textarea.input{height:84px;padding:12px 15px;resize:none}
 .send .input{border-radius:25px}
 
 .ex{align-self:flex-start;padding:3px 9px;border-radius:9px;background:rgba(20,17,10,.82);color:#F3F1EC;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.toast{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);background:var(--text);color:#14110A;padding:10px 16px;border-radius:14px;font-weight:700;font-size:13px;z-index:20;max-width:86%;text-align:center}
+.toast{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);background:var(--text);color:var(--ground);padding:10px 16px;border-radius:14px;font-weight:700;font-size:13px;z-index:20;max-width:86%;text-align:center}
 @media(prefers-reduced-motion:reduce){.card{transition:none}}
 </style>
 </head>
@@ -532,6 +541,7 @@ function AL(x,lang){return x==null?'':typeof x==='string'?x:(x[lang]||x.en||x.ru
 /* ---------- photos (free Unsplash images, loaded by link) ---------- */
 function U(id,w,h){return 'https://images.unsplash.com/'+id+'?auto=format&fit=crop&q=70&w='+w+(h?'&h='+h+'&crop=faces':'')}
 var PH={
+ tea:'photo-1544787219-7f47ccb76574',esports:'photo-1542751371-adc38448a05e',
  beer:'photo-1513309914637-65c20a5962e1',wine:'photo-1641830879467-e22004141bcb',cocktail:'photo-1566417713940-fe7c737a9ef2',
  coffee:'photo-1647774469542-d8df9c2e23cd',games:'photo-1677188010559-0667a1ed33a0',walk:'photo-1579981596048-b9ba73dc0091',
  party:'photo-1645730826845-cd2ddec9984f',city:'photo-1564982547455-b9e810ae9223',
@@ -556,6 +566,7 @@ var ACTS={
  beer:{ru:'Пиво',sr:'Pivo',en:'Beer',c:'#F5A524'},wine:{ru:'Вино',sr:'Vino',en:'Wine',c:'#E58FA6'},
  cocktail:{ru:'Коктейли',sr:'Kokteli',en:'Cocktails',c:'#7FD1C8'},coffee:{ru:'Кофе',sr:'Kafa',en:'Coffee',c:'#C9A27E'},
  games:{ru:'Настолки',sr:'Društvene igre',en:'Board games',c:'#9DB7F5'},walk:{ru:'Прогулка',sr:'Šetnja',en:'Walk',c:'#A8D672'},
+ tea:{ru:'Чай',sr:'Čaj',en:'Tea',c:'#A8D672'},esports:{ru:'Киберспорт',sr:'Esport',en:'Esports',c:'#9DB7F5'},
  party:{ru:'Вечеринка',sr:'Žurka',en:'Party',c:'#C792EA'},
  other:{ru:'План',sr:'Plan',en:'Plan',c:'#9DB7F5'}
 };
@@ -931,7 +942,7 @@ function personFacts(p){
 // "what are we doing" is free text; the card photo is picked from words in it
 function guessAct(text){
   var s=(text||'').toLowerCase();
-  var rules=[['beer',/пив|beer|pivo|паб|pub/],['wine',/вин|wine|vino/],['cocktail',/коктейл|cocktail|koktel|бар\b|bar\b/],['coffee',/коф|coffee|kaf|завтрак|brunch/],
+  var rules=[['esports',/кибер|esport|e-sport|cs ?2|cs:go|\bcs\b|dota|дот[аы]|valorant|fortnite|\blol\b|онлайн|online|playstation|ps5|xbox|fifa|фифа/],['tea',/(^|[^а-яё])ча[йяю]|чаепит|\btea\b|čaj|\bcaj\b/],['beer',/пив|beer|pivo|паб|pub/],['wine',/вин|wine|vino/],['cocktail',/коктейл|cocktail|koktel|бар\b|bar\b/],['coffee',/коф|coffee|kaf|завтрак|brunch/],
     ['games',/настол|игр|game|igr|квиз|quiz|kviz/],['walk',/прогул|walk|šet|set|дунай|danube|dunav|парк|park/]];
   for(var i=0;i<rules.length;i++)if(rules[i][1].test(s))return rules[i][0];
   return 'other';
@@ -1038,8 +1049,9 @@ function viewOnboarding(){
       '<div class="seg"><button type="button" class="'+(up?'on':'')+'" data-act="auth-mode" data-val="up">'+t('signUp')+'</button><button type="button" class="'+(up?'':'on')+'" data-act="auth-mode" data-val="in">'+t('signIn')+'</button></div>'+
       '<div class="field"><label for="a-email">'+t('email')+'</label><input class="input" id="a-email" type="email" autocomplete="email" required value="'+esc(ui.authEmail||'')+'"></div>'+
       '<div class="field"><label for="a-pass">'+t('password')+'</label><input class="input" id="a-pass" type="password" minlength="8" autocomplete="'+(up?'new-password':'current-password')+'" required><span class="hint">'+t('passwordHint')+'</span></div>'+
+      (up?'<details class="rulesbox"><summary>'+t('rulesRead')+'</summary>'+rulesList(t('rulesBody'))+'</details><label class="check"><input type="checkbox" id="a-rules"> '+t('rulesAgree')+'</label>':'')+
       '<div class="err" role="alert">'+esc(ui.authErr)+'</div>'+(ui.authInfo?'<div class="note">'+esc(ui.authInfo)+'</div>':'')+
-      '<div class="grow"></div><div class="row"><button type="button" class="btn ghost" data-act="ob-to" data-val="kind">'+t('back')+'</button><button class="btn" type="submit">'+(up?t('doSignUp'):t('doSignIn'))+'</button></div></form>';
+      '<div class="grow"></div><div class="row"><button type="button" class="btn ghost" data-act="ob-to" data-val="kind">'+t('back')+'</button><button class="btn" type="submit" style="flex:2;white-space:nowrap;padding:0 14px">'+(up?t('doSignUp'):t('doSignIn'))+'</button></div></form>';
   }
   if(!ui.draft)startDraft();
   d=ui.draft;
@@ -1060,7 +1072,7 @@ function viewOnboarding(){
        '<button class="btn" data-act="ob-next1">'+t('next')+'</button></div></div>';
   }else{
     h+='<div class="ob"><h1>'+t('aboutYou')+'</h1>'+
-       '<div class="field"><span class="label">'+t('interests')+'</span>'+chipSet('ints',Object.keys(INTS),function(k){return L(INTS[k])})+'</div>'+
+       '<div class="field"><span class="label">'+t('interests')+' · '+t('upTo5')+'</span>'+chipSet('ints',Object.keys(INTS),function(k){return L(INTS[k])})+'</div>'+
        '<div class="field"><span class="label">'+t('likes')+'</span>'+chipSet('likes',Object.keys(ACTS).filter(function(k){return k!=='other'}),function(k){return L(ACTS[k])})+'</div>'+
        '<div class="err" role="alert">'+esc(d.err)+'</div><div class="grow"></div>'+
        '<div class="row"><button class="btn ghost" data-act="ob-to" data-val="p1">'+t('back')+'</button><button class="btn" data-act="ob-done">'+(ui.editing?t('save'):t('start'))+'</button></div></div>';
@@ -1189,7 +1201,7 @@ function viewChats(){
   list.forEach(function(c){
     var last=c.msgs[c.msgs.length-1];
     h+='<div class="swrap"><button class="sdel" data-act="leave-chat" data-val="'+esc(c.id)+'">'+t('leave')+'</button><button class="item" data-act="open-chat" data-val="'+esc(c.id)+'"><img class="thumb" alt="" src="'+c.photo+'" style="border-radius:23px">'+
-       '<span class="mid"><span class="ttl">'+esc(c.title)+'</span><br><span class="sub">'+esc(last?last.text:c.pin)+'</span></span></button></div>';
+       '<span class="mid"><span class="ttl">'+esc(c.title)+'</span><br><span class="sub">'+esc(last?last.text:c.pin)+'</span></span>'+(unreadCount(c)?'<span class="ubadge" aria-label="'+t('unreadT')+'">'+unreadCount(c)+'</span>':'')+'</button></div>';
   });
   return h+'</div>';
 }
@@ -1226,9 +1238,9 @@ function tagsBlock(p){
   var tags=(p.likes||[]).map(function(k){return '<span class="tag">'+esc(L(ACTS[k]))+'</span>'}).concat((p.ints||[]).map(function(k){return '<span class="tag">'+esc(L(INTS[k]))+'</span>'}));
   return tags.length?'<div class="tags">'+tags.join('')+'</div>':'';
 }
-var PTABS=['mine','goPlans','goEvents','blocked'];
+var PTABS=['mine','goPlans','goEvents'];
 function viewProfile(){
-  var p=db.profile,h='<div class="top"><h1>'+t('profile')+'</h1></div><div class="body">';
+  var p=db.profile,h='<div class="top"><div class="line"><h1>'+t('profile')+'</h1><button type="button" class="round" style="width:44px;height:44px;font-size:20px" data-act="settings" aria-label="'+t('settings')+'">⚙</button></div></div><div class="body">';
   h+='<div class="box"><div class="phead">'+avaBtn(uid,84)+'<h2>'+fullName(p)+'</h2></div>'+
      aboutBlock(p)+personFacts(p)+instaLink(p)+tagsBlock(p)+
      '<div class="chips"><button class="btn ghost sm" data-act="edit">'+t('edit')+'</button><button class="btn ghost sm" data-act="person" data-val="'+uid+'">'+t('seeAs')+'</button></div>'+
@@ -1260,15 +1272,11 @@ function viewProfile(){
     var going=allPlans().filter(function(pl){return pl.status&&pl.status!=='mine'&&upcoming(pl.date)}).sort(byDate);
     if(!going.length)h+='<div class="note">'+t('noGoPlans')+'</div>';
     going.forEach(function(pl){h+='<div class="box">'+planRow(pl)+'<div>'+statusPill(pl.status)+'</div></div>'});
-  }else if(tab==='goEvents'){
+  }else{
     var evs=allEvents().filter(function(e){return e.status==='accepted'&&upcoming(e.date)});
     if(!evs.length)h+='<div class="note">'+t('noGoEvents')+'</div>';
     evs.forEach(function(e){h+=eventRow(e,'✓ '+t('accepted')+' · '+dayLabel(e.date)+' · '+timeRange(e))});
-  }else{
-    h+=blockedBox()||'<div class="note">'+t('noBlocked')+'</div>';
   }
-  h+='<div class="box"><span class="label">'+t('language')+'</span><div class="chips">'+Object.keys(LANGS).map(function(k){return '<button class="chip'+(local.lang===k?' on':'')+'" aria-pressed="'+(local.lang===k)+'" data-act="set-lang" data-val="'+k+'">'+LANGS[k]+'</button>'}).join('')+'</div>'+
-     '<button class="btn danger sm" data-act="logout">'+t('logout')+'</button></div>';
   return h+'</div>';
 }
 
@@ -1344,7 +1352,7 @@ function nav(){
     return '<nav class="nav">'+vb('vEvents')+'<button class="plus" data-act="new-event" aria-label="'+t('newEventTitle')+'">'+IC.plus+'</button>'+vb('chats')+vb('vProfile')+'</nav>';
   }
   var pending=db.plans.some(function(p){return p.host===uid&&membersOf(p.id,'pending').length});
-  function b(k){return '<button class="'+(ui.tab===k?'on':'')+'" data-act="tab" data-val="'+k+'"'+(ui.tab===k?' aria-current="page"':'')+'>'+IC[k]+'<span>'+t(k)+'</span>'+(k==='profile'&&pending?'<span class="dot"></span>':'')+'</button>'}
+  function b(k){return '<button class="'+(ui.tab===k?'on':'')+'" data-act="tab" data-val="'+k+'"'+(ui.tab===k?' aria-current="page"':'')+'>'+IC[k]+'<span>'+t(k)+'</span>'+((k==='profile'&&pending)||(k==='chats'&&anyUnread())?'<span class="dot"></span>':'')+'</button>'}
   return '<nav class="nav">'+b('plans')+(isVerified()?b('afisha'):'')+'<button class="plus" data-act="create" aria-label="'+t('newPlan')+'">'+IC.plus+'</button>'+b('chats')+b('profile')+'</nav>';
 }
 
@@ -1689,11 +1697,12 @@ function loadAdmin(){
     sb.from('verify_requests').select('*').eq('status','pending').order('created_at'),
     sb.from('reports').select('*').order('created_at',{ascending:false}).limit(200),
     sb.rpc('admin_noshows'),
-    sb.from('profiles').select('id').eq('banned',true)
+    sb.from('profiles').select('id').eq('banned',true),
+    sb.from('support_messages').select('*').order('created_at',{ascending:false}).limit(200)
   ]).then(function(r){
     r.forEach(check);
     var banned={};(r[3].data||[]).forEach(function(x){banned[x.id]=true});
-    ui.adm={vr:r[0].data||[],rp:r[1].data||[],ns:r[2].data||[],banned:banned};
+    ui.adm={vr:r[0].data||[],rp:r[1].data||[],ns:r[2].data||[],banned:banned,sm:r[4].data||[]};
   });
 }
 function whoLine(id){
@@ -1703,8 +1712,8 @@ function whoLine(id){
 }
 function sheetAdmin(s){
   var tab=s.tab||'verify',a=ui.adm,h='<div class="sheet">'+sheetHead(t('admin'))+'<div class="content">'+
-    '<div class="chips">'+[['verify','adVerify'],['reports','adReports'],['noshow','adNoshow']].map(function(x){
-      var n=a?(x[0]==='verify'?a.vr.length:x[0]==='reports'?a.rp.filter(function(r){return r.status==='open'}).length:a.ns.length):0;
+    '<div class="chips">'+[['verify','adVerify'],['reports','adReports'],['msgs','adMsgs'],['noshow','adNoshow']].map(function(x){
+      var n=a?(x[0]==='verify'?a.vr.length:x[0]==='reports'?a.rp.filter(function(r){return r.status==='open'}).length:x[0]==='msgs'?a.sm.filter(function(r){return r.status==='open'}).length:a.ns.length):0;
       return '<button class="chip'+(tab===x[0]?' on':'')+'" data-act="admin-tab" data-val="'+x[0]+'">'+t(x[1])+(n?' · '+n:'')+'</button>'}).join('')+'</div>';
   if(!a)return h+'<p class="muted">'+t('adLoading')+'</p></div></div>';
   if(tab==='verify'){
@@ -1729,6 +1738,13 @@ function sheetAdmin(s){
         '<div class="chips">'+(open?'<button class="btn ghost sm" data-act="adm-close" data-val="'+r.id+'">'+t('adClose')+'</button>':'')+
         (canBan?'<button class="btn '+(ban?'ghost':'danger')+' sm" data-act="adm-ban" data-val="'+r.target+'" data-on="'+(ban?'0':'1')+'">'+(ban?t('adUnban'):t('adBan'))+'</button>':'')+'</div></div>';
     });
+  }else if(tab==='msgs'){
+    if(!a.sm.length)h+='<div class="note">'+t('adNone')+'</div>';
+    a.sm.forEach(function(m){
+      var open=m.status==='open';
+      h+='<div class="box"'+(open?'':' style="opacity:.55"')+'>'+whoLine(m.user_id)+'<span class="small muted">'+esc(new Date(m.created_at).toLocaleString())+(open?'':' · '+t('adClosed'))+'</span><div>'+esc(m.body)+'</div>'+
+        (open?'<div><button class="btn ghost sm" data-act="adm-msg-close" data-val="'+m.id+'">'+t('adMsgDone')+'</button></div>':'')+'</div>';
+    });
   }else{
     if(!a.ns.length)h+='<div class="note">'+t('adNone')+'</div>';
     a.ns.forEach(function(n){h+='<div class="row2">'+whoLine(n.user_id)+'<b style="flex-shrink:0">'+n.times+' '+t('adTimes')+'</b></div>'});
@@ -1736,6 +1752,95 @@ function sheetAdmin(s){
   return h+'</div></div>';
 }
 function adminDo(q){run(function(){return q.then(check).then(loadAdmin).then(loadAll).then(render)})}
+/* ---------- settings, theme, rules, contact, account deletion, unread chats ---------- */
+var T10={
+ru:{likes:'Как люблю проводить вечер',upTo5:'до 5',max5:'Можно выбрать до 5 увлечений',settings:'Настройки',themeT:'Тема',th_dark:'Тёмная',th_light:'Светлая',th_auto:'Как на телефоне',
+ rulesT:'Правила и конфиденциальность',contactT:'Связаться с нами',contactPh:'Вопрос, идея или проблема — напиши, команда Just One ответит',contactSend:'Отправить',contactOk:'Сообщение отправлено. Спасибо!',contactErr:'Напиши хотя бы пару слов',
+ delAcc:'Удалить аккаунт',delAsk:'Удалить аккаунт навсегда? Профиль, фото, планы, заявки и сообщения будут удалены, вернуть их нельзя.',delDone:'Аккаунт удалён',
+ rulesAgree:'Я принимаю правила сообщества',rulesErr:'Чтобы зарегистрироваться, прими правила сообщества',rulesRead:'Правила сообщества',
+ rulesBody:['Настоящий профиль: свои фото, настоящее имя и возраст, только 18+.','Уважение: без оскорблений, домогательств и давления.','Без спама, рекламы и продаж.','Безопасность: встречайтесь в людных местах, о нарушениях сообщайте через «Пожаловаться».','Договорился — приходи. Если не получается, выйди из плана заранее.','За нарушение правил аккаунт блокируется.'],
+ privacyT:'Конфиденциальность',privacyBody:['Мы храним анкету, фото, планы и сообщения только для работы приложения.','Селфи для проверки видит только команда Just One, после проверки оно удаляется.','Мы не продаём данные и не передаём их рекламодателям.','Удалить аккаунт и все данные можно в настройках.'],
+ adMsgs:'Сообщения',adMsgDone:'Готово, убрать',unreadT:'новые'},
+sr:{likes:'Kako volim da provedem veče',upTo5:'do 5',max5:'Možeš izabrati do 5 hobija',settings:'Podešavanja',themeT:'Tema',th_dark:'Tamna',th_light:'Svetla',th_auto:'Kao na telefonu',
+ rulesT:'Pravila i privatnost',contactT:'Kontaktiraj nas',contactPh:'Pitanje, ideja ili problem — piši, tim Just One će odgovoriti',contactSend:'Pošalji',contactOk:'Poruka je poslata. Hvala!',contactErr:'Napiši bar par reči',
+ delAcc:'Obriši nalog',delAsk:'Trajno obrisati nalog? Profil, fotografije, planovi, zahtevi i poruke biće obrisani i ne mogu se vratiti.',delDone:'Nalog je obrisan',
+ rulesAgree:'Prihvatam pravila zajednice',rulesErr:'Za registraciju prihvati pravila zajednice',rulesRead:'Pravila zajednice',
+ rulesBody:['Pravi profil: svoje fotografije, pravo ime i godine, samo 18+.','Poštovanje: bez uvreda, uznemiravanja i pritiska.','Bez spama, reklama i prodaje.','Bezbednost: viđajte se na prometnim mestima, kršenja prijavite preko „Prijavi“.','Dogovorio si se — dođi. Ako ne možeš, izađi iz plana na vreme.','Za kršenje pravila nalog se blokira.'],
+ privacyT:'Privatnost',privacyBody:['Čuvamo profil, fotografije, planove i poruke samo za rad aplikacije.','Selfi za proveru vidi samo tim Just One i briše se posle provere.','Ne prodajemo podatke i ne dajemo ih oglašivačima.','Nalog i sve podatke možeš obrisati u podešavanjima.'],
+ adMsgs:'Poruke',adMsgDone:'Gotovo, skloni',unreadT:'nove'},
+en:{likes:'How I like to spend an evening',upTo5:'up to 5',max5:'You can pick up to 5 hobbies',settings:'Settings',themeT:'Theme',th_dark:'Dark',th_light:'Light',th_auto:'Same as phone',
+ rulesT:'Rules and privacy',contactT:'Contact us',contactPh:'A question, idea or problem — write and the Just One team will reply',contactSend:'Send',contactOk:'Message sent. Thank you!',contactErr:'Write at least a few words',
+ delAcc:'Delete account',delAsk:'Delete your account for good? Your profile, photos, plans, requests and messages will be deleted and cannot be restored.',delDone:'Account deleted',
+ rulesAgree:'I accept the community rules',rulesErr:'To sign up, accept the community rules',rulesRead:'Community rules',
+ rulesBody:['A real profile: your own photos, real name and age, 18+ only.','Respect: no insults, harassment or pressure.','No spam, advertising or selling.','Safety: meet in busy places and report problems with “Report”.','If you agreed, show up. If you can’t, leave the plan in good time.','Breaking the rules gets the account blocked.'],
+ privacyT:'Privacy',privacyBody:['We keep your profile, photos, plans and messages only to run the app.','The verification selfie is seen only by the Just One team and deleted after the check.','We do not sell data or pass it to advertisers.','You can delete your account and all data in settings.'],
+ adMsgs:'Messages',adMsgDone:'Done, archive',unreadT:'new'}
+};
+Object.keys(T10).forEach(function(l){for(var k in T10[l])T[l][k]=T10[l][k]});
+
+// theme: dark (default), light, or follow the phone
+var darkMq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+function applyTheme(){
+  var th=local.theme||'dark';
+  var light=th==='light'||(th==='auto'&&darkMq&&!darkMq.matches);
+  document.documentElement.setAttribute('data-theme',light?'light':'dark');
+}
+if(darkMq&&darkMq.addEventListener)darkMq.addEventListener('change',applyTheme);
+function rulesList(arr){return '<ul class="rules">'+arr.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>'}
+function setRow(act,label,extra){return '<button type="button" class="setrow" data-act="'+act+'"'+(extra||'')+'><span>'+label+'</span><span aria-hidden="true">›</span></button>'}
+function sheetSettings(){
+  var th=local.theme||'dark';
+  return '<div class="sheet">'+sheetHead(t('settings'))+'<div class="content">'+
+   '<div class="box setlist">'+setRow('edit',t('edit'))+setRow('upgrade',t('tariffs')+' · '+t('proT'))+setRow('blocked-list',t('pt_blocked'))+'</div>'+
+   '<div class="box"><span class="label">'+t('language')+'</span><div class="chips">'+Object.keys(LANGS).map(function(k){return '<button class="chip'+(local.lang===k?' on':'')+'" aria-pressed="'+(local.lang===k)+'" data-act="set-lang" data-val="'+k+'">'+LANGS[k]+'</button>'}).join('')+'</div></div>'+
+   '<div class="box"><span class="label">'+t('themeT')+'</span><div class="chips">'+['dark','light','auto'].map(function(k){return '<button class="chip'+(th===k?' on':'')+'" aria-pressed="'+(th===k)+'" data-act="set-theme" data-val="'+k+'">'+t('th_'+k)+'</button>'}).join('')+'</div></div>'+
+   '<div class="box setlist">'+setRow('rules',t('rulesT'))+setRow('contact',t('contactT'))+'</div>'+
+   '<div class="box setlist"><button type="button" class="setrow" data-act="logout"><span>'+t('logout')+'</span></button>'+
+   '<button type="button" class="setrow danger" data-act="delete-account"><span>'+t('delAcc')+'</span></button></div>'+
+   '</div></div>';
+}
+function sheetBlocked(){return '<div class="sheet">'+sheetHead(t('pt_blocked'))+'<div class="content">'+(blockedBox()||'<div class="note">'+t('noBlocked')+'</div>')+'</div></div>'}
+function sheetRules(){
+  return '<div class="sheet">'+sheetHead(t('rulesT'))+'<div class="content"><div class="box"><h2>'+t('rulesRead')+'</h2>'+rulesList(t('rulesBody'))+'</div>'+
+    '<div class="box"><h2>'+t('privacyT')+'</h2>'+rulesList(t('privacyBody'))+'</div></div></div>';
+}
+function sheetContact(){
+  return '<form class="sheet" id="contact-form">'+sheetHead(t('contactT'))+'<div class="content"><div class="field"><textarea class="input" id="ct-body" maxlength="1000" rows="6" style="height:160px" placeholder="'+esc(t('contactPh'))+'"></textarea></div></div>'+
+    '<div class="foot"><button class="btn" type="submit">'+t('contactSend')+'</button></div></form>';
+}
+function submitContact(){
+  var body=val('ct-body');if(body.length<2){toast(t('contactErr'));return}
+  run(function(){return sb.from('support_messages').insert({user_id:uid,body:body}).then(check).then(function(){closeSheet();render();toast(t('contactOk'))})});
+}
+function deleteAccount(){
+  if(!window.confirm(t('delAsk')))return;
+  run(function(){
+    return sb.rpc('delete_me').then(check).then(function(){
+      if(chan){sb.removeChannel(chan);chan=null}
+      return sb.auth.signOut().catch(function(){});
+    }).then(function(){
+      var lang=local.lang,theme=local.theme;local=freshLocal();local.lang=lang;local.theme=theme;saveLocal();
+      uid=null;isAnon=true;userKind='person';db=freshDb();ui.tab='plans';clearSheets();ui.match=null;ui.ob='kind';ui.draft=null;render();toast(t('delDone'));
+    });
+  });
+}
+/* unread chats: a chat is unread when it has a message from someone else newer than the last time I opened it */
+function lastT(c){var m=c.msgs[c.msgs.length-1];return m&&m.t?m.t:0}
+function unreadCount(c){
+  var seen=(local.read||{})[c.id]||0;
+  return c.msgs.filter(function(m){return m.t&&m.t>seen&&m.from!=='me'&&m.from!=='sys'}).length;
+}
+function anyUnread(){return chatList().some(function(c){return unreadCount(c)>0})}
+function markRead(id){
+  var c=chatById(id);if(!c)return;
+  local.read=local.read||{};var l=lastT(c)||Date.now();
+  if(local.read[id]!==l){local.read[id]=l;saveLocal()}
+}
+// first run after this update: what was already there counts as read
+function initRead(){
+  if(local.read)return;
+  local.read={};chatList().forEach(function(c){local.read[c.id]=lastT(c)});saveLocal();
+}
 function viewMatch(){
   return '<div class="match" role="dialog" aria-modal="true"><h1>'+t('matchTitle')+'</h1><p style="margin:0">'+(ui.match.ev?t('matchTextEv'):t('matchText'))+'</p>'+
    '<button class="btn block" data-act="open-chat" data-val="'+esc(ui.match.chat)+'">'+t('openChat')+'</button><button class="btn ghost block" data-act="close-match">'+t('keep')+'</button></div>';
@@ -1810,6 +1915,7 @@ function loadSafety(){
     db.myVerify=r[0];db.admin=r[1]===true;db.blocks=r[2]||[];db.past=r[3]||[];
     db.feedback={};(r[4]||[]).forEach(function(x){db.feedback[x.plan_id]=true});
     db.banned=!!(r[5]&&r[5].banned);
+    initRead();
   });
 }
 function ensureGallery(id){
@@ -1832,7 +1938,7 @@ function queueReload(){
   clearTimeout(reloadT);
   reloadT=setTimeout(function(){loadAll().then(softRender).catch(function(e){console.error(e)})},250);
 }
-var FORM_SHEETS=/^(create|venue|event|apply|verify|report|meeting)$/;
+var FORM_SHEETS=/^(create|venue|event|apply|verify|report|meeting|contact)$/;
 function softRender(){
   if(dragging||ui.editing||!mode()||mode()==='onboard'||mode()==='vsetup'||(ui.sheet&&FORM_SHEETS.test(ui.sheet.type)))return;
   var f=document.getElementById('f-msg'),keep=f?f.value:null,foc=f&&document.activeElement===f;
@@ -2022,6 +2128,7 @@ function act(name,el){
   case 'gal-del':keepStep1();d.photos.splice(+v,1);refreshGal();return;
   case 'chip':
     var arr=d[el.dataset.group],i=arr.indexOf(v);
+    if(i<0&&el.dataset.group==='ints'&&arr.length>=5){toast(t('max5'));return}
     if(i>=0)arr.splice(i,1);else arr.push(v);
     el.classList.toggle('on',i<0);el.setAttribute('aria-pressed',String(i<0));return;
   case 'pick':
@@ -2064,6 +2171,13 @@ function act(name,el){
   case 'verify-send':sendVerify();return;
   case 'photos':ensureGallery(v);openSheet({type:'photos',id:v});break;
   case 'ptab':ui.ptab=v;break;
+  case 'settings':openSheet({type:'settings'});break;
+  case 'set-theme':local.theme=v;saveLocal();break;
+  case 'blocked-list':openSheet({type:'blocked'});break;
+  case 'rules':openSheet({type:'rules'});break;
+  case 'contact':openSheet({type:'contact'});break;
+  case 'delete-account':deleteAccount();return;
+  case 'adm-msg-close':adminDo(sb.from('support_messages').update({status:'closed'}).eq('id',+v));return;
   case 'report':openSheet({type:'report',id:v,kind:el.dataset.kind||'profile',ref:el.dataset.ref||''});break;
   case 'block':blockPerson(v);return;
   case 'unblock':unblockPerson(v);return;
@@ -2157,6 +2271,7 @@ function submitAuth(){
   var email=val('a-email'),pass=(document.getElementById('a-pass')||{}).value||'';
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)||pass.length<8){ui.authErr=t('authErrShort');render();return}
   ui.authErr='';ui.authInfo='';ui.authEmail=email;
+  if(ui.authMode==='up'&&!(document.getElementById('a-rules')||{}).checked){ui.authErr=t('rulesErr');render();return}
   run(function(){
     var q=ui.authMode==='up'?sb.auth.signUp({email:email,password:pass,options:{data:{kind:ui.kind||'person'}}}):sb.auth.signInWithPassword({email:email,password:pass});
     return q.then(function(r){
@@ -2278,7 +2393,7 @@ function submitMsg(){
 /* ---------- render ---------- */
 function render(){
   var app=document.getElementById('app'),h,m=mode();
-  document.documentElement.lang=local.lang||'ru';
+  document.documentElement.lang=local.lang||'ru';applyTheme();
   if(!m){
     h='<div class="empty"><div class="brand">Just <span>One</span></div><p class="muted">'+esc(fatal||t('loading'))+'</p></div>';
   }else if(!local.lang){
@@ -2312,10 +2427,14 @@ function render(){
       else if(s.type==='apply')h+=sheetApply(s.id);
       else if(s.type==='verify')h+=sheetVerify();
       else if(s.type==='photos')h+=sheetPhotos(s.id);
+      else if(s.type==='settings')h+=sheetSettings();
+      else if(s.type==='blocked')h+=sheetBlocked();
+      else if(s.type==='rules')h+=sheetRules();
+      else if(s.type==='contact')h+=sheetContact();
       else if(s.type==='report')h+=sheetReport(s);
       else if(s.type==='meeting')h+=sheetMeeting(s);
       else if(s.type==='admin')h+=sheetAdmin(s);
-      else h+=sheetChat(s.id);
+      else{h+=sheetChat(s.id);markRead(s.id)}
     }
     if(ui.match)h+=viewMatch();
   }
@@ -2379,6 +2498,7 @@ document.addEventListener('submit',function(e){
   else if(id==='auth-form')submitAuth();
   else if(id==='apply-form')sendRequest(e.target.dataset.id,val('a-note'));
   else if(id==='report-form')submitReport();
+  else if(id==='contact-form')submitContact();
 });
 // phones drop the live connection while asleep: refresh when the app comes back
 document.addEventListener('visibilitychange',function(){if(!document.hidden)queueReload()});
