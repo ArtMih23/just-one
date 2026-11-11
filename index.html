@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Just One</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0E1014">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Just One">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
 <style>
@@ -818,7 +824,7 @@ function byDate(a,b){return (a.date+a.time)<(b.date+b.time)?-1:1}
 function feed(){
   return allPlans().filter(function(p){
     if((p.act==='party'&&p.pro)||local.swiped[p.id]||p.status)return false;   // simple parties (up to 5) are swiped like plans
-    return districtOk(p.district)&&dayOk(p.date);
+    return districtOk(p.district)&&dayOk(p.date)&&passFilters(p);
   }).sort(byDate);
 }
 // the list of people in a plan is shown only to its host and approved guests
@@ -1081,16 +1087,17 @@ function viewOnboarding(){
 }
 
 /* ---------- person: plans ---------- */
-function topFilters(title){
+function topFilters(title,extra){
   return '<div class="top"><div class="line"><h1>'+title+'</h1>'+
      '<select class="select" id="f-city" aria-label="'+t('cityT')+'">'+Object.keys(CITIES).map(function(k){return '<option value="'+k+'">'+esc(L(CITIES[k]))+'</option>'}).join('')+'</select></div>'+
-     '<div class="demo">'+t('demo')+'</div></div>';
+     (extra?'<div class="row2" style="flex-wrap:nowrap"><div class="demo">'+t('demo')+'</div>'+extra+'</div>':'<div class="demo">'+t('demo')+'</div>')+'</div>';
 }
 function viewPlans(){
-  var f=feed(),h=topFilters(t('plans'));
+  var fc=filterCount(),f=feed(),h=topFilters(t('plans'),'<button type="button" class="chip'+(fc?' on':'')+'" style="flex:none" data-act="filters">⚙ '+t('filters')+(fc?' · '+fc:'')+'</button>');
   h+='<div class="body" style="overflow:hidden">';
   if(!f.length){
-    h+='<div class="empty"><h2>'+t('emptyFeed')+'</h2><button class="btn" data-act="create">'+t('newPlan')+'</button>'+
+    if(fc)h+='<div class="empty"><h2>'+t('noMatch')+'</h2><button class="btn" data-act="ff-reset">'+t('fReset')+'</button></div>';
+    else h+='<div class="empty"><h2>'+t('emptyFeed')+'</h2><button class="btn" data-act="create">'+t('newPlan')+'</button>'+
        '<button class="btn ghost sm" data-act="unskip">'+t('showAgain')+'</button></div>';
   }else{
     h+='<div class="stack">';
@@ -1196,6 +1203,8 @@ function chatList(){
 function chatById(id){var a=chatList();for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null}
 function viewChats(){
   var h='<div class="top"><h1>'+t('chats')+'</h1></div><div class="body">'+meetingCards(),list=chatList();
+  // a gentle nudge to turn notifications on, until it is done or dismissed
+  if(pushSupported()&&pushState.checked&&!pushState.on&&!local.pushNag)h+='<div class="box"><div class="row2"><b>🔔 '+t('notifOn')+'</b><button type="button" class="icon" style="background:none;border:none;font-size:18px" data-act="push-nag-off" aria-label="'+t('close')+'">×</button></div><span class="hint">'+t('notifHint')+'</span><button class="btn sm" data-act="push-on">'+t('notifOn')+'</button></div>';
   if(!list.length)h+='<div class="empty"><p class="muted">'+t('noChats')+'</p></div>';
   else h+='<span class="hint">'+t('swipeHint')+'</span>';
   list.forEach(function(c){
@@ -1794,6 +1803,7 @@ function sheetSettings(){
    '<div class="box setlist">'+setRow('edit',t('edit'))+setRow('upgrade',t('tariffs')+' · '+t('proT'))+setRow('blocked-list',t('pt_blocked'))+'</div>'+
    '<div class="box"><span class="label">'+t('language')+'</span><div class="chips">'+Object.keys(LANGS).map(function(k){return '<button class="chip'+(local.lang===k?' on':'')+'" aria-pressed="'+(local.lang===k)+'" data-act="set-lang" data-val="'+k+'">'+LANGS[k]+'</button>'}).join('')+'</div></div>'+
    '<div class="box"><span class="label">'+t('themeT')+'</span><div class="chips">'+['dark','light','auto'].map(function(k){return '<button class="chip'+(th===k?' on':'')+'" aria-pressed="'+(th===k)+'" data-act="set-theme" data-val="'+k+'">'+t('th_'+k)+'</button>'}).join('')+'</div></div>'+
+   notifBox()+installBox()+
    '<div class="box setlist">'+setRow('rules',t('rulesT'))+setRow('contact',t('contactT'))+'</div>'+
    '<div class="box setlist"><button type="button" class="setrow" data-act="logout"><span>'+t('logout')+'</span></button>'+
    '<button type="button" class="setrow danger" data-act="delete-account"><span>'+t('delAcc')+'</span></button></div>'+
@@ -1840,6 +1850,102 @@ function markRead(id){
 function initRead(){
   if(local.read)return;
   local.read={};chatList().forEach(function(c){local.read[c.id]=lastT(c)});saveLocal();
+}
+/* ---------- feed filters: day, my languages, what we do ---------- */
+var T11={
+ru:{filters:'Фильтры',fDay:'День',fd_any:'Любой',fd_today:'Сегодня',fd_tomorrow:'Завтра',fd_weekend:'Выходные',fMyLangs:'Только на моих языках',fActs:'Чем заняться',fApply:'Показать',fReset:'Сбросить',fOther:'Другое',noMatch:'По фильтрам ничего нет',
+ notifT:'Уведомления',notifOn:'Включить уведомления',notifOnNow:'Уведомления включены',notifOff:'Выключить',notifHint:'Придут, когда тебе ответят на заявку, примут в план или напишут в чат.',
+ notifDenied:'Уведомления запрещены в настройках браузера. Разреши их для этого сайта и попробуй снова.',notifNo:'Этот браузер не поддерживает уведомления.',
+ notifIos:'На iPhone уведомления работают, только если добавить приложение на главный экран: «Поделиться» → «На экран «Домой»», и открыть его оттуда.',notifErr:'Не получилось включить уведомления. Попробуй позже.',
+ installT:'Приложение на главном экране',installHint:'Открой меню браузера и выбери «Добавить на главный экран» — Just One откроется как обычное приложение.'},
+sr:{filters:'Filteri',fDay:'Dan',fd_any:'Bilo koji',fd_today:'Danas',fd_tomorrow:'Sutra',fd_weekend:'Vikend',fMyLangs:'Samo na mojim jezicima',fActs:'Šta radimo',fApply:'Prikaži',fReset:'Poništi',fOther:'Drugo',noMatch:'Ništa ne odgovara filterima',
+ notifT:'Obaveštenja',notifOn:'Uključi obaveštenja',notifOnNow:'Obaveštenja su uključena',notifOff:'Isključi',notifHint:'Stižu kad ti odgovore na zahtev, prime te u plan ili ti pišu u četu.',
+ notifDenied:'Obaveštenja su zabranjena u podešavanjima pregledača. Dozvoli ih za ovaj sajt i pokušaj ponovo.',notifNo:'Ovaj pregledač ne podržava obaveštenja.',
+ notifIos:'Na iPhone-u obaveštenja rade samo ako dodaš aplikaciju na početni ekran: „Deli“ → „Dodaj na početni ekran“, i otvoriš je odatle.',notifErr:'Obaveštenja nisu uključena. Pokušaj kasnije.',
+ installT:'Aplikacija na početnom ekranu',installHint:'Otvori meni pregledača i izaberi „Dodaj na početni ekran“ — Just One se otvara kao obična aplikacija.'},
+en:{filters:'Filters',fDay:'Day',fd_any:'Any',fd_today:'Today',fd_tomorrow:'Tomorrow',fd_weekend:'Weekend',fMyLangs:'Only in my languages',fActs:'What to do',fApply:'Show',fReset:'Reset',fOther:'Other',noMatch:'Nothing matches the filters',
+ notifT:'Notifications',notifOn:'Turn on notifications',notifOnNow:'Notifications are on',notifOff:'Turn off',notifHint:'You get them when someone answers your request, accepts you into a plan or writes in a chat.',
+ notifDenied:'Notifications are blocked in the browser settings. Allow them for this site and try again.',notifNo:'This browser does not support notifications.',
+ notifIos:'On iPhone, notifications work only after adding the app to the Home Screen: Share → Add to Home Screen, then open it from there.',notifErr:'Could not turn on notifications. Try again later.',
+ installT:'App on your home screen',installHint:'Open the browser menu and choose “Add to Home screen” — Just One opens like a normal app.'}
+};
+Object.keys(T11).forEach(function(l){for(var k in T11[l])T[l][k]=T11[l][k]});
+var FILTER_ACTS=['beer','wine','cocktail','coffee','tea','games','esports','walk','party','other'];
+function ff(){return local.ff||{day:'any',my:false,acts:[]}}
+function filterCount(){var f=ff();return (f.day!=='any'?1:0)+(f.my?1:0)+(f.acts.length?1:0)}
+function passFilters(p){
+  var f=ff();
+  if(f.day==='today'&&p.date!==iso(plusDays(0)))return false;
+  if(f.day==='tomorrow'&&p.date!==iso(plusDays(1)))return false;
+  if(f.day==='weekend'&&!isWeekend(p.date))return false;
+  if(f.my){var mine=(db.profile&&db.profile.langs)||[];if(!(p.langs||[]).some(function(l){return mine.indexOf(l)>=0}))return false}
+  if(f.acts.length&&f.acts.indexOf(p.act)<0)return false;
+  return true;
+}
+function sheetFilters(){
+  var f=ui.ffDraft||(ui.ffDraft=JSON.parse(JSON.stringify(ff())));
+  function chip(group,val,label,on){return '<button type="button" class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="ff-set" data-group="'+group+'" data-val="'+val+'">'+esc(label)+'</button>'}
+  return '<div class="sheet">'+sheetHead(t('filters'))+'<div class="content">'+
+   '<div class="field"><span class="label">'+t('fDay')+'</span><div class="chips">'+['any','today','tomorrow','weekend'].map(function(k){return chip('day',k,t('fd_'+k),f.day===k)}).join('')+'</div></div>'+
+   '<label class="check"><input type="checkbox" id="ff-my"'+(f.my?' checked':'')+'> '+t('fMyLangs')+'</label>'+
+   '<div class="field"><span class="label">'+t('fActs')+'</span><div class="chips">'+FILTER_ACTS.map(function(k){return chip('acts',k,k==='other'?t('fOther'):L(ACTS[k]),f.acts.indexOf(k)>=0)}).join('')+'</div></div>'+
+   '</div><div class="foot"><button class="btn ghost" data-act="ff-reset">'+t('fReset')+'</button><button class="btn" data-act="ff-apply">'+t('fApply')+'</button></div></div>';
+}
+/* ---------- notifications (Web Push) and the home-screen app ---------- */
+var pushState={on:false,checked:false},deferredInstall=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredInstall=e;softRender()});
+function pushSupported(){return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window}
+function isIos(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
+function isStandalone(){return !!((window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone)}
+function unb64(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+function pushCall(body){return sb.functions.invoke('push',{body:body})}
+function saveSub(s){return pushCall({kind:'subscribe',sub:s.toJSON(),lang:local.lang||'ru'})}
+// tell the server about an action so it can notify the others; never blocks the app
+function notify(kind,extra){if(!sb||!uid)return;try{pushCall(Object.assign({kind:kind},extra||{})).catch(function(){})}catch(e){}}
+function checkPush(){
+  if(!pushSupported()||!uid)return;
+  navigator.serviceWorker.ready.then(function(r){return r.pushManager.getSubscription()}).then(function(s){
+    pushState.on=!!s&&Notification.permission==='granted';pushState.checked=true;
+    if(s&&pushState.on)saveSub(s);   // keeps the account and language of this phone up to date
+    softRender();
+  }).catch(function(){pushState.checked=true});
+}
+function enablePush(){
+  if(!pushSupported()){toast(isIos()&&!isStandalone()?t('notifIos'):t('notifNo'));return}
+  run(function(){
+    return Notification.requestPermission().then(function(p){
+      if(p!=='granted'){toast(t('notifDenied'));return}
+      return Promise.all([navigator.serviceWorker.ready,pushCall({kind:'pubkey'})]).then(function(a){
+        var r=a[1];if(r.error||!r.data||!r.data.key)throw r.error||new Error('no key');
+        return a[0].pushManager.subscribe({userVisibleOnly:true,applicationServerKey:unb64(r.data.key)});
+      }).then(saveSub).then(function(r){
+        if(r&&r.error)throw r.error;
+        pushState.on=true;pushState.checked=true;render();toast(t('notifOnNow'));
+      });
+    }).catch(function(e){console.error(e);toast(t('notifErr'))});
+  });
+}
+// forget this phone on the server (logout, turning notifications off)
+function pushForget(alsoUnsubscribe){
+  if(!pushSupported()||!uid)return Promise.resolve();
+  return navigator.serviceWorker.ready.then(function(r){return r.pushManager.getSubscription()}).then(function(s){
+    if(!s)return;var ep=s.endpoint;
+    return pushCall({kind:'unsubscribe',endpoint:ep}).then(function(){if(alsoUnsubscribe)return s.unsubscribe()});
+  }).catch(function(){});
+}
+function disablePush(){run(function(){return pushForget(true).then(function(){pushState.on=false;render()})})}
+function notifBox(){
+  var h='<div class="box"><span class="label">'+t('notifT')+'</span>';
+  if(pushState.on)h+='<div class="row2"><span class="pill ok">✓ '+t('notifOnNow')+'</span><button class="btn ghost sm" data-act="push-off">'+t('notifOff')+'</button></div>';
+  else h+='<button class="btn block" data-act="push-on">🔔 '+t('notifOn')+'</button>';
+  h+='<span class="hint">'+t('notifHint')+'</span>';
+  if(isIos()&&!isStandalone())h+='<div class="note">'+t('notifIos')+'</div>';
+  return h+'</div>';
+}
+function installBox(){
+  if(isStandalone())return '';
+  return '<div class="box"><span class="label">'+t('installT')+'</span>'+
+    (deferredInstall?'<button class="btn ghost block" data-act="install">📲 '+t('installT')+'</button>':'<span class="hint">'+(isIos()?t('notifIos'):t('installHint'))+'</span>')+'</div>';
 }
 function viewMatch(){
   return '<div class="match" role="dialog" aria-modal="true"><h1>'+t('matchTitle')+'</h1><p style="margin:0">'+(ui.match.ev?t('matchTextEv'):t('matchText'))+'</p>'+
@@ -1926,6 +2032,7 @@ function ensureGallery(id){
   },function(){delete db.galleries[id]});
 }
 function subscribe(){
+  checkPush();
   if(chan||!uid)return;
   chan=sb.channel('justone');
   ['profiles','plans','plan_members','messages','plan_secrets','venues','events','event_going','event_messages'].forEach(function(tb){
@@ -1938,7 +2045,7 @@ function queueReload(){
   clearTimeout(reloadT);
   reloadT=setTimeout(function(){loadAll().then(softRender).catch(function(e){console.error(e)})},250);
 }
-var FORM_SHEETS=/^(create|venue|event|apply|verify|report|meeting|contact)$/;
+var FORM_SHEETS=/^(create|venue|event|apply|verify|report|meeting|contact|filters)$/;
 function softRender(){
   if(dragging||ui.editing||!mode()||mode()==='onboard'||mode()==='vsetup'||(ui.sheet&&FORM_SHEETS.test(ui.sheet.type)))return;
   var f=document.getElementById('f-msg'),keep=f?f.value:null,foc=f&&document.activeElement===f;
@@ -1979,7 +2086,7 @@ function sendRequest(id,note){
   if(p.example){exRequest(id);toast(t('sent'))}
   else{
     db.members.push({plan_id:id,user_id:uid,status:'pending',note:note});local.seen[id]='pending';
-    run(function(){return sb.from('plan_members').insert({plan_id:id,user_id:uid,status:'pending',note:note}).then(check).then(function(){toast(t('sent'))})});
+    run(function(){return sb.from('plan_members').insert({plan_id:id,user_id:uid,status:'pending',note:note}).then(check).then(function(){notify('request',{plan_id:id});toast(t('sent'))})});
   }
   saveLocal();render();
 }
@@ -2172,6 +2279,19 @@ function act(name,el){
   case 'photos':ensureGallery(v);openSheet({type:'photos',id:v});break;
   case 'ptab':ui.ptab=v;break;
   case 'settings':openSheet({type:'settings'});break;
+  case 'push-on':enablePush();return;
+  case 'push-off':disablePush();return;
+  case 'push-nag-off':local.pushNag=1;saveLocal();break;
+  case 'install':if(deferredInstall){deferredInstall.prompt();deferredInstall.userChoice.then(function(){deferredInstall=null;render()})}return;
+  case 'filters':ui.ffDraft=null;openSheet({type:'filters'});break;
+  case 'ff-set':
+    var fd=ui.ffDraft,my=document.getElementById('ff-my');if(my)fd.my=my.checked;
+    if(el.dataset.group==='day')fd.day=v;else{var ai=fd.acts.indexOf(v);if(ai>=0)fd.acts.splice(ai,1);else fd.acts.push(v)}
+    break;
+  case 'ff-apply':
+    var fd2=ui.ffDraft||ff(),my2=document.getElementById('ff-my');if(my2)fd2.my=my2.checked;
+    local.ff=fd2;saveLocal();ui.ffDraft=null;closeSheet();break;
+  case 'ff-reset':local.ff=null;saveLocal();ui.ffDraft=null;if(ui.sheet&&ui.sheet.type==='filters')closeSheet();break;
   case 'set-theme':local.theme=v;saveLocal();break;
   case 'blocked-list':openSheet({type:'blocked'});break;
   case 'rules':openSheet({type:'rules'});break;
@@ -2190,7 +2310,7 @@ function act(name,el){
     sendMeeting(v,'noshow',who);return;
   case 'admin':ui.adm=null;openSheet({type:'admin',tab:'verify'});render();loadAdmin().then(render).catch(function(e){console.error(e);toast(t('netErr'))});return;
   case 'admin-tab':if(ui.sheet)ui.sheet.tab=v;break;
-  case 'adm-ok':adminDo(sb.rpc('admin_verify',{u:v,ok:true}));return;
+  case 'adm-ok':adminDo(sb.rpc('admin_verify',{u:v,ok:true}).then(function(r){if(!r.error)notify('verified',{user_id:v});return r}));return;
   case 'adm-no':adminDo(sb.rpc('admin_verify',{u:v,ok:false}));return;
   case 'adm-close':adminDo(sb.from('reports').update({status:'closed'}).eq('id',+v));return;
   case 'adm-ban':
@@ -2246,6 +2366,7 @@ function act(name,el){
     var pid=el.dataset.plan,status=name==='accept'?'accepted':'declined';
     run(function(){
       return sb.from('plan_members').update({status:status}).eq('plan_id',pid).eq('user_id',v).then(check).then(function(){
+        if(status==='accepted')notify('accepted',{plan_id:pid,user_id:v});
         if(status==='accepted')return sb.from('messages').insert({plan_id:pid,user_id:uid,kind:'join',body:person(v).name}).then(check);
       }).then(loadAll).then(render);
     });
@@ -2257,7 +2378,7 @@ function act(name,el){
     if(!window.confirm(isAnon?t('logoutAnonAsk'):t('logoutAsk')))return;
     run(function(){
       if(chan){sb.removeChannel(chan);chan=null}
-      return sb.auth.signOut().then(function(){
+      return pushForget(false).then(function(){return sb.auth.signOut()}).then(function(){
         var lang=local.lang;local=freshLocal();local.lang=lang;saveLocal();
         uid=null;isAnon=true;userKind='person';db=freshDb();ui.tab='plans';clearSheets();ui.match=null;ui.ob='kind';ui.draft=null;render();
       });
@@ -2381,6 +2502,7 @@ function submitMsg(){
     ?sb.from('event_messages').insert({event_id:c.target,user_id:uid,body:text})
     :sb.from('messages').insert({plan_id:c.target,user_id:uid,body:text});
   q.then(check).then(function(){
+    notify(c.kind==='event'?'evmsg':'msg',c.kind==='event'?{event_id:c.target}:{plan_id:c.target});
     var row={user_id:uid,body:text,created_at:new Date().toISOString()};
     if(c.kind==='event'){row.event_id=c.target;db.evMsgs.push(row)}else{row.plan_id=c.target;row.kind='text';db.msgs.push(row)}
     softRender();
@@ -2428,6 +2550,7 @@ function render(){
       else if(s.type==='verify')h+=sheetVerify();
       else if(s.type==='photos')h+=sheetPhotos(s.id);
       else if(s.type==='settings')h+=sheetSettings();
+      else if(s.type==='filters')h+=sheetFilters();
       else if(s.type==='blocked')h+=sheetBlocked();
       else if(s.type==='rules')h+=sheetRules();
       else if(s.type==='contact')h+=sheetContact();
@@ -2504,6 +2627,8 @@ document.addEventListener('submit',function(e){
 document.addEventListener('visibilitychange',function(){if(!document.hidden)queueReload()});
 setInterval(exTick,1000);
 
+// the service worker shows notifications and lets the app live on the home screen
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
 /* ---------- start ---------- */
 function boot(){
   if(!window.supabase||SUPABASE_KEY.indexOf('PASTE')===0){fatal=window.supabase?t('noConfig'):t('netErr');ready=true;render();return}
