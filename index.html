@@ -84,6 +84,7 @@ textarea.input{height:84px;padding:12px 15px;resize:none}
 .row{display:flex;gap:10px;align-items:flex-end}   /* fields in a row line up even when one label wraps */
 /* the phone's own multi-select shows its text in the phone language (e.g. 'Выбрано: 0'), so it is invisible and sits over our own field */
 .lwrap{position:relative}.lshow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:50px;cursor:pointer}
+.chk{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}.chk input{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0}.field label.chk,label.chk{text-transform:none;letter-spacing:0;font-size:15px;font-weight:500;color:var(--text);margin:0}
 .lshow span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.lshow span:last-child{flex-shrink:0;overflow:visible}.lshow .hint{margin:0}
 .lsel{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .row>*{flex:1;min-width:0}
@@ -231,7 +232,7 @@ var store={
   get:function(){try{var v=localStorage.getItem(KEY);return v?JSON.parse(v):mem}catch(e){return mem}},
   set:function(v){mem=v;try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}}
 };
-function freshLocal(){return {lang:null,swiped:{},req:{},demoChats:[],seen:{},seenEv:{},seq:1}}
+function freshLocal(){return {lang:null,swiped:{},req:{},demoChats:[],seen:{},seenEv:{},seq:1,blk:{},mtDone:{}}}
 var local=store.get()||freshLocal();
 function saveLocal(){store.set(local)}
 
@@ -433,7 +434,69 @@ en:{verifiedT:'verified profile',verifyTitle:'Get verified',verifySub:'Verificat
  verifyBtn:'Request verification',verifySent:'Verification requested. We will let you know when your profile is checked.',yesterday:'Yesterday',
  whatPh:'For example: beer in the centre, board games, a walk by the Danube',whatHint:'Up to 40 characters',whatErr:'Write what we are doing',applyTitle:'Request',cityT:'City',af_all:'All',af_events:'Events',af_parties:'Private parties',haveAccount:'I already have an account — log in',authExists:'This email is already registered. Enter your password and tap Log in.',authBad:'Wrong email or password',authNotConfirmed:'This email is not confirmed. Contact us and we will confirm it manually.',authWeak:'The password is too simple: at least 8 characters',authRate:'Too many attempts. Wait a minute and try again.',doSignUp:'Sign up',doSignIn:'Log in',leave:'Leave',leftOk:'You left the chat and are no longer signed up',ownPlanLeave:'This is your plan — you can delete it in your profile',swipeHint:'Swipe a chat left to leave it',applyNote:'A few words to the host',applyNotePh:'For example: hi! I love jazz too, I could bring a friend',applyHint:'Optional, up to 200 characters',applySend:'Send request',profilesLocked:'Profiles open after verification'}
 };
-Object.keys(T7).forEach(function(l){for(var k in T7[l])T[l][k]=T7[l][k]});function t(k){var D=T[local.lang||'ru'];return D[k]!==undefined?D[k]:k}
+Object.keys(T7).forEach(function(l){for(var k in T7[l])T[l][k]=T7[l][k]});
+/* texts for safety: selfie check, reports, blocking, after-meeting question, author's cabinet */
+var T8={
+ru:{verifySub:'Сделай селфи с жестом — это открывает «Афишу», чужие профили и даёт синюю галочку.',verifyBtn:'Пройти проверку',
+ verifySent:'Селфи отправлено. Команда Just One проверит профиль, обычно в течение суток.',
+ vfTitle:'Проверка по селфи',vfStep:'Сделай селфи и покажи на нём жест:',vfFace:'Лицо должно быть хорошо видно: без очков, маски и фильтров.',
+ g_two:'✌️ Два пальца',g_thumb:'👍 Большой палец вверх',g_palm:'🖐 Открытая ладонь',g_ear:'👂 Ладонь у уха',
+ vfTake:'Сделать селфи',vfRetake:'Переснять',vfSend:'Отправить на проверку',vfPrivacy:'Селфи видит только команда Just One. После проверки оно удаляется.',
+ vfRejected:'Проверка не пройдена: по селфи не удалось подтвердить, что это ты. Попробуй ещё раз.',vfNeedPhoto:'Сначала сделай селфи',
+ report:'Пожаловаться',block:'Заблокировать',unblock:'Разблокировать',
+ blockAsk:'Заблокировать? Вы перестанете видеть планы и профили друг друга, а его сообщения скроются из общих чатов.',
+ blockedOk:'Заблокировано',unblockedOk:'Разблокировано',blockedList:'Заблокированные',
+ rpTitle:'Жалоба',rpWhy:'Что случилось?',rs_fake:'Фейковый профиль',rs_abuse:'Оскорбления или домогательства',rs_spam:'Спам или реклама',rs_danger:'Опасное поведение',rs_other:'Другое',
+ rpNote:'Подробнее',rpNotePh:'Необязательно, до 300 символов',rpSend:'Отправить жалобу',rpThanks:'Спасибо. Жалобу получит команда Just One.',rpPick:'Выбери причину',
+ rpPlan:'Пожаловаться на план',rpEvent:'Пожаловаться на событие',
+ banned:'Аккаунт заблокирован',bannedSub:'Команда Just One заблокировала аккаунт за нарушение правил. Если это ошибка, напиши нам.',
+ mtTitle:'Как прошла встреча?',mtOk:'Всё хорошо',mtNoshow:'Кто-то не пришёл',mtHint:'Ответ видит только команда Just One',
+ mtWho:'Кто не пришёл?',mtSend:'Отправить',mtThanks:'Спасибо за ответ',mtPickWho:'На кого пожаловаться?',mtNobody:'Отметь хотя бы одного человека',
+ admin:'Кабинет автора',adVerify:'Проверка',adReports:'Жалобы',adNoshow:'Не пришли',adApprove:'Подтвердить',adReject:'Отклонить',adNone:'Пусто',
+ adClose:'Закрыть жалобу',adClosed:'закрыта',adBan:'Заблокировать в приложении',adUnban:'Снять блокировку',adSelfie:'Селфи',adProfile:'Фото в анкете',
+ adGesture:'Жест',adFrom:'Кто',adOn:'На кого',adTimes:'раз',adBanned:'заблокирован',adLoading:'Загружаю…',adBanAsk:'Заблокировать этого человека во всём приложении?',
+ rk_profile:'Профиль',rk_plan:'План',rk_event:'Событие',rk_chat:'Чат',rk_meeting:'После встречи'},
+sr:{verifySub:'Napravi selfi sa gestom — to otvara „Događaje“, tuđe profile i daje plavu kvačicu.',verifyBtn:'Prođi proveru',
+ verifySent:'Selfi je poslat. Tim Just One će proveriti profil, obično u roku od jednog dana.',
+ vfTitle:'Provera selfijem',vfStep:'Napravi selfi i pokaži ovaj gest:',vfFace:'Lice mora dobro da se vidi: bez naočara, maske i filtera.',
+ g_two:'✌️ Dva prsta',g_thumb:'👍 Palac gore',g_palm:'🖐 Otvoren dlan',g_ear:'👂 Dlan kod uha',
+ vfTake:'Napravi selfi',vfRetake:'Ponovi',vfSend:'Pošalji na proveru',vfPrivacy:'Selfi vidi samo tim Just One. Posle provere se briše.',
+ vfRejected:'Provera nije prošla: selfi ne potvrđuje da si to ti. Pokušaj ponovo.',vfNeedPhoto:'Prvo napravi selfi',
+ report:'Prijavi',block:'Blokiraj',unblock:'Odblokiraj',
+ blockAsk:'Blokirati? Nećete više videti planove i profile jedno drugog, a njegove poruke nestaju iz zajedničkih četova.',
+ blockedOk:'Blokirano',unblockedOk:'Odblokirano',blockedList:'Blokirani',
+ rpTitle:'Prijava',rpWhy:'Šta se desilo?',rs_fake:'Lažni profil',rs_abuse:'Uvrede ili uznemiravanje',rs_spam:'Spam ili reklama',rs_danger:'Opasno ponašanje',rs_other:'Drugo',
+ rpNote:'Detalji',rpNotePh:'Nije obavezno, do 300 znakova',rpSend:'Pošalji prijavu',rpThanks:'Hvala. Prijavu će dobiti tim Just One.',rpPick:'Izaberi razlog',
+ rpPlan:'Prijavi plan',rpEvent:'Prijavi događaj',
+ banned:'Nalog je blokiran',bannedSub:'Tim Just One je blokirao nalog zbog kršenja pravila. Ako je greška, piši nam.',
+ mtTitle:'Kako je prošao susret?',mtOk:'Sve je u redu',mtNoshow:'Neko nije došao',mtHint:'Odgovor vidi samo tim Just One',
+ mtWho:'Ko nije došao?',mtSend:'Pošalji',mtThanks:'Hvala na odgovoru',mtPickWho:'Koga prijavljuješ?',mtNobody:'Označi bar jednu osobu',
+ admin:'Kabinet autora',adVerify:'Provera',adReports:'Prijave',adNoshow:'Nisu došli',adApprove:'Potvrdi',adReject:'Odbij',adNone:'Prazno',
+ adClose:'Zatvori prijavu',adClosed:'zatvorena',adBan:'Blokiraj u aplikaciji',adUnban:'Skini blokadu',adSelfie:'Selfi',adProfile:'Fotografija u profilu',
+ adGesture:'Gest',adFrom:'Ko',adOn:'Koga',adTimes:'puta',adBanned:'blokiran',adLoading:'Učitavam…',adBanAsk:'Blokirati ovu osobu u celoj aplikaciji?',
+ rk_profile:'Profil',rk_plan:'Plan',rk_event:'Događaj',rk_chat:'Čet',rk_meeting:'Posle susreta'},
+en:{verifySub:'Take a selfie with a gesture — it opens Events and other profiles and gives you a blue tick.',verifyBtn:'Get verified',
+ verifySent:'Selfie sent. The Just One team will check your profile, usually within a day.',
+ vfTitle:'Selfie check',vfStep:'Take a selfie showing this gesture:',vfFace:'Your face must be clearly visible: no glasses, mask or filters.',
+ g_two:'✌️ Two fingers',g_thumb:'👍 Thumbs up',g_palm:'🖐 Open palm',g_ear:'👂 Hand by your ear',
+ vfTake:'Take a selfie',vfRetake:'Retake',vfSend:'Send for checking',vfPrivacy:'Only the Just One team sees the selfie. It is deleted after the check.',
+ vfRejected:'Check failed: the selfie did not confirm it is you. Please try again.',vfNeedPhoto:'Take a selfie first',
+ report:'Report',block:'Block',unblock:'Unblock',
+ blockAsk:'Block? You will stop seeing each other’s plans and profiles, and their messages disappear from shared chats.',
+ blockedOk:'Blocked',unblockedOk:'Unblocked',blockedList:'Blocked',
+ rpTitle:'Report',rpWhy:'What happened?',rs_fake:'Fake profile',rs_abuse:'Insults or harassment',rs_spam:'Spam or advertising',rs_danger:'Dangerous behaviour',rs_other:'Other',
+ rpNote:'Details',rpNotePh:'Optional, up to 300 characters',rpSend:'Send report',rpThanks:'Thank you. The Just One team will get your report.',rpPick:'Pick a reason',
+ rpPlan:'Report this plan',rpEvent:'Report this event',
+ banned:'Account blocked',bannedSub:'The Just One team blocked this account for breaking the rules. If this is a mistake, contact us.',
+ mtTitle:'How did the meeting go?',mtOk:'All good',mtNoshow:'Someone didn’t come',mtHint:'Only the Just One team sees your answer',
+ mtWho:'Who didn’t come?',mtSend:'Send',mtThanks:'Thanks for your answer',mtPickWho:'Who are you reporting?',mtNobody:'Tick at least one person',
+ admin:'Author’s cabinet',adVerify:'Checks',adReports:'Reports',adNoshow:'No-shows',adApprove:'Approve',adReject:'Reject',adNone:'Empty',
+ adClose:'Close report',adClosed:'closed',adBan:'Block in the app',adUnban:'Lift the block',adSelfie:'Selfie',adProfile:'Profile photo',
+ adGesture:'Gesture',adFrom:'From',adOn:'About',adTimes:'times',adBanned:'blocked',adLoading:'Loading…',adBanAsk:'Block this person in the whole app?',
+ rk_profile:'Profile',rk_plan:'Plan',rk_event:'Event',rk_chat:'Chat',rk_meeting:'After a meeting'}
+};
+Object.keys(T8).forEach(function(l){for(var k in T8[l])T[l][k]=T8[l][k]});
+function t(k){var D=T[local.lang||'ru'];return D[k]!==undefined?D[k]:k}
 function L(o){return o[local.lang||'ru']}
 function txt(x){return x==null?'':typeof x==='string'?x:L(x)}
 // user content is shown in the author's language, not the interface language
@@ -689,7 +752,7 @@ function exTick(){
 /* ---------- plans ---------- */
 function membersOf(pid,status){return db.members.filter(function(m){return m.plan_id===pid&&m.status===status})}
 function myStatus(pid){for(var i=0;i<db.members.length;i++){var m=db.members[i];if(m.plan_id===pid&&m.user_id===uid)return m.status}return null}
-function seedPlans(){return SEED.map(function(p){
+function seedPlans(){return SEED.filter(function(p){return !blockedEx(p.by)}).map(function(p){
   var st=exStatus(p.id),al=p.langs[0];
   return {id:p.id,example:true,act:p.act,date:seedDate(p.d),time:p.time,district:p.district,by:p.by,need:p.need,langs:p.langs,
     with:p.with.concat(st==='accepted'?[uid||'me']:[]),note:AL(p.note,al),place:'',address:p.address||'',budget:AL(p.budget,al),eventId:null,status:st,
@@ -1089,7 +1152,7 @@ function chatList(){
 }
 function chatById(id){var a=chatList();for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null}
 function viewChats(){
-  var h='<div class="top"><h1>'+t('chats')+'</h1></div><div class="body">',list=chatList();
+  var h='<div class="top"><h1>'+t('chats')+'</h1></div><div class="body">'+meetingCards(),list=chatList();
   if(!list.length)h+='<div class="empty"><p class="muted">'+t('noChats')+'</p></div>';
   else h+='<span class="hint">'+t('swipeHint')+'</span>';
   list.forEach(function(c){
@@ -1113,7 +1176,8 @@ function viewProfile(){
      '<div class="chips"><button class="btn ghost sm" data-act="edit">'+t('edit')+'</button><button class="btn ghost sm" data-act="person" data-val="'+uid+'">'+t('seeAs')+'</button></div>'+
      '<button class="btn block" data-act="upgrade">★ '+(isPro()?t('proT')+' '+t('untilT')+esc(new Date(db.profile.pro_until).toLocaleDateString()):t('upgrade'))+'</button></div>';
   if(!isVerified())h+='<div class="box"><div class="row2"><h2>'+t('verifyTitle')+'</h2><span class="vbadge">✓</span></div><span class="small muted">'+t('verifySub')+'</span>'+
-     (p.verify_requested?'<div class="note">'+t('verifySent')+'</div>':'<button class="btn block" data-act="request-verify">'+t('verifyBtn')+'</button>')+'</div>';
+     verifyState()+'</div>';
+  if(db.admin)h+='<button class="btn ghost block" data-act="admin">🛡 '+t('admin')+'</button>';
   h+='<div class="sec"><h2>'+t('myPlans')+'</h2></div>'+
      '<div class="row"><button class="btn sm" data-act="create">+ '+t('newPlan')+'</button><button class="btn sm" data-act="new-party">+ '+t('newParty')+'</button></div>';
   if(!mine.length)h+='<div class="note">'+t('noMyPlans')+'</div>';
@@ -1135,6 +1199,7 @@ function viewProfile(){
     waiting.forEach(function(pl){h+=planRow(pl)});
     evWait.forEach(function(e){h+=eventRow(e,'✓ '+t('accepted')+' · '+dayLabel(e.date))});
   }
+  h+=blockedBox();
   h+='<div class="box"><span class="label">'+t('language')+'</span><div class="chips">'+Object.keys(LANGS).map(function(k){return '<button class="chip'+(local.lang===k?' on':'')+'" aria-pressed="'+(local.lang===k)+'" data-act="set-lang" data-val="'+k+'">'+LANGS[k]+'</button>'}).join('')+'</div>'+
      '<button class="btn danger sm" data-act="logout">'+t('logout')+'</button></div>';
   return h+'</div>';
@@ -1320,6 +1385,7 @@ function sheetDetails(id){
    '<div class="tags">'+(a.ints||[]).map(function(k){return '<span class="tag">'+esc(L(INTS[k]))+'</span>'}).join('')+'</div></div>'+
    '<div class="field"><span class="label">'+t('participants')+(inPlan(p)?' · '+ppl.length:'')+'</span>'+
    (inPlan(p)?faces(ppl,8)+'<button class="btn ghost sm" data-act="people-plan" data-val="'+p.id+'">'+t('allParticipants')+' · '+ppl.length+'</button>':'<div class="note">'+t('hiddenList')+'</div>')+'</div>'+
+   (p.status==='mine'?'':'<div>'+reportBtn(p.by,'plan',p.id,t('rpPlan'))+'</div>')+
    '</div>'+foot+'</div>';
 }
 // a person's profile as others see it: no information about where they go
@@ -1333,6 +1399,7 @@ function sheetPerson(id){
    ('' ?'<div class="field"><span class="label">'+t('aboutMe')+'</span><div>'+esc(txt(p.about))+'</div></div>':'')+
    ((p.likes||[]).length?'<div class="field"><span class="label">'+t('likes')+'</span><div class="tags">'+p.likes.map(function(k){return '<span class="tag">'+esc(L(ACTS[k]))+'</span>'}).join('')+'</div></div>':'')+
    ((p.ints||[]).length?'<div class="field"><span class="label">'+t('interests')+'</span><div class="tags">'+p.ints.map(function(k){return '<span class="tag">'+esc(L(INTS[k]))+'</span>'}).join('')+'</div></div>':'')+
+   (me||p===NOBODY?'':'<div class="chips">'+reportBtn(id,'profile','')+'<button type="button" class="btn ghost sm" data-act="block" data-val="'+esc(id)+'">⛔ '+t('block')+'</button></div>')+
    '</div></div>';
 }
 function sheetPeople(s){
@@ -1378,6 +1445,7 @@ function sheetEventPage(id){
        (e.status==='accepted'?'<button class="btn ghost sm" data-act="find-company" data-val="'+e.id+'">+ '+t('findCompany')+'</button>'
          :'<button class="btn ghost sm" disabled>+ '+t('findCompany')+'</button><span class="hint">'+t('findLocked')+'</span>')+'</div>';
   }
+  if(!e.mine)h+='<div>'+reportBtn(v.owner||'','event',e.id,t('rpEvent'))+'</div>';
   return h+'</div>'+foot+'</div>';
 }
 // tariffs: free / PRO for people, Start / Basic for businesses; no payments yet, PRO starts with a free month
@@ -1394,7 +1462,7 @@ function sheetUpgrade(){
     var pro=isPro(),used=db.profile&&db.profile.trial_used;
     h+=tariffBox(t('freeT'),'0 €',t('freeF'),!pro,'');
     var action=pro?'<div class="pill ok">★ '+t('proActive')+esc(new Date(db.profile.pro_until).toLocaleDateString())+'</div>'
-      :!(db.profile&&db.profile.verified)?'<div class="note">'+t('proNeedVerify')+'</div>'+(db.profile&&db.profile.verify_requested?'<div class="note">'+t('verifySent')+'</div>':'<button class="btn block" data-act="request-verify">'+t('verifyBtn')+'</button>')
+      :!(db.profile&&db.profile.verified)?'<div class="note">'+t('proNeedVerify')+'</div>'+verifyState()
       :used?'<div class="note">'+t('trialUsed')+'</div>'
       :'<button class="btn block" data-act="start-trial">'+t('tryPro')+'</button><span class="hint">'+t('payLater')+'</span>';
     h+=tariffBox(t('proT'),t('proPrice'),t('proF'),pro,action);
@@ -1406,7 +1474,7 @@ function msgTime(ts){var d=new Date(ts);return ('0'+d.getHours()).slice(-2)+':'+
 function sheetLocked(){
   var p=db.profile||{};
   return '<div class="sheet">'+sheetHead(t('verifyTitle'))+'<div class="content"><div class="box"><div class="row2"><h2>'+t('profilesLocked')+'</h2><span class="vbadge">✓</span></div>'+
-    '<span class="small muted">'+t('verifySub')+'</span>'+(p.verify_requested?'<div class="note">'+t('verifySent')+'</div>':'<button class="btn block" data-act="request-verify">'+t('verifyBtn')+'</button>')+'</div></div></div>';
+    '<span class="small muted">'+t('verifySub')+'</span>'+verifyState()+'</div></div></div>';
 }
 function sheetChat(id){
   var c=chatById(id);if(!c)return '';
@@ -1429,6 +1497,171 @@ function sheetChat(id){
   });
   return h+'</div><form class="send" id="send-form"><input class="input" id="f-msg" autocomplete="off" maxlength="300" aria-label="'+esc(t('msgPh'))+'" placeholder="'+esc(t('msgPh'))+'"><button class="btn" type="submit">'+t('send')+'</button></form></div>';
 }
+
+/* ---------- safety: selfie check, reports, blocking, after-meeting question, author's cabinet ---------- */
+var GESTURES=['two','thumb','palm','ear'];
+var REASONS=['fake','abuse','spam','danger','other'];
+function isExampleId(id){return !id||!!PEOPLE[id]}
+function blockedEx(id){return !!(local.blk&&local.blk[id])}
+// the verification box in the profile, the locked page and the PRO tariff all show the same state
+function verifyState(){
+  var p=db.profile||{},r=db.myVerify;
+  if(r&&r.status==='pending'||p.verify_requested)return '<div class="note">'+t('verifySent')+'</div>';
+  return (r&&r.status==='rejected'?'<div class="note">'+t('vfRejected')+'</div>':'')+'<button class="btn block" data-act="request-verify">'+t('verifyBtn')+'</button>';
+}
+function sheetVerify(){
+  var v=ui.vf||{};
+  return '<div class="sheet">'+sheetHead(t('vfTitle'))+'<div class="content">'+
+   '<div class="box"><span class="small muted">'+t('vfStep')+'</span><h1 style="margin:0">'+esc(t('g_'+v.gesture))+'</h1><span class="small muted">'+t('vfFace')+'</span></div>'+
+   (v.photo?'<img alt="" src="'+safeImg(v.photo)+'" style="width:100%;max-width:320px;align-self:center;border-radius:18px">':'')+
+   // capture="user" opens the front camera on phones instead of the gallery
+   '<label class="btn ghost block" style="cursor:pointer;display:flex;align-items:center;justify-content:center">'+(v.photo?t('vfRetake'):'📷 '+t('vfTake'))+'<input type="file" id="vf-file" accept="image/*" capture="user" hidden></label>'+
+   '<div class="note">🔒 '+t('vfPrivacy')+'</div></div>'+
+   '<div class="foot"><button class="btn" data-act="verify-send"'+(v.photo?'':' disabled')+'>'+t('vfSend')+'</button></div></div>';
+}
+function sendVerify(){
+  var v=ui.vf;if(!v||!v.photo){toast(t('vfNeedPhoto'));return}
+  run(function(){
+    return sb.from('verify_requests').upsert({user_id:uid,selfie:v.photo,gesture:v.gesture,status:'pending'}).then(check)
+      .then(function(){return sb.rpc('request_verification').then(check)})
+      .then(loadAll).then(function(){ui.vf=null;closeSheet();render();toast(t('verifySent'))});
+  });
+}
+function reportBtn(target,kind,ref,label){
+  return '<button type="button" class="btn ghost sm" data-act="report" data-val="'+esc(target||'')+'" data-kind="'+kind+'" data-ref="'+esc(ref||'')+'">⚑ '+(label||t('report'))+'</button>';
+}
+function sheetReport(s){
+  return '<div class="sheet">'+sheetHead(t('rpTitle'),esc(t('rk_'+s.kind)))+'<div class="content"><form id="report-form" class="col" style="display:flex;flex-direction:column;gap:14px">'+
+   '<div class="field"><span class="label">'+t('rpWhy')+'</span>'+REASONS.map(function(r){
+     return '<label class="chk"><input type="radio" name="rs" value="'+r+'"> '+t('rs_'+r)+'</label>'}).join('')+'</div>'+
+   '<div class="field"><label for="r-note">'+t('rpNote')+'</label><textarea class="input" id="r-note" maxlength="300" rows="3" placeholder="'+esc(t('rpNotePh'))+'"></textarea></div>'+
+   '<button class="btn block" type="submit">'+t('rpSend')+'</button></form></div></div>';
+}
+function submitReport(){
+  var s=ui.sheet,pick=document.querySelector('input[name=rs]:checked');
+  if(!s||s.type!=='report')return;
+  if(!pick){toast(t('rpPick'));return}
+  // examples are not real people: thank and close
+  if(isExampleId(s.id)){closeSheet();render();toast(t('rpThanks'));return}
+  run(function(){
+    return sb.from('reports').insert({target:s.id,kind:s.kind,ref:s.ref||'',reason:pick.value,note:val('r-note')}).then(check)
+      .then(function(){closeSheet();render();toast(t('rpThanks'))});
+  });
+}
+function blockPerson(id){
+  if(!window.confirm(t('blockAsk')))return;
+  if(isExampleId(id)){local.blk=local.blk||{};local.blk[id]=true;saveLocal();clearSheets();render();toast(t('blockedOk'));return}
+  run(function(){return sb.from('blocks').insert({blocker:uid,blocked:id}).then(check).then(loadAll).then(function(){clearSheets();render();toast(t('blockedOk'))})});
+}
+function unblockPerson(id){
+  if(isExampleId(id)){delete local.blk[id];saveLocal();render();toast(t('unblockedOk'));return}
+  run(function(){return sb.from('blocks').delete().eq('blocker',uid).eq('blocked',id).then(check).then(loadAll).then(function(){render();toast(t('unblockedOk'))})});
+}
+function blockedBox(){
+  var list=(db.blocks||[]).map(function(b){return {id:b.id,name:b.name,photo:b.photo}});
+  Object.keys(local.blk||{}).forEach(function(k){if(PEOPLE[k])list.push({id:k,name:PEOPLE[k].name,photo:PEOPLE[k].photo,c:PEOPLE[k].c})});
+  if(!list.length)return '';
+  return '<div class="box"><span class="label">'+t('blockedList')+'</span>'+list.map(function(b){
+    return '<div class="row2"><span style="display:flex;align-items:center;gap:10px;min-width:0">'+ava(b,36)+'<b>'+esc(b.name||'?')+'</b></span>'+
+      '<button class="btn ghost sm" data-act="unblock" data-val="'+esc(b.id)+'">'+t('unblock')+'</button></div>'}).join('')+'</div>';
+}
+function viewBanned(){
+  return '<div class="empty"><div class="brand">Just <span>One</span></div><h2>'+t('banned')+'</h2><p class="muted">'+t('bannedSub')+'</p>'+
+    '<button class="btn danger sm" data-act="logout">'+t('logout')+'</button></div>';
+}
+/* after the meeting: a question in Chats for plans of the last 3 days that I was part of */
+function pastPeople(p){
+  return [p.host].concat(db.members.filter(function(m){return m.plan_id===p.id&&m.status==='accepted'}).map(function(m){return m.user_id}));
+}
+function meetingsToRate(){
+  return (db.past||[]).filter(function(p){
+    if((db.feedback||{})[p.id]||(local.mtDone||{})[p.id])return false;
+    var ppl=pastPeople(p);
+    return ppl.indexOf(uid)>=0&&ppl.length>1;
+  });
+}
+function pastTitle(p){return (p.act==='party'?(p.title||t('partyLabel')):(p.title||L(ACTS[p.act]||ACTS.other)))+' · '+(p.date===iso(plusDays(-1))?t('yesterday'):dayLabel(p.date))}
+function meetingCards(){
+  return meetingsToRate().map(function(p){
+    return '<div class="box"><div><b>'+t('mtTitle')+'</b><br><span class="small muted">'+esc(pastTitle(p))+'</span></div>'+
+      '<div class="chips"><button class="btn sm" data-act="mt-ok" data-val="'+p.id+'">👍 '+t('mtOk')+'</button>'+
+      '<button class="btn ghost sm" data-act="mt-noshow" data-val="'+p.id+'">'+t('mtNoshow')+'</button>'+
+      '<button class="btn ghost sm" data-act="mt-report" data-val="'+p.id+'">⚑ '+t('report')+'</button></div>'+
+      '<span class="hint">'+t('mtHint')+'</span></div>';
+  }).join('');
+}
+function pastPlan(id){return (db.past||[]).filter(function(p){return p.id===id})[0]}
+function sheetMeeting(s){
+  var p=pastPlan(s.id);if(!p)return '';
+  var others=pastPeople(p).filter(function(x){return x!==uid});
+  if(s.mode==='report')return '<div class="sheet">'+sheetHead(t('mtPickWho'),esc(pastTitle(p)))+'<div class="content">'+
+    others.map(function(id){var q=person(id);
+      return '<button type="button" class="prow" data-act="report" data-val="'+esc(id)+'" data-kind="meeting" data-ref="'+p.id+'">'+ava(q,46)+'<span class="mid"><b>'+nameAge(q)+'</b></span></button>'}).join('')+'</div></div>';
+  return '<div class="sheet">'+sheetHead(t('mtWho'),esc(pastTitle(p)))+'<div class="content">'+
+    others.map(function(id){var q=person(id);
+      return '<label class="chk" style="display:flex;align-items:center;gap:10px"><input type="checkbox" class="mt-who" value="'+esc(id)+'">'+ava(q,36)+'<b>'+nameAge(q)+'</b></label>'}).join('')+
+    '<span class="hint">'+t('mtHint')+'</span></div>'+
+    '<div class="foot"><button class="btn" data-act="mt-send" data-val="'+p.id+'">'+t('mtSend')+'</button></div></div>';
+}
+function sendMeeting(id,answer,who){
+  run(function(){
+    return sb.from('meeting_feedback').insert({plan_id:id,user_id:uid,answer:answer,noshow:who||[]}).then(check)
+      .then(function(){db.feedback=db.feedback||{};db.feedback[id]=true;if(ui.sheet&&ui.sheet.type==='meeting')closeSheet();render();toast(t('mtThanks'))});
+  });
+}
+/* the author's cabinet: selfie checks, reports, no-shows */
+function loadAdmin(){
+  return Promise.all([
+    sb.from('verify_requests').select('*').eq('status','pending').order('created_at'),
+    sb.from('reports').select('*').order('created_at',{ascending:false}).limit(200),
+    sb.rpc('admin_noshows'),
+    sb.from('profiles').select('id').eq('banned',true)
+  ]).then(function(r){
+    r.forEach(check);
+    var banned={};(r[3].data||[]).forEach(function(x){banned[x.id]=true});
+    ui.adm={vr:r[0].data||[],rp:r[1].data||[],ns:r[2].data||[],banned:banned};
+  });
+}
+function whoLine(id){
+  if(db.profiles[id]||id===uid)return personRow(id);
+  var v=db.venues.filter(function(x){return x.owner===id})[0];
+  return '<div class="small"><b>'+esc(v?v.name:'?')+'</b> <span class="muted">'+esc(String(id).slice(0,8))+'</span></div>';
+}
+function sheetAdmin(s){
+  var tab=s.tab||'verify',a=ui.adm,h='<div class="sheet">'+sheetHead(t('admin'))+'<div class="content">'+
+    '<div class="chips">'+[['verify','adVerify'],['reports','adReports'],['noshow','adNoshow']].map(function(x){
+      var n=a?(x[0]==='verify'?a.vr.length:x[0]==='reports'?a.rp.filter(function(r){return r.status==='open'}).length:a.ns.length):0;
+      return '<button class="chip'+(tab===x[0]?' on':'')+'" data-act="admin-tab" data-val="'+x[0]+'">'+t(x[1])+(n?' · '+n:'')+'</button>'}).join('')+'</div>';
+  if(!a)return h+'<p class="muted">'+t('adLoading')+'</p></div></div>';
+  if(tab==='verify'){
+    if(!a.vr.length)h+='<div class="note">'+t('adNone')+'</div>';
+    a.vr.forEach(function(r){
+      var p=person(r.user_id);
+      h+='<div class="box">'+personRow(r.user_id)+'<span class="small">'+t('adGesture')+': <b>'+esc(t('g_'+r.gesture))+'</b></span>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+        '<div><span class="label">'+t('adSelfie')+'</span><img alt="" src="'+safeImg(r.selfie)+'" style="width:100%;border-radius:12px"></div>'+
+        '<div><span class="label">'+t('adProfile')+'</span>'+(safeImg(p.photo)?'<img alt="" src="'+safeImg(p.photo)+'" style="width:100%;border-radius:12px">':ava(p,120))+'</div></div>'+
+        '<div class="row"><button class="btn sm" data-act="adm-ok" data-val="'+r.user_id+'">✓ '+t('adApprove')+'</button>'+
+        '<button class="btn danger sm" data-act="adm-no" data-val="'+r.user_id+'">'+t('adReject')+'</button></div></div>';
+    });
+  }else if(tab==='reports'){
+    if(!a.rp.length)h+='<div class="note">'+t('adNone')+'</div>';
+    a.rp.forEach(function(r){
+      var open=r.status==='open',ban=a.banned[r.target],canBan=!!db.profiles[r.target];
+      h+='<div class="box"'+(open?'':' style="opacity:.55"')+'><div class="row2"><b>'+esc(t('rs_'+r.reason))+'</b><span class="small muted">'+esc(t('rk_'+r.kind))+' · '+esc(new Date(r.created_at).toLocaleDateString())+(open?'':' · '+t('adClosed'))+'</span></div>'+
+        (r.note?'<div>«'+esc(r.note)+'»</div>':'')+
+        '<span class="label">'+t('adOn')+(ban?' · '+t('adBanned'):'')+'</span>'+whoLine(r.target)+
+        '<span class="label">'+t('adFrom')+'</span>'+whoLine(r.reporter)+
+        '<div class="chips">'+(open?'<button class="btn ghost sm" data-act="adm-close" data-val="'+r.id+'">'+t('adClose')+'</button>':'')+
+        (canBan?'<button class="btn '+(ban?'ghost':'danger')+' sm" data-act="adm-ban" data-val="'+r.target+'" data-on="'+(ban?'0':'1')+'">'+(ban?t('adUnban'):t('adBan'))+'</button>':'')+'</div></div>';
+    });
+  }else{
+    if(!a.ns.length)h+='<div class="note">'+t('adNone')+'</div>';
+    a.ns.forEach(function(n){h+='<div class="row2">'+whoLine(n.user_id)+'<b style="flex-shrink:0">'+n.times+' '+t('adTimes')+'</b></div>'});
+  }
+  return h+'</div></div>';
+}
+function adminDo(q){run(function(){return q.then(check).then(loadAdmin).then(loadAll).then(render)})}
 function viewMatch(){
   return '<div class="match" role="dialog" aria-modal="true"><h1>'+t('matchTitle')+'</h1><p style="margin:0">'+(ui.match.ev?t('matchTextEv'):t('matchText'))+'</p>'+
    '<button class="btn block" data-act="open-chat" data-val="'+esc(ui.match.chat)+'">'+t('openChat')+'</button><button class="btn ghost block" data-act="close-match">'+t('keep')+'</button></div>';
@@ -1485,6 +1718,24 @@ function loadAll(){
       local.seenEv[g.event_id]=g.status;
     });
     saveLocal();
+    return loadSafety();
+  });
+}
+// safety data; each part is optional so the app still works if one of them fails
+function loadSafety(){
+  function soft(q){return q.then(function(r){return r&&!r.error?r.data:null},function(){return null})}
+  var today=iso(plusDays(0));
+  return Promise.all([
+    soft(sb.from('verify_requests').select('status,gesture').eq('user_id',uid).maybeSingle()),
+    soft(sb.rpc('am_admin')),
+    soft(sb.rpc('my_blocks')),
+    soft(sb.from('plans').select('id,title,act,date,time,host,district').lt('date',today).gte('date',iso(plusDays(-3)))),
+    soft(sb.from('meeting_feedback').select('plan_id').eq('user_id',uid)),
+    soft(sb.from('profiles').select('banned').eq('id',uid).maybeSingle())
+  ]).then(function(r){
+    db.myVerify=r[0];db.admin=r[1]===true;db.blocks=r[2]||[];db.past=r[3]||[];
+    db.feedback={};(r[4]||[]).forEach(function(x){db.feedback[x.plan_id]=true});
+    db.banned=!!(r[5]&&r[5].banned);
   });
 }
 function ensureGallery(id){
@@ -1507,7 +1758,7 @@ function queueReload(){
   clearTimeout(reloadT);
   reloadT=setTimeout(function(){loadAll().then(softRender).catch(function(e){console.error(e)})},250);
 }
-var FORM_SHEETS=/^(create|venue|event|apply)$/;
+var FORM_SHEETS=/^(create|venue|event|apply|verify|report|meeting)$/;
 function softRender(){
   if(dragging||ui.editing||!mode()||mode()==='onboard'||mode()==='vsetup'||(ui.sheet&&FORM_SHEETS.test(ui.sheet.type)))return;
   var f=document.getElementById('f-msg'),keep=f?f.value:null,foc=f&&document.activeElement===f;
@@ -1716,8 +1967,26 @@ function act(name,el){
     openSheet({type:'create'});break;
   case 'upgrade':openSheet({type:'upgrade'});break;
   case 'request-verify':
-    run(function(){return sb.rpc('request_verification').then(check).then(loadAll).then(function(){render();toast(t('verifySent'))})});
-    return;
+    ui.vf={gesture:GESTURES[Math.floor(Math.random()*GESTURES.length)],photo:''};openSheet({type:'verify'});break;
+  case 'verify-send':sendVerify();return;
+  case 'report':openSheet({type:'report',id:v,kind:el.dataset.kind||'profile',ref:el.dataset.ref||''});break;
+  case 'block':blockPerson(v);return;
+  case 'unblock':unblockPerson(v);return;
+  case 'mt-ok':sendMeeting(v,'ok',[]);return;
+  case 'mt-noshow':openSheet({type:'meeting',id:v,mode:'noshow'});break;
+  case 'mt-report':openSheet({type:'meeting',id:v,mode:'report'});break;
+  case 'mt-send':
+    var who=[].map.call(document.querySelectorAll('.mt-who:checked'),function(x){return x.value});
+    if(!who.length){toast(t('mtNobody'));return}
+    sendMeeting(v,'noshow',who);return;
+  case 'admin':ui.adm=null;openSheet({type:'admin',tab:'verify'});render();loadAdmin().then(render).catch(function(e){console.error(e);toast(t('netErr'))});return;
+  case 'admin-tab':if(ui.sheet)ui.sheet.tab=v;break;
+  case 'adm-ok':adminDo(sb.rpc('admin_verify',{u:v,ok:true}));return;
+  case 'adm-no':adminDo(sb.rpc('admin_verify',{u:v,ok:false}));return;
+  case 'adm-close':adminDo(sb.from('reports').update({status:'closed'}).eq('id',+v));return;
+  case 'adm-ban':
+    if(el.dataset.on==='1'&&!window.confirm(t('adBanAsk')))return;
+    adminDo(sb.rpc('admin_ban',{u:v,on_:el.dataset.on==='1'}));return;
   case 'people-plan':
     p=findPlan(v);if(!p||!inPlan(p))break;
     openSheet({type:'people',title:p.act==='party'?partyTitle(p):planTitle(p),ids:planPeople(p),more:0});break;
@@ -1921,6 +2190,8 @@ function render(){
   }else if(m==='vsetup'){
     if(!ui.draft||!ui.draft.gal)ui.draft={photo:'',photos:[],gal:[720,450]};
     h=venueForm(true);
+  }else if(m==='person'&&db.banned){
+    h=viewBanned();
   }else{
     if(m==='venue'&&!/^(vEvents|chats|vProfile)$/.test(ui.tab))ui.tab='vEvents';
     if(m==='person'&&(!/^(plans|afisha|chats|profile)$/.test(ui.tab)||(ui.tab==='afisha'&&!isVerified())))ui.tab='plans';
@@ -1940,6 +2211,10 @@ function render(){
       else if(s.type==='upgrade')h+=sheetUpgrade();
       else if(s.type==='locked')h+=sheetLocked();
       else if(s.type==='apply')h+=sheetApply(s.id);
+      else if(s.type==='verify')h+=sheetVerify();
+      else if(s.type==='report')h+=sheetReport(s);
+      else if(s.type==='meeting')h+=sheetMeeting(s);
+      else if(s.type==='admin')h+=sheetAdmin(s);
       else h+=sheetChat(s.id);
     }
     if(ui.match)h+=viewMatch();
@@ -1984,6 +2259,7 @@ document.addEventListener('change',function(e){
   else if(id==='f-photo'){readPhoto(e.target.files[0])}
   else if(id==='f-gallery'){keepStep1();readGallery(e.target.files[0])}
   else if(id==='f-cover'){readCover(e.target.files[0])}
+  else if(id==='vf-file'){readImage(e.target.files[0],480,640,function(s){if(ui.vf){ui.vf.photo=s;render()}})}
   else if(id==='f-langs'||id==='c-langs'){
     var picked=readLangs(id),box=document.getElementById(id+'-tags');
     if(ui.draft)ui.draft.langs=picked;
@@ -1999,6 +2275,7 @@ document.addEventListener('submit',function(e){
   else if(id==='event-form')submitEvent();
   else if(id==='auth-form')submitAuth();
   else if(id==='apply-form')sendRequest(e.target.dataset.id,val('a-note'));
+  else if(id==='report-form')submitReport();
 });
 // phones drop the live connection while asleep: refresh when the app comes back
 document.addEventListener('visibilitychange',function(){if(!document.hidden)queueReload()});
